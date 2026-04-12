@@ -1,37 +1,31 @@
 import { useState } from "react";
 import { Search, Filter, MoreHorizontal, UserPlus, Download } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { useT, useI18n } from "@/i18n/i18n.context";
 
 const mockUsers = [
-  { id: 1, name: "Sara Ahmed", email: "sara@example.com", role: "User", status: "active", joined: "2024-12-01", lastActive: "2 hrs ago" },
-  { id: 2, name: "Dr. Khalid Mansour", email: "khalid@example.com", role: "Doctor", status: "active", joined: "2024-11-15", lastActive: "5 min ago" },
-  { id: 3, name: "Fatima Al-Hassan", email: "fatima@example.com", role: "User", status: "suspended", joined: "2024-10-20", lastActive: "3 days ago" },
-  { id: 4, name: "Omar bin Said", email: "omar@example.com", role: "User", status: "active", joined: "2024-09-10", lastActive: "1 hr ago" },
-  { id: 5, name: "Layla Khoury", email: "layla@example.com", role: "User", status: "active", joined: "2025-01-05", lastActive: "30 min ago" },
-  { id: 6, name: "Ahmad Nasser", email: "ahmad@example.com", role: "User", status: "active", joined: "2025-01-12", lastActive: "Just now" },
-  { id: 7, name: "Nour Abdallah", email: "nour@example.com", role: "User", status: "suspended", joined: "2024-08-22", lastActive: "1 week ago" },
-  { id: 8, name: "Dr. Hana Saleh", email: "hana@example.com", role: "Doctor", status: "active", joined: "2024-07-30", lastActive: "10 min ago" },
+  { id: 1, name: "Sara Ahmed",        email: "sara@example.com",    role: "User",   status: "active",    joined: "2024-12-01", lastActive: "2 hrs ago"  },
+  { id: 2, name: "Dr. Khalid Mansour",email: "khalid@example.com",  role: "Doctor", status: "active",    joined: "2024-11-15", lastActive: "5 min ago"  },
+  { id: 3, name: "Fatima Al-Hassan",  email: "fatima@example.com",  role: "User",   status: "suspended", joined: "2024-10-20", lastActive: "3 days ago" },
+  { id: 4, name: "Omar bin Said",     email: "omar@example.com",    role: "User",   status: "active",    joined: "2024-09-10", lastActive: "1 hr ago"   },
+  { id: 5, name: "Layla Khoury",      email: "layla@example.com",   role: "User",   status: "active",    joined: "2025-01-05", lastActive: "30 min ago" },
+  { id: 6, name: "Ahmad Nasser",      email: "ahmad@example.com",   role: "User",   status: "active",    joined: "2025-01-12", lastActive: "Just now"   },
+  { id: 7, name: "Nour Abdallah",     email: "nour@example.com",    role: "User",   status: "suspended", joined: "2024-08-22", lastActive: "1 week ago" },
+  { id: 8, name: "Dr. Hana Saleh",   email: "hana@example.com",    role: "Doctor", status: "active",    joined: "2024-07-30", lastActive: "10 min ago" },
 ];
 
 const UserManagement = () => {
+  const t = useT();
+  const { isRTL } = useI18n();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -45,15 +39,17 @@ const UserManagement = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">User Management</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage app users and their account statuses.</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("users_title")}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t("users_subtitle")}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-1.5" /> Export
+            <Download className={`h-4 w-4 ${isRTL ? "ml-1.5" : "mr-1.5"}`} />
+            {t("export")}
           </Button>
           <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <UserPlus className="h-4 w-4 mr-1.5" /> Add User
+            <UserPlus className={`h-4 w-4 ${isRTL ? "ml-1.5" : "mr-1.5"}`} />
+            {t("users_addUser")}
           </Button>
         </div>
       </div>
@@ -62,23 +58,24 @@ const UserManagement = () => {
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className={`absolute ${isRTL ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground`} />
               <Input
-                placeholder="Search by name or email..."
-                className="pl-9 h-9"
+                placeholder={t("users_searchPlaceholder")}
+                className={`${isRTL ? "pr-9" : "pl-9"} h-9`}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                dir={isRTL ? "rtl" : "ltr"}
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[140px] h-9">
-                <Filter className="h-3.5 w-3.5 mr-1.5" />
+              <SelectTrigger className="w-[160px] h-9">
+                <Filter className={`h-3.5 w-3.5 ${isRTL ? "ml-1.5" : "mr-1.5"}`} />
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="suspended">Suspended</SelectItem>
+                <SelectItem value="all">{t("users_allStatuses")}</SelectItem>
+                <SelectItem value="active">{t("users_active")}</SelectItem>
+                <SelectItem value="suspended">{t("users_suspended")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -87,13 +84,13 @@ const UserManagement = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="pl-6">Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead>Last Active</TableHead>
-                <TableHead className="w-10"></TableHead>
+                <TableHead className="pl-6">{t("name")}</TableHead>
+                <TableHead>{t("email")}</TableHead>
+                <TableHead>{t("role")}</TableHead>
+                <TableHead>{t("status")}</TableHead>
+                <TableHead>{t("users_joinDate")}</TableHead>
+                <TableHead>{t("users_lastActive")}</TableHead>
+                <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -115,7 +112,7 @@ const UserManagement = () => {
                           : "border-destructive/30 text-destructive bg-destructive/5"
                       }`}
                     >
-                      {user.status}
+                      {user.status === "active" ? t("users_active") : t("users_suspended")}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{user.joined}</TableCell>

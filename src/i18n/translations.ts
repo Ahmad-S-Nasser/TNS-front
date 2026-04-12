@@ -1,6 +1,5 @@
 // ─── Translation Dictionary ────────────────────────────────────────────────────
 // Tips & Steps Admin Panel — Arabic / English
-// All UI strings are here. Components import `useT()` and look up a key.
 
 export type Lang = "en" | "ar";
 
@@ -34,6 +33,9 @@ export const translations = {
   updated: { en: "Updated", ar: "تم التحديث" },
   created: { en: "Created", ar: "تم الإنشاء" },
   deleted: { en: "Deleted", ar: "تم الحذف" },
+  previous: { en: "Previous", ar: "السابق" },
+  nextPage: { en: "Next", ar: "التالي" },
+  exportReport: { en: "Export Report", ar: "تصدير التقرير" },
 
   // ─── Navigation ─────────────────────────────────────────────────────────────
   nav_dashboard: { en: "Dashboard", ar: "لوحة التحكم" },
@@ -60,7 +62,7 @@ export const translations = {
 
   // ─── Dashboard ──────────────────────────────────────────────────────────────
   dashboard_title: { en: "Dashboard", ar: "لوحة التحكم" },
-  dashboard_welcome: { en: "Welcome back! Here's what's happening with Tips & Steps.", ar: "مرحباً بعودتك! إليك آخر مستجدات Tips & Steps." },
+  dashboard_welcome: { en: "Welcome back! Here's what's happening with Tips & Steps.", ar: "مرحبا بعودتك! إليك آخر مستجدات Tips & Steps." },
   dashboard_totalUsers: { en: "Total Users", ar: "إجمالي المستخدمين" },
   dashboard_activeToday: { en: "Active Today", ar: "نشطون اليوم" },
   dashboard_publishedContent: { en: "Published Content", ar: "المحتوى المنشور" },
@@ -74,21 +76,16 @@ export const translations = {
   users_title: { en: "User Management", ar: "إدارة المستخدمين" },
   users_subtitle: { en: "Manage all registered app users.", ar: "إدارة جميع مستخدمي التطبيق المسجلين." },
   users_addUser: { en: "Add User", ar: "إضافة مستخدم" },
-  users_totalUsers: { en: "Total Users", ar: "إجمالي المستخدمين" },
-  users_activeUsers: { en: "Active Users", ar: "المستخدمون النشطون" },
-  users_suspended: { en: "Suspended", ar: "موقوفون" },
-  users_newThisMonth: { en: "New This Month", ar: "الجدد هذا الشهر" },
-  users_searchPlaceholder: { en: "Search users...", ar: "البحث عن مستخدم..." },
-  users_allRoles: { en: "All Roles", ar: "جميع الأدوار" },
-  users_allStatuses: { en: "All Statuses", ar: "جميع الحالات" },
+  users_searchPlaceholder: { en: "Search by name or email...", ar: "البحث بالاسم أو البريد الإلكتروني..." },
+  users_allStatuses: { en: "All Status", ar: "جميع الحالات" },
   users_active: { en: "Active", ar: "نشط" },
-  users_inactive: { en: "Inactive", ar: "غير نشط" },
-  users_joinDate: { en: "Join Date", ar: "تاريخ الانضمام" },
+  users_suspended: { en: "Suspended", ar: "موقوف" },
+  users_joinDate: { en: "Joined", ar: "تاريخ الانضمام" },
   users_lastActive: { en: "Last Active", ar: "آخر نشاط" },
 
   // ─── Content Management ──────────────────────────────────────────────────────
   cms_title: { en: "Content Management", ar: "إدارة المحتوى" },
-  cms_subtitle: { en: "8 sections powering the mobile app", ar: "٨ أقسام تغذي التطبيق المحمول" },
+  cms_subtitle: { en: "8 sections powering the mobile app", ar: "8 أقسام تغذي التطبيق المحمول" },
   cms_totalContent: { en: "Total Content", ar: "إجمالي المحتوى" },
   cms_published: { en: "Published", ar: "منشور" },
   cms_inReview: { en: "In Review", ar: "قيد المراجعة" },
@@ -100,13 +97,17 @@ export const translations = {
   cms_searchPlaceholder: { en: "Search in Arabic or English...", ar: "ابحث بالعربية أو الإنجليزية..." },
   cms_manageSection: { en: "Manage Section", ar: "إدارة القسم" },
   cms_noContent: { en: "No content found", ar: "لا يوجد محتوى" },
-  cms_noContentHint: { en: "Try adjusting filters or add new content", ar: "جرب تغيير التصفية أو أضف محتوى جديداً" },
+  cms_noContentHint: { en: "Try adjusting filters or add new content", ar: "جرب تغيير التصفية أو أضف محتوى جديدا" },
   cms_requiresApproval: { en: "Approval Required", ar: "يلزم الموافقة" },
   cms_doctorApproval: { en: "Doctor must approve before publishing", ar: "يجب أن يوافق الطبيب قبل النشر" },
   cms_adminApproval: { en: "Admin must approve before publishing", ar: "يجب أن يوافق المدير قبل النشر" },
-  cms_moveToReview: { en: "Move to Review", ar: "إرسال للمراجعة" },
-  cms_moveToApproved: { en: "Approve", ar: "اعتماد" },
-  cms_moveToPublished: { en: "Publish", ar: "نشر" },
+  cms_statusAll: { en: "All", ar: "الكل" },
+  cms_statusDraft: { en: "Draft", ar: "مسودة" },
+  cms_statusReview: { en: "Review", ar: "مراجعة" },
+  cms_statusApproved: { en: "Approved", ar: "معتمد" },
+  cms_statusPublished: { en: "Published", ar: "منشور" },
+  cms_statusArchived: { en: "Archived", ar: "مؤرشف" },
+  cms_by: { en: "By", ar: "بواسطة" },
 
   // ─── Growth Matrix ────────────────────────────────────────────────────────────
   matrix_title: { en: "Growth Matrix", ar: "مصفوفة النمو" },
@@ -120,17 +121,35 @@ export const translations = {
   matrix_addSkill: { en: "Add Skill", ar: "إضافة مهارة" },
   matrix_addAgeGroup: { en: "Add Age Group", ar: "إضافة فئة عمرية" },
   matrix_addCategory: { en: "Add Category", ar: "إضافة فئة" },
+  matrix_kpi_ageGroups: { en: "Age Groups", ar: "فئات عمرية" },
+  matrix_kpi_totalSkills: { en: "Total Skills", ar: "إجمالي المهارات" },
+  matrix_kpi_categories: { en: "Categories", ar: "الفئات" },
+  matrix_kpi_ruleCoverage: { en: "Rule Coverage", ar: "تغطية القواعد" },
+  matrix_chart_skillsPerCat: { en: "Skills per Category", ar: "المهارات حسب الفئة" },
+  matrix_chart_ruleCoverage: { en: "Rule Coverage by Age Group", ar: "تغطية القواعد حسب الفئة العمرية" },
+  matrix_search: { en: "Search skills...", ar: "ابحث عن مهارة..." },
+  matrix_noSkills: { en: "No skills found", ar: "لا توجد مهارات" },
+  matrix_saveSkill: { en: "Save Skill", ar: "حفظ المهارة" },
+  matrix_linkAge: { en: "Link to Age Group", ar: "ربط بفئة عمرية" },
 
   // ─── Analytics ────────────────────────────────────────────────────────────────
-  analytics_title: { en: "Analytics", ar: "التحليلات" },
-  analytics_subtitle: { en: "Monitor app performance and user engagement.", ar: "راقب أداء التطبيق وتفاعل المستخدمين." },
+  analytics_title: { en: "Analytics & Reports", ar: "التحليلات والتقارير" },
+  analytics_subtitle: { en: "Track growth, engagement, and content performance.", ar: "تتبع النمو والتفاعل وأداء المحتوى." },
+  analytics_totalUsers: { en: "Total Users", ar: "إجمالي المستخدمين" },
+  analytics_totalContent: { en: "Total Content", ar: "إجمالي المحتوى" },
+  analytics_engagementRate: { en: "Engagement Rate", ar: "معدل التفاعل" },
+  analytics_userGrowthTrend: { en: "User Growth Trend", ar: "اتجاه نمو المستخدمين" },
+  analytics_contentEngagement: { en: "Content Engagement Breakdown", ar: "تحليل تفاعل المحتوى" },
 
   // ─── Audit Logs ───────────────────────────────────────────────────────────────
   auditLogs_title: { en: "Audit Logs", ar: "سجلات المراجعة" },
-  auditLogs_subtitle: { en: "Complete record of all admin actions.", ar: "سجل كامل لجميع إجراءات المدير." },
-  auditLogs_searchPlaceholder: { en: "Search logs...", ar: "البحث في السجلات..." },
-  auditLogs_allModules: { en: "All Modules", ar: "جميع الوحدات" },
-  auditLogs_allActions: { en: "All Actions", ar: "جميع الإجراءات" },
+  auditLogs_subtitle: { en: "Real-time record of all administrative activities.", ar: "سجل فوري لجميع الأنشطة الإدارية." },
+  auditLogs_searchPlaceholder: { en: "Search by action, actor, or target...", ar: "ابحث في الإجراء، المنفذ، أو الهدف..." },
+  auditLogs_noLogs: { en: "No logs found", ar: "لا توجد سجلات" },
+  auditLogs_noLogsHint: { en: "No logs match your search criteria.", ar: "لا توجد سجلات تطابق بحثك." },
+  auditLogs_showing: { en: "Showing", ar: "عرض" },
+  auditLogs_of: { en: "of", ar: "من" },
+  auditLogs_activities: { en: "activities", ar: "نشاط" },
 
   // ─── Settings ─────────────────────────────────────────────────────────────────
   settings_title: { en: "Settings", ar: "الإعدادات" },
@@ -141,13 +160,24 @@ export const translations = {
   settings_english: { en: "English", ar: "الإنجليزية" },
 
   // ─── Questions ─────────────────────────────────────────────────────────────
-  questions_title: { en: "Questions", ar: "الأسئلة" },
-  questions_subtitle: { en: "Manage frequently asked questions for the app.", ar: "إدارة الأسئلة الشائعة للتطبيق." },
-  questions_addQuestion: { en: "Add Question", ar: "إضافة سؤال" },
+  questions_title: { en: "Questions & Replies", ar: "الأسئلة والردود" },
+  questions_subtitle: { en: "Review and respond to parent questions", ar: "راجع ورد على أسئلة الأمهات" },
+  questions_total: { en: "Total Questions", ar: "إجمالي الأسئلة" },
+  questions_pending: { en: "Pending", ar: "قيد الانتظار" },
+  questions_answered: { en: "Answered", ar: "تم الرد" },
+  questions_searchPlaceholder: { en: "Search questions...", ar: "ابحث في الأسئلة..." },
+  questions_tabAll: { en: "All", ar: "الكل" },
+  questions_tabPending: { en: "Pending", ar: "قيد الانتظار" },
+  questions_tabAnswered: { en: "Answered", ar: "تم الرد" },
+  questions_sendReply: { en: "Send Reply", ar: "إرسال الرد" },
+  questions_writeReply: { en: "Write your reply...", ar: "اكتب ردك هنا..." },
+  questions_adminReply: { en: "Admin Reply:", ar: "رد الإدارة:" },
+  questions_badgeAnswered: { en: "Answered", ar: "تم الرد" },
+  questions_badgePending: { en: "Pending", ar: "قيد الانتظار" },
 
   // ─── Login ────────────────────────────────────────────────────────────────
   login_title: { en: "Admin Login", ar: "تسجيل دخول المدير" },
-  login_subtitle: { en: "Sign in to access the admin panel", ar: "سجّل الدخول للوصول إلى لوحة التحكم" },
+  login_subtitle: { en: "Sign in to access the admin panel", ar: "سجل الدخول للوصول إلى لوحة التحكم" },
   login_email: { en: "Email", ar: "البريد الإلكتروني" },
   login_password: { en: "Password", ar: "كلمة المرور" },
   login_signIn: { en: "Sign In", ar: "تسجيل الدخول" },

@@ -14,6 +14,7 @@ import type { CMSSection, CMSContent, ContentStatus } from "./cms.types";
 import { getAllContent, promoteStatus, archiveContent, deleteContent, exportSection, getSectionConfig, getNextStatus } from "./cms.service";
 import { can } from "./permissions";
 import { ContentFormDialog } from "./ContentFormDialog";
+import { useT, useI18n } from "@/i18n/i18n.context";
 
 interface ContentListViewProps {
   section: CMSSection;
@@ -36,6 +37,8 @@ const statusIcons: Record<ContentStatus, any> = {
 };
 
 export function ContentListView({ section }: ContentListViewProps) {
+  const t = useT();
+  const { isRTL } = useI18n();
   const cfg = getSectionConfig(section);
   const [items, setItems] = useState<CMSContent[]>(() => getAllContent(section));
   const [statusFilter, setStatusFilter] = useState<ContentStatus | "all">("all");
@@ -126,7 +129,7 @@ export function ContentListView({ section }: ContentListViewProps) {
         <div className="flex gap-2">
           {can("canExport", section) && (
             <Button variant="outline" size="sm" onClick={handleExport} className="gap-2 h-9">
-              <Download className="h-3.5 w-3.5" /> Export JSON
+              <Download className="h-3.5 w-3.5" /> {t("cms_exportJson")}
             </Button>
           )}
           {can("canCreate", section) && (
@@ -136,7 +139,7 @@ export function ContentListView({ section }: ContentListViewProps) {
               style={{ backgroundColor: cfg.color }}
               onClick={openCreate}
             >
-              <Plus className="h-3.5 w-3.5" /> Add Content
+              <Plus className="h-3.5 w-3.5" /> {t("cms_addContent")}
             </Button>
           )}
         </div>
@@ -148,10 +151,11 @@ export function ContentListView({ section }: ContentListViewProps) {
         <div className="relative w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
           <Input
-            placeholder="Search in Arabic or English..."
-            className="pl-10 h-9 bg-white"
+            placeholder={t("cms_searchPlaceholder")}
+            className={`${isRTL ? "pr-10" : "pl-10"} h-9 bg-white`}
             value={search}
             onChange={e => setSearch(e.target.value)}
+            dir={isRTL ? "rtl" : "ltr"}
           />
         </div>
 
@@ -167,7 +171,12 @@ export function ContentListView({ section }: ContentListViewProps) {
                   : "text-[#64748b] hover:text-[#334155]"
               }`}
             >
-              {s === "all" ? `All (${counts.all})` : `${s.charAt(0).toUpperCase() + s.slice(1)} (${counts[s]})`}
+              {s === "all" ? `${t("cms_statusAll")} (${counts.all})` :
+               s === "draft" ? `${t("cms_statusDraft")} (${counts[s]})` :
+               s === "review" ? `${t("cms_statusReview")} (${counts[s]})` :
+               s === "approved" ? `${t("cms_statusApproved")} (${counts[s]})` :
+               s === "published" ? `${t("cms_statusPublished")} (${counts[s]})` :
+               `${t("cms_statusArchived")} (${counts[s]})`}
             </button>
           ))}
         </div>
@@ -178,8 +187,8 @@ export function ContentListView({ section }: ContentListViewProps) {
         {filtered.length === 0 && (
           <div className="text-center py-16">
             <FileText className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 font-semibold">No content found</p>
-            <p className="text-xs text-slate-400 mt-1">Try adjusting filters or add new content</p>
+            <p className="text-slate-500 font-semibold">{t("cms_noContent")}</p>
+            <p className="text-xs text-slate-400 mt-1">{t("cms_noContentHint")}</p>
           </div>
         )}
 
@@ -215,7 +224,7 @@ export function ContentListView({ section }: ContentListViewProps) {
                     <p className="text-xs text-[#64748b] mt-2 line-clamp-1">{item.description_en}</p>
 
                     <div className="flex items-center gap-3 mt-3">
-                      <span className="text-[11px] text-[#94a3b8]">By {item.created_by}</span>
+                      <span className="text-[11px] text-[#94a3b8]">{t("cms_by")} {item.created_by}</span>
                       <span className="text-[11px] text-[#94a3b8]">·</span>
                       <span className="text-[11px] text-[#94a3b8]">{new Date(item.updated_at).toLocaleDateString()}</span>
                       {item.tags?.map(tag => (

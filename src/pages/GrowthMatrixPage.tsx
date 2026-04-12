@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useT } from "@/i18n/i18n.context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -54,16 +55,17 @@ const skillStatusConfig: Record<SkillStatus, { label: string; color: string; ico
 
 function OverviewTab() {
   const stats = useMemo(() => svc.getMatrixStats(), []);
+  const t = useT();
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* KPI Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Age Groups", value: stats.activeAgeGroups, icon: Baby, color: "bg-blue-50", iconColor: "text-blue-600" },
-          { label: "Total Skills", value: stats.totalSkills, icon: Target, color: "bg-purple-50", iconColor: "text-purple-600" },
-          { label: "Categories", value: stats.totalCategories, icon: Grid3X3, color: "bg-teal-50", iconColor: "text-teal-600" },
-          { label: "Rule Coverage", value: `${stats.coverage}%`, icon: Zap, color: "bg-amber-50", iconColor: "text-amber-600" },
+          { label: t("matrix_kpi_ageGroups"),   value: stats.activeAgeGroups,  icon: Baby,    color: "bg-blue-50",   iconColor: "text-blue-600" },
+          { label: t("matrix_kpi_totalSkills"), value: stats.totalSkills,       icon: Target,  color: "bg-purple-50", iconColor: "text-purple-600" },
+          { label: t("matrix_kpi_categories"),  value: stats.totalCategories,  icon: Grid3X3, color: "bg-teal-50",   iconColor: "text-teal-600" },
+          { label: t("matrix_kpi_ruleCoverage"),value: `${stats.coverage}%`,   icon: Zap,     color: "bg-amber-50",  iconColor: "text-amber-600" },
         ].map((kpi) => (
           <Card key={kpi.label} className="border-none shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-5">
@@ -85,7 +87,7 @@ function OverviewTab() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="border-none shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-bold text-[#334155]">Skills per Category</CardTitle>
+            <CardTitle className="text-sm font-bold text-[#334155]">{t("matrix_chart_skillsPerCat")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={220}>
@@ -112,7 +114,7 @@ function OverviewTab() {
 
         <Card className="border-none shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-bold text-[#334155]">Rule Coverage by Age Group</CardTitle>
+            <CardTitle className="text-sm font-bold text-[#334155]">{t("matrix_chart_ruleCoverage")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={280}>
@@ -991,32 +993,33 @@ function ScoringPreviewTab() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const GrowthMatrixPage = () => {
+  const t = useT();
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-3xl font-bold text-[#0f172a] tracking-tight">Growth Matrix</h1>
-        <p className="text-[15px] text-[#64748b] mt-1">Configure the child development evaluation engine</p>
+        <h1 className="text-3xl font-bold text-[#0f172a] tracking-tight">{t("matrix_title")}</h1>
+        <p className="text-[15px] text-[#64748b] mt-1">{t("matrix_subtitle")}</p>
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="bg-[#f1f5f9] p-1 h-auto flex-wrap">
           <TabsTrigger value="overview" className="gap-1.5 data-[state=active]:bg-white data-[state=active]:shadow-sm">
-            <BarChart3 className="h-3.5 w-3.5" /> Overview
+            <BarChart3 className="h-3.5 w-3.5" /> {t("matrix_overview")}
           </TabsTrigger>
           <TabsTrigger value="age-groups" className="gap-1.5 data-[state=active]:bg-white data-[state=active]:shadow-sm">
-            <Baby className="h-3.5 w-3.5" /> Age Groups
+            <Baby className="h-3.5 w-3.5" /> {t("matrix_ageGroups")}
           </TabsTrigger>
           <TabsTrigger value="categories" className="gap-1.5 data-[state=active]:bg-white data-[state=active]:shadow-sm">
-            <Grid3X3 className="h-3.5 w-3.5" /> Categories
+            <Grid3X3 className="h-3.5 w-3.5" /> {t("matrix_categories")}
           </TabsTrigger>
           <TabsTrigger value="skills" className="gap-1.5 data-[state=active]:bg-white data-[state=active]:shadow-sm">
-            <Target className="h-3.5 w-3.5" /> Skills
+            <Target className="h-3.5 w-3.5" /> {t("matrix_skills")}
           </TabsTrigger>
           <TabsTrigger value="rules" className="gap-1.5 data-[state=active]:bg-white data-[state=active]:shadow-sm">
-            <Settings2 className="h-3.5 w-3.5" /> Rules Editor
+            <Settings2 className="h-3.5 w-3.5" /> {t("matrix_rulesEditor")}
           </TabsTrigger>
           <TabsTrigger value="scoring" className="gap-1.5 data-[state=active]:bg-white data-[state=active]:shadow-sm">
-            <Star className="h-3.5 w-3.5" /> Scoring Preview
+            <Star className="h-3.5 w-3.5" /> {t("matrix_scoringPreview")}
           </TabsTrigger>
         </TabsList>
 
