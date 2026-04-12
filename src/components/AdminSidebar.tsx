@@ -29,35 +29,37 @@ import {
   SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
-
-const mainNav = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Users", url: "/users", icon: Users },
-  { title: "Questions", url: "/questions", icon: MessageSquare },
-  { title: "Growth Matrix", url: "/growth-matrix", icon: TrendingUp },
-  { title: "Content", url: "/content", icon: FileText },
-  { title: "Analytics", url: "/analytics", icon: BarChart3 },
-];
-
-const managementNav = [
-  { title: "Doctors", url: "/doctors", icon: HeartPulse },
-  { title: "Marketing", url: "/marketing", icon: Megaphone },
-  { title: "IT Support", url: "/it-support", icon: Wrench },
-];
-
-const systemNav = [
-  { title: "Audit Logs", url: "/audit-logs", icon: ClipboardList },
-  { title: "Support", url: "/support", icon: HelpCircle },
-  { title: "Settings", url: "/settings", icon: Settings },
-];
+import { useI18n } from "@/i18n/i18n.context";
 
 export function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const { t, isRTL } = useI18n();
+
+  const mainNav = [
+    { titleKey: "nav_dashboard", url: "/", icon: LayoutDashboard },
+    { titleKey: "nav_users", url: "/users", icon: Users },
+    { titleKey: "nav_questions", url: "/questions", icon: MessageSquare },
+    { titleKey: "nav_growthMatrix", url: "/growth-matrix", icon: TrendingUp },
+    { titleKey: "nav_content", url: "/content", icon: FileText },
+    { titleKey: "nav_analytics", url: "/analytics", icon: BarChart3 },
+  ] as const;
+
+  const managementNav = [
+    { titleKey: "nav_doctors", url: "/doctors", icon: HeartPulse },
+    { titleKey: "nav_marketing", url: "/marketing", icon: Megaphone },
+    { titleKey: "nav_itSupport", url: "/it-support", icon: Wrench },
+  ] as const;
+
+  const systemNav = [
+    { titleKey: "nav_auditLogs", url: "/audit-logs", icon: ClipboardList },
+    { titleKey: "nav_support", url: "/support", icon: HelpCircle },
+    { titleKey: "nav_settings", url: "/settings", icon: Settings },
+  ] as const;
 
   return (
-    <Sidebar collapsible="icon" className="border-r-0">
+    <Sidebar collapsible="icon" className="border-r-0" side={isRTL ? "right" : "left"}>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary">
@@ -77,15 +79,16 @@ export function AdminSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-2">
+        {/* Main */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-semibold">
-            Main
+            {t("nav_main")}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainNav.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
+                <SidebarMenuItem key={item.titleKey}>
+                  <SidebarMenuButton asChild tooltip={t(item.titleKey)}>
                     <NavLink
                       to={item.url}
                       end={item.url === "/"}
@@ -93,7 +96,7 @@ export function AdminSidebar() {
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
                     >
                       <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && <span>{t(item.titleKey)}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -102,22 +105,23 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Management */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-semibold">
-            Management
+            {t("nav_management")}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {managementNav.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
+                <SidebarMenuItem key={item.titleKey}>
+                  <SidebarMenuButton asChild tooltip={t(item.titleKey)}>
                     <NavLink
                       to={item.url}
                       className="text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
                     >
                       <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && <span>{t(item.titleKey)}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -126,22 +130,23 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* System */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-semibold">
-            System
+            {t("nav_system")}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {systemNav.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
+                <SidebarMenuItem key={item.titleKey}>
+                  <SidebarMenuButton asChild tooltip={t(item.titleKey)}>
                     <NavLink
                       to={item.url}
                       className="text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
                     >
                       <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && <span>{t(item.titleKey)}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -164,7 +169,7 @@ export function AdminSidebar() {
                 </p>
                 <div className="flex">
                   <span className="text-[9px] font-bold uppercase tracking-wider bg-primary/10 text-primary px-1.5 py-0.5 rounded-md border border-primary/20">
-                    Super Admin
+                    {t("header_superAdmin")}
                   </span>
                 </div>
               </div>

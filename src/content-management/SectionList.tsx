@@ -11,6 +11,8 @@ import {
 import type { CMSSection } from "./cms.types";
 import { SECTION_CONFIGS } from "./cms.service";
 import type { SectionStats } from "./cms.types";
+import { useT } from "@/i18n/i18n.context";
+
 
 const iconMap: Record<string, any> = {
   brain: Brain,
@@ -29,6 +31,7 @@ interface SectionListProps {
 }
 
 export function SectionList({ stats, onSelectSection }: SectionListProps) {
+  const t = useT();
   const statsMap = useMemo(() => {
     const m: Record<string, SectionStats> = {};
     stats.forEach(s => { m[s.section] = s; });
@@ -44,17 +47,17 @@ export function SectionList({ stats, onSelectSection }: SectionListProps) {
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-[#0f172a] tracking-tight">إدارة المحتوى</h1>
-        <p className="text-[15px] text-[#64748b] mt-1">Content Management System — 8 sections powering the mobile app</p>
+        <h1 className="text-3xl font-bold text-[#0f172a] tracking-tight">{t("cms_title")}</h1>
+        <p className="text-[15px] text-[#64748b] mt-1">{t("cms_subtitle")}</p>
       </div>
 
       {/* Overall KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Content", value: overallTotal, icon: FileText, color: "bg-slate-50", ic: "text-slate-600" },
-          { label: "Published", value: overallPublished, icon: CheckCircle, color: "bg-emerald-50", ic: "text-emerald-600" },
-          { label: "In Review", value: overallReview, icon: Clock, color: "bg-amber-50", ic: "text-amber-600" },
-          { label: "Drafts", value: overallDraft, icon: BookOpen, color: "bg-blue-50", ic: "text-blue-600" },
+          { label: t("cms_totalContent"), value: overallTotal, icon: FileText, color: "bg-slate-50", ic: "text-slate-600" },
+          { label: t("cms_published"), value: overallPublished, icon: CheckCircle, color: "bg-emerald-50", ic: "text-emerald-600" },
+          { label: t("cms_inReview"), value: overallReview, icon: Clock, color: "bg-amber-50", ic: "text-amber-600" },
+          { label: t("cms_drafts"), value: overallDraft, icon: BookOpen, color: "bg-blue-50", ic: "text-blue-600" },
         ].map(k => (
           <Card key={k.label} className="border-none shadow-sm">
             <CardContent className="p-5 flex items-center gap-4">
@@ -148,7 +151,7 @@ export function SectionList({ stats, onSelectSection }: SectionListProps) {
                     className="w-full mt-4 justify-between text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all h-8"
                     style={{ color: cfg.color }}
                   >
-                    Manage Section
+                    {t("cms_manageSection")}
                     <ChevronRight className="h-3.5 w-3.5" />
                   </Button>
                 </div>
