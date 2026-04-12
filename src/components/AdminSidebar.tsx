@@ -10,7 +10,9 @@ import {
   Megaphone,
   Wrench,
   LogOut,
-  ChevronLeft,
+  MessageSquare,
+  HelpCircle,
+  TrendingUp,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -31,9 +33,10 @@ import {
 const mainNav = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Users", url: "/users", icon: Users },
+  { title: "Questions", url: "/questions", icon: MessageSquare },
+  { title: "Growth Matrix", url: "/growth-matrix", icon: TrendingUp },
   { title: "Content", url: "/content", icon: FileText },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
-  { title: "Audit Logs", url: "/audit-logs", icon: ClipboardList },
 ];
 
 const managementNav = [
@@ -43,7 +46,8 @@ const managementNav = [
 ];
 
 const systemNav = [
-  { title: "Roles & Permissions", url: "/roles", icon: Shield },
+  { title: "Audit Logs", url: "/audit-logs", icon: ClipboardList },
+  { title: "Support", url: "/support", icon: HelpCircle },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
@@ -147,18 +151,40 @@ export function AdminSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-3">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
-              tooltip="Logout"
-            >
+      <SidebarFooter className="p-4 border-t border-sidebar-border/20">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm border border-white/20">
+              SA
+            </div>
+            {!collapsed && (
+              <div className="animate-fade-in overflow-hidden">
+                <p className="text-sm font-bold text-sidebar-foreground truncate">
+                  Sarah Al-Rashid
+                </p>
+                <div className="flex">
+                  <span className="text-[9px] font-bold uppercase tracking-wider bg-primary/10 text-primary px-1.5 py-0.5 rounded-md border border-primary/20">
+                    Super Admin
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+          {!collapsed && (
+            <button className="text-sidebar-foreground/40 hover:text-sidebar-foreground transition-colors p-1 rounded-md hover:bg-sidebar-accent">
               <LogOut className="h-4 w-4" />
-              {!collapsed && <span>Logout</span>}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+            </button>
+          )}
+          {collapsed && (
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip="Logout">
+                  <LogOut className="h-4 w-4" />
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          )}
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
