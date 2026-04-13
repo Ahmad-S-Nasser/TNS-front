@@ -106,7 +106,7 @@ export interface SkillEvaluation {
   score: number;        // 0–100
   rawValue: any;        // the value entered by the mother
   expectedRule: ExpectedRule;
-  recommendation?: string;
+  recommendation?: BilingualText;
 }
 
 export interface CategoryScore {

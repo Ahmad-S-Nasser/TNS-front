@@ -347,7 +347,7 @@ export function calculateScore(request: ChildEvaluationRequest): OverallScore {
     const { score, status } = evaluateSkill(skill, rule, input?.value);
 
     const tip = status === "delayed" || status === "pending"
-      ? skill.improvementTips[0]?.en
+      ? skill.improvementTips[0]
       : undefined;
 
     evalResults.push({
@@ -456,7 +456,7 @@ export function getMatrixStats() {
   // Skills per category
   const skillsPerCategory = categories.map((cat) => ({
     categoryId: cat.id,
-    categoryName: cat.name.en,
+    categoryName: cat.name,
     color: cat.color,
     count: skills.filter((s) => s.categoryId === cat.id).length,
   }));
@@ -468,7 +468,7 @@ export function getMatrixStats() {
       const agRules = rules.filter((r) => r.ageGroupId === ag.id);
       return {
         ageGroupId: ag.id,
-        label: ag.label.en,
+        label: ag.label,
         rulesCount: agRules.length,
         coverage: totalSkills > 0 ? Math.round((agRules.length / totalSkills) * 100) : 0,
       };

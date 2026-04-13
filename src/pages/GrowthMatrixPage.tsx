@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useT } from "@/i18n/i18n.context";
+import { useT, useI18n } from "@/i18n/i18n.context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -56,6 +56,18 @@ const skillStatusConfig: Record<SkillStatus, { label: string; color: string; ico
 function OverviewTab() {
   const stats = useMemo(() => svc.getMatrixStats(), []);
   const t = useT();
+  const { lang } = useI18n();
+  const n = (bi: { en: string; ar: string }) => lang === "ar" ? bi.ar : bi.en;
+
+  const chartData = useMemo(() => stats.skillsPerCategory.map(s => ({
+    ...s,
+    name: n(s.categoryName as any)
+  })), [stats.skillsPerCategory, lang]);
+
+  const coverageData = useMemo(() => stats.coverageByAgeGroup.map(c => ({
+    ...c,
+    name: n(c.label as any)
+  })), [stats.coverageByAgeGroup, lang]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -92,8 +104,8 @@ function OverviewTab() {
           <CardContent>
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
-                <Pie data={stats.skillsPerCategory} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="count" strokeWidth={2} stroke="#fff">
-                  {stats.skillsPerCategory.map((item, i) => (
+                <Pie data={chartData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="count" nameKey="name" strokeWidth={2} stroke="#fff">
+                  {chartData.map((item, i) => (
                     <Cell key={i} fill={item.color} />
                   ))}
                 </Pie>
@@ -101,10 +113,10 @@ function OverviewTab() {
               </PieChart>
             </ResponsiveContainer>
             <div className="grid grid-cols-2 gap-2 mt-2">
-              {stats.skillsPerCategory.map((item) => (
+              {chartData.map((item) => (
                 <div key={item.categoryId} className="flex items-center gap-2">
                   <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-xs text-[#64748b]">{item.categoryName}</span>
+                  <span className="text-xs text-[#64748b]">{item.name}</span>
                   <span className="text-xs font-bold ml-auto">{item.count}</span>
                 </div>
               ))}
@@ -118,10 +130,10 @@ function OverviewTab() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={stats.coverageByAgeGroup} layout="vertical">
+              <BarChart data={coverageData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis type="number" domain={[0, 100]} fontSize={11} tick={{ fill: "#94a3b8" }} tickFormatter={(v) => `${v}%`} />
-                <YAxis type="category" dataKey="label" fontSize={11} tick={{ fill: "#64748b" }} width={90} />
+                <YAxis type="category" dataKey="name" fontSize={11} tick={{ fill: "#64748b" }} width={90} />
                 <Tooltip contentStyle={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "12px", fontSize: 13 }} formatter={(v: number) => `${v}%`} />
                 <Bar dataKey="coverage" fill="#0d9488" radius={[0, 6, 6, 0]} barSize={20} />
               </BarChart>
@@ -139,6 +151,8 @@ function OverviewTab() {
 
 function AgeGroupsTab() {
   const t = useT();
+  const { lang } = useI18n();
+  const n = (bi: { en: string; ar: string }) => lang === "ar" ? bi.ar : bi.en;
   const [groups, setGroups] = useState<AgeGroup[]>(svc.getAgeGroups());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -242,8 +256,8 @@ function AgeGroupsTab() {
                     {ag.status}
                   </Badge>
                 </div>
-                <h3 className="font-bold text-[#0f172a] text-[15px]">{ag.label.en}</h3>
-                <p className="text-xs text-[#94a3b8] font-medium mt-0.5">{ag.label.ar}</p>
+                <h3 className="font-bold text-[#0f172a] text-[15px]">{n(ag.label)}</h3>
+                <p className="text-xs text-[#94a3b8] font-medium mt-0.5">{lang === "ar" ? ag.label.en : ag.label.ar}</p>
                 <p className="text-xs text-[#64748b] mt-2">{ag.description}</p>
                 <Separator className="my-3" />
                 <div className="flex items-center justify-between text-xs">
@@ -270,6 +284,8 @@ function AgeGroupsTab() {
 
 function CategoriesTab() {
   const t = useT();
+  const { lang } = useI18n();
+  const n = (bi: { en: string; ar: string }) => lang === "ar" ? bi.ar : bi.en;
   const [cats, setCats] = useState<GrowthCategory[]>(svc.getCategories());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -353,9 +369,9 @@ function CategoriesTab() {
                     <Icon className="h-6 w-6" style={{ color: cat.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-[#0f172a]">{cat.name.en}</h3>
-                    <p className="text-xs text-[#94a3b8] font-medium">{cat.name.ar}</p>
-                    <p className="text-xs text-[#64748b] mt-2 line-clamp-2">{cat.description.en}</p>
+                    <h3 className="font-bold text-[#0f172a] text-[15px]">{n(cat.name)}</h3>
+                    <p className="text-xs text-[#94a3b8] font-medium mt-0.5">{lang === "ar" ? cat.name.en : cat.name.ar}</p>
+                    <p className="text-xs text-[#64748b] mt-2 line-clamp-2">{n(cat.description)}</p>
                   </div>
                 </div>
                 <Separator className="my-3" />
@@ -382,6 +398,8 @@ function CategoriesTab() {
 
 function SkillsTab() {
   const t = useT();
+  const { lang } = useI18n();
+  const n = (bi: { en: string; ar: string }) => lang === "ar" ? bi.ar : bi.en;
   const [allSkills, setAllSkills] = useState(svc.getSkills());
   const allCategories = svc.getCategories();
   const allAgeGroups = svc.getAgeGroups();
@@ -413,6 +431,12 @@ function SkillsTab() {
     if (search) result = result.filter((s) => s.title.en.toLowerCase().includes(search.toLowerCase()) || s.title.ar.includes(search));
     return result;
   }, [selectedCat, selectedAg, search, allSkills]);
+
+  const metricLabelAr = (type: MetricType) => {
+    if (type === "boolean") return "نعم/لا";
+    if (type === "numeric") return "رقمي";
+    return "مقياس";
+  };
 
   const handleCreateSkill = () => {
     if (!form.titleEn || !form.categoryId) return;
@@ -507,7 +531,7 @@ function SkillsTab() {
                   <Select value={form.categoryId} onValueChange={v => setForm({...form, categoryId: v})}>
                     <SelectTrigger><SelectValue placeholder={t("matrix_sk_catPlaceholder")} /></SelectTrigger>
                     <SelectContent>
-                      {allCategories.map(c => <SelectItem key={c.id} value={c.id}>{c.name.en}</SelectItem>)}
+                      {allCategories.map(c => <SelectItem key={c.id} value={c.id}>{n(c.name)}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -559,7 +583,7 @@ function SkillsTab() {
                             setForm({...form, ageGroupIds: ids});
                           }}
                         />
-                        <Label htmlFor={`ag-${ag.id}`} className="text-xs cursor-pointer truncate">{ag.label.en}</Label>
+                        <Label htmlFor={`ag-${ag.id}`} className="text-xs cursor-pointer truncate">{n(ag.label)}</Label>
                       </div>
                     ))}
                   </div>
@@ -590,14 +614,14 @@ function SkillsTab() {
           <SelectTrigger className="w-48 h-9"><SelectValue placeholder={t("matrix_sk_allCats")} /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t("matrix_sk_allCats")}</SelectItem>
-            {allCategories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name.en}</SelectItem>)}
+            {allCategories.map((c) => <SelectItem key={c.id} value={c.id}>{n(c.name)}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={selectedAg} onValueChange={setSelectedAg}>
           <SelectTrigger className="w-48 h-9"><SelectValue placeholder={t("matrix_sk_allAgeGroups")} /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t("matrix_sk_allAgeGroups")}</SelectItem>
-            {allAgeGroups.map((ag) => <SelectItem key={ag.id} value={ag.id}>{ag.label.en}</SelectItem>)}
+            {allAgeGroups.map((ag) => <SelectItem key={ag.id} value={ag.id}>{n(ag.label)}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
@@ -621,11 +645,11 @@ function SkillsTab() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-[#0f172a] text-sm">{skill.title.en}</span>
-                    <Badge className={`text-[10px] font-bold border-none ${mb.color}`}>{mb.label}</Badge>
+                    <span className="font-bold text-[#0f172a] text-sm">{n(skill.title)}</span>
+                    <Badge className={`text-[10px] font-bold border-none ${mb.color}`}>{lang === "ar" ? metricLabelAr(skill.metricType) : mb.label}</Badge>
                     <div className="flex -space-x-1 ml-2 overflow-hidden">
                        {linkedAgs.slice(0, 3).map(ag => (
-                         <div key={ag.id} className="h-4 w-4 rounded-full bg-slate-100 border border-white flex items-center justify-center" title={ag.label.en}>
+                         <div key={ag.id} className="h-4 w-4 rounded-full bg-slate-100 border border-white flex items-center justify-center" title={n(ag.label)}>
                            <Baby className="h-2 w-2 text-slate-400" />
                          </div>
                        ))}
@@ -636,7 +660,7 @@ function SkillsTab() {
                        )}
                     </div>
                   </div>
-                  <p className="text-xs text-[#94a3b8] font-medium">{skill.title.ar}</p>
+                  <p className="text-xs text-[#94a3b8] font-medium">{lang === "ar" ? skill.title.en : skill.title.ar}</p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <div className="text-right hidden sm:block">
@@ -650,18 +674,18 @@ function SkillsTab() {
                 <div className="px-4 pb-4 pt-0 animate-in slide-in-from-top-2 duration-300 border-t border-slate-100">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     <div className="space-y-3">
-                      <div><p className="text-xs font-bold text-[#64748b] uppercase tracking-wider">Description (EN)</p><p className="text-sm text-[#334155] mt-1">{skill.description.en}</p></div>
-                      <div><p className="text-xs font-bold text-[#64748b] uppercase tracking-wider">Description (AR)</p><p className="text-sm text-[#334155] mt-1 text-right" dir="rtl">{skill.description.ar}</p></div>
+                      <div><p className="text-xs font-bold text-[#64748b] uppercase tracking-wider">{t("matrix_sk_descEN")}</p><p className="text-sm text-[#334155] mt-1">{n(skill.description)}</p></div>
+                      <div><p className="text-xs font-bold text-[#64748b] uppercase tracking-wider">{t("matrix_sk_descAR")}</p><p className="text-sm text-[#334155] mt-1 text-right" dir="rtl">{lang === "ar" ? skill.description.en : skill.description.ar}</p></div>
                       
                       <div>
                         <p className="text-xs font-bold text-[#64748b] uppercase tracking-wider mb-2">{t("matrix_sk_ageAvailability")}</p>
                         <div className="flex flex-wrap gap-1.5">
                           {linkedAgs.map(ag => (
                             <Badge key={ag.id} variant="secondary" className="text-[10px] bg-slate-100 text-slate-600 border-none font-medium">
-                              {ag.label.en}
+                              {n(ag.label)}
                             </Badge>
                           ))}
-                          {linkedAgs.length === 0 && <span className="text-xs text-slate-400 italic">No age groups linked</span>}
+                          {linkedAgs.length === 0 && <span className="text-xs text-slate-400 italic">{t("matrix_sk_noAgeGroups")}</span>}
                         </div>
                       </div>
 
@@ -672,7 +696,7 @@ function SkillsTab() {
                           <div className="flex flex-wrap gap-2">
                             {skill.scaleOptions.map((opt) => (
                               <Badge key={opt.id} variant="outline" className="text-xs">
-                                {opt.numericValue}: {opt.label.en}
+                                {opt.numericValue}: {n(opt.label)}
                               </Badge>
                             ))}
                           </div>
@@ -686,8 +710,8 @@ function SkillsTab() {
                           <div key={i} className="flex gap-2 items-start bg-amber-50/50 p-3 rounded-lg mb-2">
                             <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
                             <div>
-                              <p className="text-xs text-[#475569]">{tip.en}</p>
-                              <p className="text-xs text-[#94a3b8] text-right mt-1" dir="rtl">{tip.ar}</p>
+                              <p className="text-xs text-[#475569]">{n(tip)}</p>
+                              <p className="text-xs text-[#94a3b8] text-right mt-1" dir="rtl">{lang === "ar" ? tip.en : tip.ar}</p>
                             </div>
                           </div>
                         ))}
@@ -718,6 +742,7 @@ function SkillsTab() {
 
 function RulesEditorTab() {
   const t = useT();
+  const { isRTL, lang } = useI18n();
   const allAgeGroups = svc.getAgeGroups().filter((ag) => ag.status === "active");
   const allCategories = svc.getCategories();
   const [selectedCat, setSelectedCat] = useState<string>(allCategories[0]?.id || "");
@@ -727,9 +752,16 @@ function RulesEditorTab() {
 
   const getRule = (skillId: string, ageGroupId: string) => svc.getRuleBySkillAndAgeGroup(skillId, ageGroupId);
 
+  const n = (bi: { en: string; ar: string }) => lang === "ar" ? bi.ar : bi.en;
+
   const getCellDisplay = (skill: Skill, rule: ExpectedRule | undefined) => {
     if (!rule) return { text: "—", configured: false };
-    if (skill.metricType === "boolean") return { text: rule.expectedBoolean ? "✓ Expected" : "Not expected", configured: true };
+    if (skill.metricType === "boolean") return {
+      text: rule.expectedBoolean
+        ? (lang === "ar" ? "✓ متوقع" : "✓ Expected")
+        : (lang === "ar" ? "غير متوقع" : "Not expected"),
+      configured: true,
+    };
     if (skill.metricType === "numeric") return { text: `${rule.optimalMin ?? "?"}–${rule.optimalMax ?? "?"} ${skill.unit || ""}`, configured: true };
     if (skill.metricType === "scale") return { text: `>= ${rule.minScaleValue ?? "?"}`, configured: true };
     return { text: "—", configured: false };
@@ -753,7 +785,7 @@ function RulesEditorTab() {
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${selectedCat === cat.id ? "text-white shadow-md" : "bg-white border border-slate-200 text-slate-600 hover:border-slate-300"}`}
               style={selectedCat === cat.id ? { backgroundColor: cat.color } : {}}>
               <Icon className="h-4 w-4" />
-              {cat.name.en}
+              {n(cat.name)}
             </button>
           );
         })}
@@ -768,7 +800,7 @@ function RulesEditorTab() {
                 <tr className="border-b border-slate-100">
                   <th className="text-left p-4 text-xs font-bold text-[#64748b] uppercase tracking-wider w-64">{t("matrix_rules_skillCol")}</th>
                   {allAgeGroups.map((ag) => (
-                    <th key={ag.id} className="p-4 text-xs font-bold text-[#64748b] uppercase tracking-wider text-center">{ag.label.en}</th>
+                    <th key={ag.id} className="p-4 text-xs font-bold text-[#64748b] uppercase tracking-wider text-center">{n(ag.label)}</th>
                   ))}
                 </tr>
               </thead>
@@ -777,8 +809,8 @@ function RulesEditorTab() {
                   <tr key={skill.id} className="border-b border-slate-50 hover:bg-slate-50/30">
                     <td className="p-4">
                       <div>
-                        <p className="text-sm font-semibold text-[#0f172a]">{skill.title.en}</p>
-                        <p className="text-[11px] text-[#94a3b8]">{skill.title.ar}</p>
+                        <p className="text-sm font-semibold text-[#0f172a]">{n(skill.title)}</p>
+                        <p className="text-[11px] text-[#94a3b8]">{lang === "ar" ? skill.title.en : skill.title.ar}</p>
                       </div>
                     </td>
                     {allAgeGroups.map((ag) => {
@@ -818,6 +850,8 @@ function RulesEditorTab() {
 
 function ScoringPreviewTab() {
   const t = useT();
+  const { lang } = useI18n();
+  const n = (bi: { en: string; ar: string }) => lang === "ar" ? bi.ar : bi.en;
   const allAgeGroups = svc.getAgeGroups().filter((ag) => ag.status === "active");
   const [selectedAg, setSelectedAg] = useState<string>(allAgeGroups[0]?.id || "");
   const [inputs, setInputs] = useState<Record<string, any>>({});
@@ -873,7 +907,7 @@ function ScoringPreviewTab() {
         <Label className="text-sm font-semibold">{t("matrix_score_ageGroup")}</Label>
         <Select value={selectedAg} onValueChange={(v) => { setSelectedAg(v); setResult(null); setInputs({}); }}>
           <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
-          <SelectContent>{allAgeGroups.map((ag) => <SelectItem key={ag.id} value={ag.id}>{ag.label.en}</SelectItem>)}</SelectContent>
+          <SelectContent>{allAgeGroups.map((ag) => <SelectItem key={ag.id} value={ag.id}>{n(ag.label)}</SelectItem>)}</SelectContent>
         </Select>
       </div>
 
@@ -890,7 +924,7 @@ function ScoringPreviewTab() {
                       {(() => { const Ic = iconMap[category?.iconKey || "ruler"] || Ruler; return <Ic className="h-4 w-4" style={{ color: category?.color }} />; })()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-[#0f172a]">{skill.title.en}</p>
+                      <p className="text-sm font-semibold text-[#0f172a]">{n(skill.title)}</p>
                       <p className="text-[11px] text-[#94a3b8]">{skill.metricType === "boolean" ? `${t("matrix_score_yes")}/${t("matrix_score_no")}` : skill.metricType === "numeric" ? `Enter ${skill.unit || "value"}` : "Select level"}</p>
                     </div>
                     <div className="w-40 shrink-0">
@@ -906,7 +940,7 @@ function ScoringPreviewTab() {
                       {skill.metricType === "scale" && (
                         <Select value={String(inputs[skill.id] || "")} onValueChange={(v) => handleInputChange(skill.id, parseInt(v))}>
                           <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select..." /></SelectTrigger>
-                          <SelectContent>{skill.scaleOptions?.map((opt) => <SelectItem key={opt.id} value={String(opt.numericValue)}>{opt.label.en}</SelectItem>)}</SelectContent>
+                          <SelectContent>{skill.scaleOptions?.map((opt) => <SelectItem key={opt.id} value={String(opt.numericValue)}>{n(opt.label)}</SelectItem>)}</SelectContent>
                         </Select>
                       )}
                     </div>
@@ -951,7 +985,7 @@ function ScoringPreviewTab() {
                   {result.categoryScores.map((cs) => (
                     <div key={cs.categoryId}>
                       <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="font-semibold text-[#334155]">{cs.categoryName.en}</span>
+                        <span className="font-semibold text-[#334155]">{n(cs.categoryName)}</span>
                         <span className="font-bold" style={{ color: cs.color }}>{cs.score}%</span>
                       </div>
                       <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
@@ -970,8 +1004,8 @@ function ScoringPreviewTab() {
                   <CardContent className="space-y-2">
                     {result.skillEvaluations.filter((e) => e.recommendation).map((ev) => (
                       <div key={ev.skillId} className="p-3 bg-amber-50/50 rounded-lg">
-                        <p className="text-xs font-bold text-[#334155]">{ev.skillTitle.en}</p>
-                        <p className="text-xs text-[#64748b] mt-1">{ev.recommendation}</p>
+                        <p className="text-xs font-bold text-[#334155]">{n(ev.skillTitle)}</p>
+                        <p className="text-xs text-[#64748b] mt-1">{ev.recommendation ? n(ev.recommendation) : ""}</p>
                       </div>
                     ))}
                   </CardContent>
