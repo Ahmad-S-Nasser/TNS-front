@@ -138,6 +138,7 @@ function OverviewTab() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function AgeGroupsTab() {
+  const t = useT();
   const [groups, setGroups] = useState<AgeGroup[]>(svc.getAgeGroups());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -178,48 +179,48 @@ function AgeGroupsTab() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#0f172a]">Age Groups</h2>
-          <p className="text-sm text-[#64748b]">Define developmental stages with month ranges</p>
+          <h2 className="text-lg font-bold text-[#0f172a]">{t("matrix_ag_heading")}</h2>
+          <p className="text-sm text-[#64748b]">{t("matrix_ag_subtitle")}</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={openCreate} className="bg-[#0d9488] hover:bg-[#0f766e] text-white gap-2">
-              <Plus className="h-4 w-4" /> Add Age Group
+              <Plus className="h-4 w-4" /> {t("matrix_addAgeGroup")}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>{editId ? "Edit" : "Create"} Age Group</DialogTitle>
+              <DialogTitle>{editId ? t("matrix_ag_editTitle") : t("matrix_ag_createTitle")}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Label (English)</Label>
-                  <Input value={form.labelEn} onChange={(e) => setForm({ ...form, labelEn: e.target.value })} placeholder="0–3 months" />
+                  <Label>{t("matrix_ag_labelEn")}</Label>
+                  <Input value={form.labelEn} onChange={(e) => setForm({ ...form, labelEn: e.target.value })} placeholder="0-3 months" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Label (Arabic)</Label>
+                  <Label>{t("matrix_ag_labelAr")}</Label>
                   <Input dir="rtl" value={form.labelAr} onChange={(e) => setForm({ ...form, labelAr: e.target.value })} placeholder="٠-٣ أشهر" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Start Month</Label>
+                  <Label>{t("matrix_ag_startMonth")}</Label>
                   <Input type="number" value={form.monthStart} onChange={(e) => setForm({ ...form, monthStart: +e.target.value })} />
                 </div>
                 <div className="space-y-2">
-                  <Label>End Month</Label>
+                  <Label>{t("matrix_ag_endMonth")}</Label>
                   <Input type="number" value={form.monthEnd} onChange={(e) => setForm({ ...form, monthEnd: +e.target.value })} />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Description</Label>
-                <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Brief description..." />
+                <Label>{t("matrix_ag_description")}</Label>
+                <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder={t("matrix_ag_descPlaceholder")} />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleSave} className="bg-[#0d9488] hover:bg-[#0f766e] text-white">{editId ? "Update" : "Create"}</Button>
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("cancel")}</Button>
+              <Button onClick={handleSave} className="bg-[#0d9488] hover:bg-[#0f766e] text-white">{editId ? t("matrix_update") : t("matrix_create")}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -246,9 +247,9 @@ function AgeGroupsTab() {
                 <p className="text-xs text-[#64748b] mt-2">{ag.description}</p>
                 <Separator className="my-3" />
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[#64748b]"><span className="font-bold text-[#334155]">{agRules.length}</span> rules</span>
-                  <span className="text-[#64748b]"><span className="font-bold text-[#334155]">{relatedSkills.length}</span> skills</span>
-                  <span className="text-[#64748b]"><span className="font-bold text-[#334155]">{catCoverage}</span> cats</span>
+                  <span className="text-[#64748b]"><span className="font-bold text-[#334155]">{agRules.length}</span> {t("matrix_ag_rules")}</span>
+                  <span className="text-[#64748b]"><span className="font-bold text-[#334155]">{relatedSkills.length}</span> {t("matrix_ag_skills")}</span>
+                  <span className="text-[#64748b]"><span className="font-bold text-[#334155]">{catCoverage}</span> {t("matrix_ag_cats")}</span>
                 </div>
                 <div className="flex gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(ag)}><Edit className="h-3.5 w-3.5" /></Button>
@@ -268,6 +269,7 @@ function AgeGroupsTab() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function CategoriesTab() {
+  const t = useT();
   const [cats, setCats] = useState<GrowthCategory[]>(svc.getCategories());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -303,37 +305,37 @@ function CategoriesTab() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#0f172a]">Growth Categories</h2>
-          <p className="text-sm text-[#64748b]">Reusable development domains across all age groups</p>
+          <h2 className="text-lg font-bold text-[#0f172a]">{t("matrix_cat_heading")}</h2>
+          <p className="text-sm text-[#64748b]">{t("matrix_cat_subtitle")}</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openCreate} className="bg-[#0d9488] hover:bg-[#0f766e] text-white gap-2"><Plus className="h-4 w-4" /> Add Category</Button>
+            <Button onClick={openCreate} className="bg-[#0d9488] hover:bg-[#0f766e] text-white gap-2"><Plus className="h-4 w-4" /> {t("matrix_addCategory")}</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-lg">
-            <DialogHeader><DialogTitle>{editId ? "Edit" : "Create"} Category</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{editId ? t("matrix_cat_editTitle") : t("matrix_cat_createTitle")}</DialogTitle></DialogHeader>
             <div className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label>Name (English)</Label><Input value={form.nameEn} onChange={(e) => setForm({ ...form, nameEn: e.target.value })} /></div>
-                <div className="space-y-2"><Label>Name (Arabic)</Label><Input dir="rtl" value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} /></div>
+                <div className="space-y-2"><Label>{t("matrix_cat_nameEn")}</Label><Input value={form.nameEn} onChange={(e) => setForm({ ...form, nameEn: e.target.value })} /></div>
+                <div className="space-y-2"><Label>{t("matrix_cat_nameAr")}</Label><Input dir="rtl" value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label>Description (EN)</Label><Textarea value={form.descEn} onChange={(e) => setForm({ ...form, descEn: e.target.value })} rows={2} /></div>
-                <div className="space-y-2"><Label>Description (AR)</Label><Textarea dir="rtl" value={form.descAr} onChange={(e) => setForm({ ...form, descAr: e.target.value })} rows={2} /></div>
+                <div className="space-y-2"><Label>{t("matrix_cat_descEn")}</Label><Textarea value={form.descEn} onChange={(e) => setForm({ ...form, descEn: e.target.value })} rows={2} /></div>
+                <div className="space-y-2"><Label>{t("matrix_cat_descAr")}</Label><Textarea dir="rtl" value={form.descAr} onChange={(e) => setForm({ ...form, descAr: e.target.value })} rows={2} /></div>
               </div>
               <div className="space-y-2">
-                <Label>Icon</Label>
+                <Label>{t("matrix_cat_icon")}</Label>
                 <div className="flex gap-2">{iconOptions.map((ic) => { const Ico = iconMap[ic.key] || Ruler; return (<button key={ic.key} onClick={() => setForm({ ...form, iconKey: ic.key })} className={`h-10 w-10 rounded-lg flex items-center justify-center border-2 transition-all ${form.iconKey === ic.key ? "border-teal-500 bg-teal-50" : "border-slate-200 hover:border-slate-300"}`}><Ico className="h-5 w-5" /></button>); })}</div>
               </div>
               <div className="space-y-2">
-                <Label>Color</Label>
+                <Label>{t("matrix_cat_color")}</Label>
                 <div className="flex gap-2">{colorOptions.map((c) => (<button key={c} onClick={() => setForm({ ...form, color: c })} className={`h-8 w-8 rounded-full border-2 transition-all ${form.color === c ? "border-slate-900 scale-110" : "border-transparent"}`} style={{ backgroundColor: c }} />))}</div>
               </div>
-              <div className="space-y-2"><Label>Sort Order</Label><Input type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: +e.target.value })} /></div>
+              <div className="space-y-2"><Label>{t("matrix_cat_sortOrder")}</Label><Input type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: +e.target.value })} /></div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleSave} className="bg-[#0d9488] hover:bg-[#0f766e] text-white">{editId ? "Update" : "Create"}</Button>
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("cancel")}</Button>
+              <Button onClick={handleSave} className="bg-[#0d9488] hover:bg-[#0f766e] text-white">{editId ? t("matrix_update") : t("matrix_create")}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -359,7 +361,7 @@ function CategoriesTab() {
                 <Separator className="my-3" />
                 <div className="flex items-center justify-between">
                   <Badge variant="secondary" className="text-xs font-bold" style={{ color: cat.color, backgroundColor: `${cat.color}15` }}>
-                    {skillCount} skills
+                    {skillCount} {t("matrix_cat_skills")}
                   </Badge>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(cat)}><Edit className="h-3.5 w-3.5" /></Button>
@@ -379,6 +381,7 @@ function CategoriesTab() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function SkillsTab() {
+  const t = useT();
   const [allSkills, setAllSkills] = useState(svc.getSkills());
   const allCategories = svc.getCategories();
   const allAgeGroups = svc.getAgeGroups();
@@ -457,24 +460,24 @@ function SkillsTab() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#0f172a]">Skills & Milestones</h2>
-          <p className="text-sm text-[#64748b]">{filtered.length} skills across {allCategories.length} categories</p>
+          <h2 className="text-lg font-bold text-[#0f172a]">{t("matrix_sk_heading")}</h2>
+          <p className="text-sm text-[#64748b]">{filtered.length} {t("matrix_sk_subtitle")} {allCategories.length} {t("matrix_sk_subtitleCats")}</p>
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-[#0d9488] hover:bg-[#0f766e] text-white gap-2">
-              <Plus className="h-4 w-4" /> Add Skill
+              <Plus className="h-4 w-4" /> {t("matrix_addSkill")}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Create New Skill</DialogTitle>
+              <DialogTitle>{t("matrix_sk_createTitle")}</DialogTitle>
             </DialogHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Skill Title</Label>
+                  <Label>{t("matrix_sk_titleLabel")}</Label>
                   <div className="grid grid-cols-1 gap-2">
                     <Input placeholder="English Title" value={form.titleEn} onChange={e => setForm({...form, titleEn: e.target.value})} />
                     <Input dir="rtl" placeholder="العنوان بالعربية" value={form.titleAr} onChange={e => setForm({...form, titleAr: e.target.value})} />
@@ -482,7 +485,7 @@ function SkillsTab() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Description</Label>
+                  <Label>{t("matrix_sk_descLabel")}</Label>
                   <div className="grid grid-cols-1 gap-2">
                     <Textarea placeholder="English Description" value={form.descEn} onChange={e => setForm({...form, descEn: e.target.value})} rows={2} />
                     <Textarea dir="rtl" placeholder="الوصف بالعربية" value={form.descAr} onChange={e => setForm({...form, descAr: e.target.value})} rows={2} />
@@ -490,7 +493,7 @@ function SkillsTab() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Improvement Tip (Initial)</Label>
+                  <Label>{t("matrix_sk_tipsLabel")}</Label>
                   <div className="grid grid-cols-1 gap-2">
                     <Input placeholder="English Tip" value={form.tipEn} onChange={e => setForm({...form, tipEn: e.target.value})} />
                     <Input dir="rtl" placeholder="نصيحة بالعربية" value={form.tipAr} onChange={e => setForm({...form, tipAr: e.target.value})} />
@@ -500,9 +503,9 @@ function SkillsTab() {
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Category</Label>
+                  <Label>{t("matrix_sk_category")}</Label>
                   <Select value={form.categoryId} onValueChange={v => setForm({...form, categoryId: v})}>
-                    <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("matrix_sk_catPlaceholder")} /></SelectTrigger>
                     <SelectContent>
                       {allCategories.map(c => <SelectItem key={c.id} value={c.id}>{c.name.en}</SelectItem>)}
                     </SelectContent>
@@ -510,27 +513,27 @@ function SkillsTab() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Metric Type</Label>
+                  <Label>{t("matrix_sk_metricType")}</Label>
                   <Select value={form.metricType} onValueChange={(v: MetricType) => setForm({...form, metricType: v})}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="boolean">Yes/No (Checkbox)</SelectItem>
-                      <SelectItem value="numeric">Numeric (Value + Unit)</SelectItem>
-                      <SelectItem value="scale">Scale (Levels)</SelectItem>
+                      <SelectItem value="boolean">{t("matrix_sk_metricBoolean")}</SelectItem>
+                      <SelectItem value="numeric">{t("matrix_sk_metricNumeric")}</SelectItem>
+                      <SelectItem value="scale">{t("matrix_sk_metricScale")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {form.metricType === "numeric" && (
                   <div className="space-y-2 animate-in slide-in-from-top-2">
-                    <Label>Unit</Label>
-                    <Input placeholder="e.g. kg, cm, words" value={form.unit} onChange={e => setForm({...form, unit: e.target.value})} />
+                    <Label>{t("matrix_sk_unit")}</Label>
+                    <Input placeholder={t("matrix_sk_unitPlaceholder")} value={form.unit} onChange={e => setForm({...form, unit: e.target.value})} />
                   </div>
                 )}
 
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <Label>Importance Weight</Label>
+                    <Label>{t("matrix_sk_weight")}</Label>
                     <span className="text-xs font-bold text-teal-600">{form.weight}/10</span>
                   </div>
                   <Slider 
@@ -542,7 +545,7 @@ function SkillsTab() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="mb-2 block">Link to Age Groups</Label>
+                  <Label className="mb-2 block">{t("matrix_sk_linkAgeGroups")}</Label>
                   <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50 rounded-lg border border-slate-100 max-h-32 overflow-y-auto">
                     {allAgeGroups.map(ag => (
                       <div key={ag.id} className="flex items-center gap-2">
@@ -564,13 +567,13 @@ function SkillsTab() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>{t("cancel")}</Button>
               <Button 
                 onClick={handleCreateSkill} 
                 className="bg-[#0d9488] hover:bg-[#0f766e] text-white"
                 disabled={!form.titleEn || !form.categoryId}
               >
-                Create & Link Skill
+                {t("matrix_sk_create")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -581,19 +584,19 @@ function SkillsTab() {
       <div className="flex flex-wrap gap-3">
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
-          <Input placeholder="Search skills..." className="pl-10 h-9 bg-white" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input placeholder={t("matrix_search")} className="pl-10 h-9 bg-white" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <Select value={selectedCat} onValueChange={setSelectedCat}>
-          <SelectTrigger className="w-48 h-9"><SelectValue placeholder="All Categories" /></SelectTrigger>
+          <SelectTrigger className="w-48 h-9"><SelectValue placeholder={t("matrix_sk_allCats")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="all">{t("matrix_sk_allCats")}</SelectItem>
             {allCategories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name.en}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={selectedAg} onValueChange={setSelectedAg}>
-          <SelectTrigger className="w-48 h-9"><SelectValue placeholder="All Age Groups" /></SelectTrigger>
+          <SelectTrigger className="w-48 h-9"><SelectValue placeholder={t("matrix_sk_allAgeGroups")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Age Groups</SelectItem>
+            <SelectItem value="all">{t("matrix_sk_allAgeGroups")}</SelectItem>
             {allAgeGroups.map((ag) => <SelectItem key={ag.id} value={ag.id}>{ag.label.en}</SelectItem>)}
           </SelectContent>
         </Select>
@@ -637,7 +640,7 @@ function SkillsTab() {
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <div className="text-right hidden sm:block">
-                    <p className="text-xs text-[#64748b]">Weight</p>
+                    <p className="text-xs text-[#64748b]">{t("matrix_sk_weightLabel")}</p>
                     <p className="text-sm font-bold text-[#0f172a]">{skill.weight}/10</p>
                   </div>
                   <ChevronRight className={`h-4 w-4 text-[#94a3b8] transition-transform ${isExpanded ? "rotate-90" : ""}`} />
@@ -651,7 +654,7 @@ function SkillsTab() {
                       <div><p className="text-xs font-bold text-[#64748b] uppercase tracking-wider">Description (AR)</p><p className="text-sm text-[#334155] mt-1 text-right" dir="rtl">{skill.description.ar}</p></div>
                       
                       <div>
-                        <p className="text-xs font-bold text-[#64748b] uppercase tracking-wider mb-2">Age Group Availability</p>
+                        <p className="text-xs font-bold text-[#64748b] uppercase tracking-wider mb-2">{t("matrix_sk_ageAvailability")}</p>
                         <div className="flex flex-wrap gap-1.5">
                           {linkedAgs.map(ag => (
                             <Badge key={ag.id} variant="secondary" className="text-[10px] bg-slate-100 text-slate-600 border-none font-medium">
@@ -662,10 +665,10 @@ function SkillsTab() {
                         </div>
                       </div>
 
-                      {skill.unit && (<div><p className="text-xs font-bold text-[#64748b] uppercase tracking-wider">Unit</p><p className="text-sm text-[#334155] mt-1">{skill.unit}</p></div>)}
+                      {skill.unit && (<div><p className="text-xs font-bold text-[#64748b] uppercase tracking-wider">{t("matrix_sk_unit")}</p><p className="text-sm text-[#334155] mt-1">{skill.unit}</p></div>)}
                       {skill.scaleOptions && (
                         <div>
-                          <p className="text-xs font-bold text-[#64748b] uppercase tracking-wider mb-2">Scale Options</p>
+                          <p className="text-xs font-bold text-[#64748b] uppercase tracking-wider mb-2">{t("matrix_sk_scaleOptions")}</p>
                           <div className="flex flex-wrap gap-2">
                             {skill.scaleOptions.map((opt) => (
                               <Badge key={opt.id} variant="outline" className="text-xs">
@@ -678,7 +681,7 @@ function SkillsTab() {
                     </div>
                     <div className="space-y-3">
                       <div>
-                        <p className="text-xs font-bold text-[#64748b] uppercase tracking-wider mb-2">Improvement Tips</p>
+                        <p className="text-xs font-bold text-[#64748b] uppercase tracking-wider mb-2">{t("matrix_sk_improvementTips")}</p>
                         {skill.improvementTips.map((tip, i) => (
                           <div key={i} className="flex gap-2 items-start bg-amber-50/50 p-3 rounded-lg mb-2">
                             <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
@@ -690,7 +693,7 @@ function SkillsTab() {
                         ))}
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-[#64748b] uppercase tracking-wider">Weight Score</p>
+                        <p className="text-xs font-bold text-[#64748b] uppercase tracking-wider">{t("matrix_sk_weightScore")}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <Progress value={skill.weight * 10} className="h-2 flex-1" />
                           <span className="text-xs font-bold text-[#0f172a]">{skill.weight}/10</span>
@@ -714,6 +717,7 @@ function SkillsTab() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function RulesEditorTab() {
+  const t = useT();
   const allAgeGroups = svc.getAgeGroups().filter((ag) => ag.status === "active");
   const allCategories = svc.getCategories();
   const [selectedCat, setSelectedCat] = useState<string>(allCategories[0]?.id || "");
@@ -725,9 +729,9 @@ function RulesEditorTab() {
 
   const getCellDisplay = (skill: Skill, rule: ExpectedRule | undefined) => {
     if (!rule) return { text: "—", configured: false };
-    if (skill.metricType === "boolean") return { text: rule.expectedBoolean ? "✓ Expected" : "✗ Not expected", configured: true };
+    if (skill.metricType === "boolean") return { text: rule.expectedBoolean ? "✓ Expected" : "Not expected", configured: true };
     if (skill.metricType === "numeric") return { text: `${rule.optimalMin ?? "?"}–${rule.optimalMax ?? "?"} ${skill.unit || ""}`, configured: true };
-    if (skill.metricType === "scale") return { text: `≥ ${rule.minScaleValue ?? "?"}`, configured: true };
+    if (skill.metricType === "scale") return { text: `>= ${rule.minScaleValue ?? "?"}`, configured: true };
     return { text: "—", configured: false };
   };
 
@@ -735,8 +739,8 @@ function RulesEditorTab() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#0f172a]">Rules Editor</h2>
-          <p className="text-sm text-[#64748b]">Define expected values for each skill across age groups</p>
+          <h2 className="text-lg font-bold text-[#0f172a]">{t("matrix_rules_heading")}</h2>
+          <p className="text-sm text-[#64748b]">{t("matrix_rules_subtitle")}</p>
         </div>
       </div>
 
@@ -762,7 +766,7 @@ function RulesEditorTab() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-100">
-                  <th className="text-left p-4 text-xs font-bold text-[#64748b] uppercase tracking-wider w-64">Skill</th>
+                  <th className="text-left p-4 text-xs font-bold text-[#64748b] uppercase tracking-wider w-64">{t("matrix_rules_skillCol")}</th>
                   {allAgeGroups.map((ag) => (
                     <th key={ag.id} className="p-4 text-xs font-bold text-[#64748b] uppercase tracking-wider text-center">{ag.label.en}</th>
                   ))}
@@ -800,8 +804,8 @@ function RulesEditorTab() {
       {categorySkills.length === 0 && (
         <div className="text-center py-12">
           <Grid3X3 className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-          <p className="text-lg font-semibold text-slate-500">No skills in this category</p>
-          <p className="text-sm text-slate-400">Add skills first, then define rules here</p>
+          <p className="text-lg font-semibold text-slate-500">{t("matrix_rules_noSkills")}</p>
+          <p className="text-sm text-slate-400">{t("matrix_rules_noSkillsHint")}</p>
         </div>
       )}
     </div>
@@ -813,6 +817,7 @@ function RulesEditorTab() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function ScoringPreviewTab() {
+  const t = useT();
   const allAgeGroups = svc.getAgeGroups().filter((ag) => ag.status === "active");
   const [selectedAg, setSelectedAg] = useState<string>(allAgeGroups[0]?.id || "");
   const [inputs, setInputs] = useState<Record<string, any>>({});
@@ -857,15 +862,15 @@ function ScoringPreviewTab() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#0f172a]">Scoring Preview</h2>
-          <p className="text-sm text-[#64748b]">Simulate child evaluation with mock data</p>
+          <h2 className="text-lg font-bold text-[#0f172a]">{t("matrix_score_heading")}</h2>
+          <p className="text-sm text-[#64748b]">{t("matrix_score_subtitle")}</p>
         </div>
-        <Button variant="outline" className="gap-2" onClick={handleExport}><Download className="h-4 w-4" /> Export JSON</Button>
+        <Button variant="outline" className="gap-2" onClick={handleExport}><Download className="h-4 w-4" /> {t("matrix_score_exportJson")}</Button>
       </div>
 
       {/* Age Group Selector */}
       <div className="flex gap-3 items-center">
-        <Label className="text-sm font-semibold">Age Group:</Label>
+        <Label className="text-sm font-semibold">{t("matrix_score_ageGroup")}</Label>
         <Select value={selectedAg} onValueChange={(v) => { setSelectedAg(v); setResult(null); setInputs({}); }}>
           <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
           <SelectContent>{allAgeGroups.map((ag) => <SelectItem key={ag.id} value={ag.id}>{ag.label.en}</SelectItem>)}</SelectContent>
@@ -876,7 +881,7 @@ function ScoringPreviewTab() {
         {/* Input Panel */}
         <div className="lg:col-span-2 space-y-4">
           <Card className="border-none shadow-sm">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-[#334155]">Enter Skill Values</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-[#334155]">{t("matrix_score_enterValues")}</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {ruleSkills.map(({ skill, rule, category }) => (
@@ -886,13 +891,13 @@ function ScoringPreviewTab() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-[#0f172a]">{skill.title.en}</p>
-                      <p className="text-[11px] text-[#94a3b8]">{skill.metricType === "boolean" ? "Yes/No" : skill.metricType === "numeric" ? `Enter ${skill.unit || "value"}` : "Select level"}</p>
+                      <p className="text-[11px] text-[#94a3b8]">{skill.metricType === "boolean" ? `${t("matrix_score_yes")}/${t("matrix_score_no")}` : skill.metricType === "numeric" ? `Enter ${skill.unit || "value"}` : "Select level"}</p>
                     </div>
                     <div className="w-40 shrink-0">
                       {skill.metricType === "boolean" && (
                         <div className="flex items-center gap-2">
                           <Switch checked={inputs[skill.id] === true} onCheckedChange={(v) => handleInputChange(skill.id, v)} />
-                          <span className="text-xs text-[#64748b]">{inputs[skill.id] ? "Yes" : "No"}</span>
+                          <span className="text-xs text-[#64748b]">{inputs[skill.id] ? t("matrix_score_yes") : t("matrix_score_no")}</span>
                         </div>
                       )}
                       {skill.metricType === "numeric" && (
@@ -910,7 +915,7 @@ function ScoringPreviewTab() {
               </div>
               <div className="mt-6">
                 <Button onClick={runEvaluation} className="bg-[#0d9488] hover:bg-[#0f766e] text-white w-full h-11 font-bold gap-2">
-                  <BarChart3 className="h-4 w-4" /> Run Evaluation
+                  <BarChart3 className="h-4 w-4" /> {t("matrix_score_runEval")}
                 </Button>
               </div>
             </CardContent>
@@ -941,7 +946,7 @@ function ScoringPreviewTab() {
 
               {/* Category Breakdown */}
               <Card className="border-none shadow-sm">
-                <CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-[#334155]">Category Scores</CardTitle></CardHeader>
+                <CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-[#334155]">{t("matrix_score_categoryScores")}</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
                   {result.categoryScores.map((cs) => (
                     <div key={cs.categoryId}>
@@ -952,7 +957,7 @@ function ScoringPreviewTab() {
                       <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div className="h-full rounded-full transition-all duration-700" style={{ width: `${cs.score}%`, backgroundColor: cs.color }} />
                       </div>
-                      <p className="text-[10px] text-[#94a3b8] mt-0.5">{cs.achievedSkills}/{cs.totalSkills} achieved</p>
+                      <p className="text-[10px] text-[#94a3b8] mt-0.5">{cs.achievedSkills}/{cs.totalSkills} {t("matrix_score_achieved")}</p>
                     </div>
                   ))}
                 </CardContent>
@@ -961,7 +966,7 @@ function ScoringPreviewTab() {
               {/* Recommendations */}
               {result.skillEvaluations.filter((e) => e.recommendation).length > 0 && (
                 <Card className="border-none shadow-sm">
-                  <CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-[#334155] flex items-center gap-2"><Lightbulb className="h-4 w-4 text-amber-500" /> Tips</CardTitle></CardHeader>
+                  <CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-[#334155] flex items-center gap-2"><Lightbulb className="h-4 w-4 text-amber-500" /> {t("matrix_score_tips")}</CardTitle></CardHeader>
                   <CardContent className="space-y-2">
                     {result.skillEvaluations.filter((e) => e.recommendation).map((ev) => (
                       <div key={ev.skillId} className="p-3 bg-amber-50/50 rounded-lg">
@@ -977,8 +982,8 @@ function ScoringPreviewTab() {
             <Card className="border-none shadow-sm">
               <CardContent className="p-8 text-center">
                 <BarChart3 className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-sm font-semibold text-slate-500">No Results Yet</p>
-                <p className="text-xs text-slate-400 mt-1">Enter skill values and click "Run Evaluation"</p>
+                <p className="text-sm font-semibold text-slate-500">{t("matrix_score_noResults")}</p>
+                <p className="text-xs text-slate-400 mt-1">{t("matrix_score_noResultsHint")}</p>
               </CardContent>
             </Card>
           )}
