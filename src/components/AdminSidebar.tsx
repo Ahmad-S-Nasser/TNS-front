@@ -71,7 +71,7 @@ export function AdminSidebar() {
                 Tips & Steps
               </h1>
               <p className="text-[10px] text-sidebar-foreground/60 font-medium uppercase tracking-wider">
-                Admin Panel
+                {isRTL ? "لوحة الإدارة" : "Admin Panel"}
               </p>
             </div>
           )}
@@ -160,12 +160,12 @@ export function AdminSidebar() {
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm border border-white/20">
-              SA
+              EG
             </div>
             {!collapsed && (
               <div className="animate-fade-in overflow-hidden">
                 <p className="text-sm font-bold text-sidebar-foreground truncate">
-                  Sarah Al-Rashid
+                  Eman Gado
                 </p>
                 <div className="flex">
                   <span className="text-[9px] font-bold uppercase tracking-wider bg-primary/10 text-primary px-1.5 py-0.5 rounded-md border border-primary/20">

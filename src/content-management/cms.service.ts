@@ -120,6 +120,19 @@ export const SECTION_CONFIGS: SectionConfig[] = [
     requires_admin_approval: true,
     allowed_roles: ["SUPER_ADMIN", "MANAGER"],
   },
+  {
+    key: "vaccines",
+    label_ar: "اللقاحات",
+    label_en: "Vaccines",
+    description_ar: "برامج التطعيم الإجبارية والاختيارية للأطفال",
+    description_en: "Mandatory and optional childhood vaccination programs",
+    icon: "syringe",
+    color: "#0D9488",
+    gradient: "from-teal-500 to-emerald-600",
+    requires_doctor_approval: true,
+    requires_admin_approval: false,
+    allowed_roles: ["SUPER_ADMIN", "MANAGER", "DOCTOR"],
+  },
 ];
 
 export function getSectionConfig(key: CMSSection): SectionConfig {
@@ -339,6 +352,61 @@ let store: CMSContent[] = [
     requires_doctor_approval: false, requires_admin_approval: true,
     created_by: "Super Admin", created_at: now(), updated_at: now(), tags: ["child-protection", "abuse"],
   } as EmergencyContent,
+
+  // ── Vaccines ──────────────────────────────────────────────────────────────
+  {
+    id: "vac-1", section: "vaccines", status: "published",
+    title_ar: "لقاح شلل الأطفال (OPV)",
+    title_en: "Polio Vaccine (OPV)",
+    description_ar: "اللقاح الفموي لشلل الأطفال - إلزامي",
+    description_en: "Oral Polio Vaccine - Mandatory government program",
+    vaccine_type: "FREE", dose_count: 5,
+    age_schedule: ["at-birth", "2m", "4m", "6m", "12m"],
+    dose_info_ar: "نقطتان بالفم",
+    dose_info_en: "Two drops orally",
+    importance_ar: "يقي من مرض شلل الأطفال الذي يسبب إعاقة دائمة",
+    importance_en: "Prevents Poliomyelitis which causes permanent paralysis",
+    prevented_diseases_ar: ["شلل الأطفال"],
+    prevented_diseases_en: ["Polio"],
+    risks_of_missing_ar: "خطر الإصابة بالشلل الدائم والمضاعفات الخطيرة",
+    risks_of_missing_en: "Risk of lifelong paralysis and severe complications",
+    side_effects: [
+      { id: "se-1", effect_ar: "حرارة خفيفة", effect_en: "Mild fever", handling_ar: "خافض حرارة عند الحاجة", handling_en: "Antipyretics if needed", is_serious: false }
+    ],
+    warning_signs_ar: ["صعوبة في التنفس", "قيء مستمر"],
+    warning_signs_en: ["Difficulty breathing", "Persistent vomiting"],
+    medical_review_required: true,
+    visibility: { age_categories: ["infant"], requires_login: false },
+    requires_doctor_approval: true, requires_admin_approval: false,
+    created_by: "Dr. Hana", created_at: now(), updated_at: now(), tags: ["mandatory", "polio"],
+  } as any,
+  {
+    id: "vac-2", section: "vaccines", status: "draft",
+    title_ar: "لقاح الروتا (Rotavirus)",
+    title_en: "Rotavirus Vaccine",
+    description_ar: "لقاح الروتا الموصى به - اختياري/مدفوع",
+    description_en: "Recommended Rotavirus vaccine - Optional/Private",
+    vaccine_type: "PAID", price: 450, currency: "EGP", dose_count: 2,
+    age_schedule: ["2m", "4m"],
+    dose_info_ar: "جرعة فموية",
+    dose_info_en: "Oral dose",
+    importance_ar: "يقي من النزلات المعوية الشديدة والجفاف الناتج عن فيروس روتا",
+    importance_en: "Prevents severe viral gastroenteritis and dehydration caused by Rotavirus",
+    prevented_diseases_ar: ["فيروس روتا", "النزلات المعوية"],
+    prevented_diseases_en: ["Rotavirus", "Gastroenteritis"],
+    risks_of_missing_ar: "النزلات المعوية الحادة والجفاف الشديد والمستمر",
+    risks_of_missing_en: "Severe gastroenteritis and chronic dehydration risk",
+    side_effects: [
+      { id: "se-2", effect_ar: "إسهال خفيف", effect_en: "Mild diarrhea", handling_ar: "متابعة السوائل", handling_en: "Monitor fluid intake", is_serious: false }
+    ],
+    warning_signs_ar: ["خمول شديد", "آلام بطن حادة"],
+    warning_signs_en: ["Excessive lethargy", "Severe abdominal pain"],
+    available_places: ["hosp-1"],
+    medical_review_required: true,
+    visibility: { age_categories: ["infant"], requires_login: false },
+    requires_doctor_approval: true, requires_admin_approval: false,
+    created_by: "Dr. Hana", created_at: now(), updated_at: now(), tags: ["optional", "rotavirus"],
+  } as any,
 ];
 
 // ─── Status Lifecycle ─────────────────────────────────────────────────────────

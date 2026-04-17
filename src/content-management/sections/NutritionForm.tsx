@@ -1,14 +1,16 @@
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { X, Plus } from "lucide-react";
 import { useState } from "react";
 import type { NutritionContent, AgeCategory, MealType } from "../cms.types";
+import { useI18n, useT } from "@/i18n/i18n.context";
 
 function TagInput({ label, values, onChange, placeholder }: { label: string; values: string[]; onChange: (v: string[]) => void; placeholder?: string }) {
+  const { isRTL } = useI18n();
   const [input, setInput] = useState("");
   const add = () => {
     const val = input.trim();
@@ -19,7 +21,14 @@ function TagInput({ label, values, onChange, placeholder }: { label: string; val
     <div className="space-y-2">
       <Label>{label}</Label>
       <div className="flex gap-2">
-        <Input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && (e.preventDefault(), add())} placeholder={placeholder || "Type and press Enter..."} className="h-8 text-sm" />
+        <Input 
+          value={input} 
+          onChange={e => setInput(e.target.value)} 
+          onKeyDown={e => e.key === "Enter" && (e.preventDefault(), add())} 
+          placeholder={placeholder || (isRTL ? "اكتب واضغط Enter..." : "Type and press Enter...")} 
+          className="h-8 text-sm" 
+          dir={isRTL ? "rtl" : "ltr"}
+        />
         <Button type="button" variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={add}><Plus className="h-3.5 w-3.5" /></Button>
       </div>
       {values.length > 0 && (
@@ -42,58 +51,66 @@ interface Props {
 }
 
 export function NutritionForm({ data, onChange }: Props) {
+  const t = useT();
+  const { isRTL } = useI18n();
+
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Age Group</Label>
+          <Label>{t("cms_field_ageGroup")}</Label>
           <Select value={data.age_group || ""} onValueChange={v => onChange({ age_group: v as AgeCategory })}>
-            <SelectTrigger><SelectValue placeholder="Select age" /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={t("filter")} /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="infant">Infant (0–2 yrs)</SelectItem>
-              <SelectItem value="toddler">Toddler (2–4 yrs)</SelectItem>
-              <SelectItem value="preschool">Preschool (4–6 yrs)</SelectItem>
-              <SelectItem value="school-age">School Age (6–12 yrs)</SelectItem>
-              <SelectItem value="adolescent">Adolescent (12–18 yrs)</SelectItem>
-              <SelectItem value="all">All Ages</SelectItem>
+              <SelectItem value="infant">{t("cat_infant")}</SelectItem>
+              <SelectItem value="toddler">{t("cat_toddler")}</SelectItem>
+              <SelectItem value="preschool">{t("cat_preschool")}</SelectItem>
+              <SelectItem value="school-age">{t("cat_schoolAge")}</SelectItem>
+              <SelectItem value="adolescent">{t("cat_adolescent")}</SelectItem>
+              <SelectItem value="all">{t("cat_allAges")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>Meal Type</Label>
+          <Label>{t("cms_field_mealType")}</Label>
           <Select value={data.meal_type || ""} onValueChange={v => onChange({ meal_type: v as MealType })}>
-            <SelectTrigger><SelectValue placeholder="Select meal type" /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={t("filter")} /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="breakfast">Breakfast</SelectItem>
-              <SelectItem value="lunch">Lunch</SelectItem>
-              <SelectItem value="dinner">Dinner</SelectItem>
-              <SelectItem value="snack">Snack</SelectItem>
-              <SelectItem value="supplement">Supplement</SelectItem>
+              <SelectItem value="breakfast">{isRTL ? "إفطار" : "Breakfast"}</SelectItem>
+              <SelectItem value="lunch">{isRTL ? "غداء" : "Lunch"}</SelectItem>
+              <SelectItem value="dinner">{isRTL ? "عشاء" : "Dinner"}</SelectItem>
+              <SelectItem value="snack">{isRTL ? "وجبة خفيفة" : "Snack"}</SelectItem>
+              <SelectItem value="supplement">{isRTL ? "مكمل" : "Supplement"}</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      <TagInput label="Recommended Foods / الأطعمة المقترحة" values={data.recommended_foods || []} onChange={v => onChange({ recommended_foods: v })} placeholder="e.g. خضار مطبوخة" />
-      <TagInput label="Restricted Foods / الأطعمة الممنوعة" values={data.restricted_foods || []} onChange={v => onChange({ restricted_foods: v })} placeholder="e.g. الأطعمة المقلية" />
-      <TagInput label="Nutrition Tips / نصائح غذائية" values={data.tips || []} onChange={v => onChange({ tips: v })} />
+      <TagInput label={t("cms_field_recommendedFoods")} values={data.recommended_foods || []} onChange={v => onChange({ recommended_foods: v })} placeholder={isRTL ? "مثال: خضار مطبوخة" : "e.g. Cooked vegetables"} />
+      <TagInput label={t("cms_field_restrictedFoods")} values={data.restricted_foods || []} onChange={v => onChange({ restricted_foods: v })} placeholder={isRTL ? "مثال: الأطعمة المقلية" : "e.g. Fried foods"} />
+      <TagInput label={t("cms_field_tips")} values={data.tips || []} onChange={v => onChange({ tips: v })} />
 
       <div className="space-y-2">
-        <Label>Nutritional Notes (Optional)</Label>
-        <Input value={data.nutritional_notes || ""} onChange={e => onChange({ nutritional_notes: e.target.value })} placeholder="Any additional nutritional notes..." />
+        <Label>{t("cms_field_notes")} ({isRTL ? "اختياري" : "Optional"})</Label>
+        <Input 
+          value={data.nutritional_notes || ""} 
+          onChange={e => onChange({ nutritional_notes: e.target.value })} 
+          placeholder={isRTL ? "أي ملاحظات غذائية إضافية..." : "Any additional nutritional notes..."} 
+          dir={isRTL ? "rtl" : "ltr"}
+        />
       </div>
 
       <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
         <div>
-          <p className="text-sm font-semibold text-[#334155]">Has Images</p>
-          <p className="text-xs text-[#94a3b8]">Enable to add image URL below</p>
+          <p className="text-sm font-semibold text-[#334155]">{t("cms_field_hasImages")}</p>
+          <p className="text-xs text-[#94a3b8]">{isRTL ? "التفعيل لإضافة رابط الصورة أدناه" : "Enable to add image URL below"}</p>
         </div>
         <Switch checked={data.has_images || false} onCheckedChange={v => onChange({ has_images: v })} />
       </div>
 
       {data.has_images && (
         <div className="space-y-2 animate-in slide-in-from-top-2">
-          <Label>Image URL</Label>
+          <Label>{t("cms_field_imageUrl")}</Label>
           <Input value={data.image_url || ""} onChange={e => onChange({ image_url: e.target.value })} placeholder="https://..." />
         </div>
       )}

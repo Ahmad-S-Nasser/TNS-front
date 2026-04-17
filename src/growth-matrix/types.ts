@@ -48,6 +48,8 @@ export interface GrowthCategory {
   name: BilingualText;
   description: BilingualText;
   iconKey: string; // lucide icon name for UI rendering
+  iconUrl?: string; // custom icon URL
+  imageUrl?: string; // card image for mobile app
   color: string;   // hex color for visual distinction
   sortOrder: number;
   createdAt: string;
@@ -174,6 +176,8 @@ export interface CategoryFormData {
   name: BilingualText;
   description: BilingualText;
   iconKey: string;
+  iconUrl?: string;
+  imageUrl?: string;
   color: string;
   sortOrder: number;
 }

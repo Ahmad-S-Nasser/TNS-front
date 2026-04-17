@@ -14,10 +14,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import {
+  Tooltip as ShadTooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   TrendingUp, Baby, Brain, Heart, MessageCircle, Hand, Ruler,
   Plus, Search, Edit, Trash2, Download, ChevronRight, CheckCircle2,
   AlertTriangle, Clock, Target, BarChart3, Grid3X3, Lightbulb,
-  ArrowRight, Star, Zap, Eye, Settings2, Copy,
+  ArrowRight, Star, Zap, Eye, Settings2, Copy, Upload, X,
 } from "lucide-react";
 import {
   ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar,
@@ -56,7 +62,7 @@ const skillStatusConfig: Record<SkillStatus, { label: string; color: string; ico
 function OverviewTab() {
   const stats = useMemo(() => svc.getMatrixStats(), []);
   const t = useT();
-  const { lang } = useI18n();
+  const { lang, isRTL } = useI18n();
   const n = (bi: { en: string; ar: string }) => lang === "ar" ? bi.ar : bi.en;
 
   const chartData = useMemo(() => stats.skillsPerCategory.map(s => ({
@@ -70,7 +76,7 @@ function OverviewTab() {
   })), [stats.coverageByAgeGroup, lang]);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500" dir={isRTL ? "rtl" : "ltr"}>
       {/* KPI Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
@@ -82,7 +88,7 @@ function OverviewTab() {
           <Card key={kpi.label} className="border-none shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
-                <div>
+                <div className={isRTL ? "text-right" : ""}>
                   <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider">{kpi.label}</p>
                   <p className="text-3xl font-bold text-[#0f172a] mt-1">{kpi.value}</p>
                 </div>
@@ -99,7 +105,7 @@ function OverviewTab() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="border-none shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-bold text-[#334155]">{t("matrix_chart_skillsPerCat")}</CardTitle>
+            <CardTitle className={`text-sm font-bold text-[#334155] ${isRTL ? "text-right" : ""}`}>{t("matrix_chart_skillsPerCat")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={220}>
@@ -117,7 +123,7 @@ function OverviewTab() {
                 <div key={item.categoryId} className="flex items-center gap-2">
                   <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
                   <span className="text-xs text-[#64748b]">{item.name}</span>
-                  <span className="text-xs font-bold ml-auto">{item.count}</span>
+                  <span className={`text-xs font-bold ${isRTL ? "mr-auto" : "ml-auto"}`}>{item.count}</span>
                 </div>
               ))}
             </div>
@@ -126,16 +132,16 @@ function OverviewTab() {
 
         <Card className="border-none shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-bold text-[#334155]">{t("matrix_chart_ruleCoverage")}</CardTitle>
+            <CardTitle className={`text-sm font-bold text-[#334155] ${isRTL ? "text-right" : ""}`}>{t("matrix_chart_ruleCoverage")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={coverageData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis type="number" domain={[0, 100]} fontSize={11} tick={{ fill: "#94a3b8" }} tickFormatter={(v) => `${v}%`} />
-                <YAxis type="category" dataKey="name" fontSize={11} tick={{ fill: "#64748b" }} width={90} />
+                <XAxis type="number" domain={[0, 100]} fontSize={11} tick={{ fill: "#94a3b8" }} tickFormatter={(v) => `${v}%`} reversed={isRTL} />
+                <YAxis type="category" dataKey="name" fontSize={11} tick={{ fill: "#64748b" }} width={90} orientation={isRTL ? "right" : "left"} />
                 <Tooltip contentStyle={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "12px", fontSize: 13 }} formatter={(v: number) => `${v}%`} />
-                <Bar dataKey="coverage" fill="#0d9488" radius={[0, 6, 6, 0]} barSize={20} />
+                <Bar dataKey="coverage" fill="#0d9488" radius={isRTL ? [6, 0, 0, 6] : [0, 6, 6, 0]} barSize={20} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -151,7 +157,7 @@ function OverviewTab() {
 
 function AgeGroupsTab() {
   const t = useT();
-  const { lang } = useI18n();
+  const { lang, isRTL } = useI18n();
   const n = (bi: { en: string; ar: string }) => lang === "ar" ? bi.ar : bi.en;
   const [groups, setGroups] = useState<AgeGroup[]>(svc.getAgeGroups());
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -190,9 +196,9 @@ function AgeGroupsTab() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500" dir={isRTL ? "rtl" : "ltr"}>
       <div className="flex items-center justify-between">
-        <div>
+        <div className={isRTL ? "text-right" : ""}>
           <h2 className="text-lg font-bold text-[#0f172a]">{t("matrix_ag_heading")}</h2>
           <p className="text-sm text-[#64748b]">{t("matrix_ag_subtitle")}</p>
         </div>
@@ -202,8 +208,8 @@ function AgeGroupsTab() {
               <Plus className="h-4 w-4" /> {t("matrix_addAgeGroup")}
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
+          <DialogContent className="sm:max-w-md" dir={isRTL ? "rtl" : "ltr"}>
+            <DialogHeader className={isRTL ? "text-right" : ""}>
               <DialogTitle>{editId ? t("matrix_ag_editTitle") : t("matrix_ag_createTitle")}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -214,7 +220,7 @@ function AgeGroupsTab() {
                 </div>
                 <div className="space-y-2">
                   <Label>{t("matrix_ag_labelAr")}</Label>
-                  <Input dir="rtl" value={form.labelAr} onChange={(e) => setForm({ ...form, labelAr: e.target.value })} placeholder="٠-٣ أشهر" />
+                  <Input dir="rtl" value={form.labelAr} onChange={(e) => setForm({ ...form, labelAr: e.target.value })} placeholder="٠-٣ أشهر" className="text-right" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -229,10 +235,10 @@ function AgeGroupsTab() {
               </div>
               <div className="space-y-2">
                 <Label>{t("matrix_ag_description")}</Label>
-                <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder={t("matrix_ag_descPlaceholder")} />
+                <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder={t("matrix_ag_descPlaceholder")} dir={isRTL ? "rtl" : "ltr"} />
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-0">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("cancel")}</Button>
               <Button onClick={handleSave} className="bg-[#0d9488] hover:bg-[#0f766e] text-white">{editId ? t("matrix_update") : t("matrix_create")}</Button>
             </DialogFooter>
@@ -247,7 +253,7 @@ function AgeGroupsTab() {
           const catCoverage = new Set(relatedSkills.map((s) => s.categoryId)).size;
           return (
             <Card key={ag.id} className="border-none shadow-sm hover:shadow-md transition-all group relative">
-              <CardContent className="p-5">
+              <CardContent className={`p-5 ${isRTL ? "text-right" : ""}`}>
                 <div className="flex items-start justify-between mb-3">
                   <div className="h-10 w-10 rounded-xl bg-teal-50 flex items-center justify-center">
                     <Baby className="h-5 w-5 text-teal-600" />
@@ -257,7 +263,7 @@ function AgeGroupsTab() {
                   </Badge>
                 </div>
                 <h3 className="font-bold text-[#0f172a] text-[15px]">{n(ag.label)}</h3>
-                <p className="text-xs text-[#94a3b8] font-medium mt-0.5">{lang === "ar" ? ag.label.en : ag.label.ar}</p>
+                <p className="text-xs text-[#94a3b8] font-medium mt-0.5" dir={lang === "ar" ? "ltr" : "rtl"}>{lang === "ar" ? ag.label.en : ag.label.ar}</p>
                 <p className="text-xs text-[#64748b] mt-2">{ag.description}</p>
                 <Separator className="my-3" />
                 <div className="flex items-center justify-between text-xs">
@@ -265,7 +271,7 @@ function AgeGroupsTab() {
                   <span className="text-[#64748b]"><span className="font-bold text-[#334155]">{relatedSkills.length}</span> {t("matrix_ag_skills")}</span>
                   <span className="text-[#64748b]"><span className="font-bold text-[#334155]">{catCoverage}</span> {t("matrix_ag_cats")}</span>
                 </div>
-                <div className="flex gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className={`flex gap-1 mt-3 ${isRTL ? "justify-start" : "justify-end"}`}>
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(ag)}><Edit className="h-3.5 w-3.5" /></Button>
                   <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => handleDelete(ag.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                 </div>
@@ -284,12 +290,18 @@ function AgeGroupsTab() {
 
 function CategoriesTab() {
   const t = useT();
-  const { lang } = useI18n();
+  const { lang, isRTL } = useI18n();
   const n = (bi: { en: string; ar: string }) => lang === "ar" ? bi.ar : bi.en;
   const [cats, setCats] = useState<GrowthCategory[]>(svc.getCategories());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [form, setForm] = useState({ nameEn: "", nameAr: "", descEn: "", descAr: "", iconKey: "ruler", color: "#3B82F6", sortOrder: 1 });
+  const [form, setForm] = useState({ 
+    nameEn: "", nameAr: "", 
+    descEn: "", descAr: "", 
+    iconKey: "ruler", iconUrl: "", 
+    imageUrl: "", color: "#3B82F6", 
+    sortOrder: 1 
+  });
 
   const colorOptions = ["#3B82F6", "#8B5CF6", "#F59E0B", "#10B981", "#EF4444", "#EC4899", "#06B6D4", "#F97316"];
   const iconOptions = [
@@ -299,28 +311,58 @@ function CategoriesTab() {
 
   const openCreate = () => {
     setEditId(null);
-    setForm({ nameEn: "", nameAr: "", descEn: "", descAr: "", iconKey: "ruler", color: "#3B82F6", sortOrder: cats.length + 1 });
+    setForm({ 
+      nameEn: "", nameAr: "", 
+      descEn: "", descAr: "", 
+      iconKey: "ruler", iconUrl: "", 
+      imageUrl: "", color: "#3B82F6", 
+      sortOrder: cats.length + 1 
+    });
     setDialogOpen(true);
   };
 
   const openEdit = (cat: GrowthCategory) => {
     setEditId(cat.id);
-    setForm({ nameEn: cat.name.en, nameAr: cat.name.ar, descEn: cat.description.en, descAr: cat.description.ar, iconKey: cat.iconKey, color: cat.color, sortOrder: cat.sortOrder });
+    setForm({ 
+      nameEn: cat.name.en, nameAr: cat.name.ar, 
+      descEn: cat.description.en, descAr: cat.description.ar, 
+      iconKey: cat.iconKey, iconUrl: cat.iconUrl || "", 
+      imageUrl: cat.imageUrl || "", color: cat.color, 
+      sortOrder: cat.sortOrder 
+    });
     setDialogOpen(true);
   };
 
   const handleSave = () => {
-    const data = { name: { en: form.nameEn, ar: form.nameAr }, description: { en: form.descEn, ar: form.descAr }, iconKey: form.iconKey, color: form.color, sortOrder: form.sortOrder };
+    const data = { 
+      name: { en: form.nameEn, ar: form.nameAr }, 
+      description: { en: form.descEn, ar: form.descAr }, 
+      iconKey: form.iconKey, 
+      iconUrl: form.iconUrl || undefined,
+      imageUrl: form.imageUrl || undefined,
+      color: form.color, 
+      sortOrder: form.sortOrder 
+    };
     if (editId) svc.updateCategory(editId, data);
     else svc.createCategory(data);
     setCats(svc.getCategories());
     setDialogOpen(false);
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, field: "iconUrl" | "imageUrl") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setForm(prev => ({ ...prev, [field]: reader.result as string }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500" dir={isRTL ? "rtl" : "ltr"}>
       <div className="flex items-center justify-between">
-        <div>
+        <div className={isRTL ? "text-right" : ""}>
           <h2 className="text-lg font-bold text-[#0f172a]">{t("matrix_cat_heading")}</h2>
           <p className="text-sm text-[#64748b]">{t("matrix_cat_subtitle")}</p>
         </div>
@@ -328,28 +370,77 @@ function CategoriesTab() {
           <DialogTrigger asChild>
             <Button onClick={openCreate} className="bg-[#0d9488] hover:bg-[#0f766e] text-white gap-2"><Plus className="h-4 w-4" /> {t("matrix_addCategory")}</Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader><DialogTitle>{editId ? t("matrix_cat_editTitle") : t("matrix_cat_createTitle")}</DialogTitle></DialogHeader>
+          <DialogContent className="sm:max-w-lg" dir={isRTL ? "rtl" : "ltr"}>
+            <DialogHeader className={isRTL ? "text-right" : ""}>
+               <DialogTitle>{editId ? t("matrix_cat_editTitle") : t("matrix_cat_createTitle")}</DialogTitle>
+            </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2"><Label>{t("matrix_cat_nameEn")}</Label><Input value={form.nameEn} onChange={(e) => setForm({ ...form, nameEn: e.target.value })} /></div>
-                <div className="space-y-2"><Label>{t("matrix_cat_nameAr")}</Label><Input dir="rtl" value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} /></div>
+                <div className="space-y-2"><Label>{t("matrix_cat_nameAr")}</Label><Input dir="rtl" value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} className="text-right" /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2"><Label>{t("matrix_cat_descEn")}</Label><Textarea value={form.descEn} onChange={(e) => setForm({ ...form, descEn: e.target.value })} rows={2} /></div>
-                <div className="space-y-2"><Label>{t("matrix_cat_descAr")}</Label><Textarea dir="rtl" value={form.descAr} onChange={(e) => setForm({ ...form, descAr: e.target.value })} rows={2} /></div>
+                <div className="space-y-2"><Label>{t("matrix_cat_descAr")}</Label><Textarea dir="rtl" value={form.descAr} onChange={(e) => setForm({ ...form, descAr: e.target.value })} rows={2} className="text-right" /></div>
               </div>
-              <div className="space-y-2">
-                <Label>{t("matrix_cat_icon")}</Label>
-                <div className="flex gap-2">{iconOptions.map((ic) => { const Ico = iconMap[ic.key] || Ruler; return (<button key={ic.key} onClick={() => setForm({ ...form, iconKey: ic.key })} className={`h-10 w-10 rounded-lg flex items-center justify-center border-2 transition-all ${form.iconKey === ic.key ? "border-teal-500 bg-teal-50" : "border-slate-200 hover:border-slate-300"}`}><Ico className="h-5 w-5" /></button>); })}</div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>{t("matrix_cat_icon")}</Label>
+                  <TooltipProvider>
+                    <ShadTooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-8 gap-2" asChild>
+                          <label className="cursor-pointer">
+                            <Upload className="h-3.5 w-3.5" /> {form.iconUrl ? t("matrix_cat_iconReupload") : t("matrix_cat_iconUpload")}
+                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, "iconUrl")} />
+                          </label>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>{t("matrix_cat_iconUploadHint")}</p></TooltipContent>
+                    </ShadTooltip>
+                  </TooltipProvider>
+                </div>
+                
+                {form.iconUrl ? (
+                  <div className="relative h-16 w-16 group">
+                    <img src={form.iconUrl} className="h-full w-full object-contain rounded-lg border border-slate-200 p-2" alt="Uploaded Icon" />
+                    <button onClick={() => setForm({ ...form, iconUrl: "" })} className="absolute -top-2 -right-2 h-5 w-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity"><X className="h-3 w-3" /></button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">{iconOptions.map((ic) => { const Ico = iconMap[ic.key] || Ruler; return (<button key={ic.key} onClick={() => setForm({ ...form, iconKey: ic.key })} className={`h-10 w-10 rounded-lg flex items-center justify-center border-2 transition-all ${form.iconKey === ic.key ? "border-teal-500 bg-teal-50" : "border-slate-200 hover:border-slate-300"}`}><Ico className="h-5 w-5" /></button>); })}</div>
+                )}
               </div>
+
+              <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-[#0f172a] font-bold">{t("matrix_cat_mobileImage")}</Label>
+                    <p className="text-[10px] text-[#64748b]">{t("matrix_cat_mobileImageHint")}</p>
+                  </div>
+                  <Button variant="outline" size="sm" className="h-8 gap-2 bg-white" asChild>
+                    <label className="cursor-pointer">
+                      <Upload className="h-3.5 w-3.5" /> {form.imageUrl ? t("matrix_cat_imageChange") : t("matrix_cat_imageUpload")}
+                      <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, "imageUrl")} />
+                    </label>
+                  </Button>
+                </div>
+                {form.imageUrl && (
+                  <div className="relative aspect-video w-full group overflow-hidden rounded-lg border border-slate-200">
+                    <img src={form.imageUrl} className="h-full w-full object-cover" alt="Card Preview" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Button variant="destructive" size="sm" onClick={() => setForm({ ...form, imageUrl: "" })} className="h-8 gap-2"><Trash2 className="h-3.5 w-3.5" /> {t("remove")}</Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <Label>{t("matrix_cat_color")}</Label>
                 <div className="flex gap-2">{colorOptions.map((c) => (<button key={c} onClick={() => setForm({ ...form, color: c })} className={`h-8 w-8 rounded-full border-2 transition-all ${form.color === c ? "border-slate-900 scale-110" : "border-transparent"}`} style={{ backgroundColor: c }} />))}</div>
               </div>
               <div className="space-y-2"><Label>{t("matrix_cat_sortOrder")}</Label><Input type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: +e.target.value })} /></div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-0">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("cancel")}</Button>
               <Button onClick={handleSave} className="bg-[#0d9488] hover:bg-[#0f766e] text-white">{editId ? t("matrix_update") : t("matrix_create")}</Button>
             </DialogFooter>
@@ -363,14 +454,32 @@ function CategoriesTab() {
           const skillCount = svc.getSkillsByCategory(cat.id).length;
           return (
             <Card key={cat.id} className="border-none shadow-sm hover:shadow-md transition-all group">
-              <CardContent className="p-5">
-                <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${cat.color}15` }}>
-                    <Icon className="h-6 w-6" style={{ color: cat.color }} />
+              <CardContent className={`p-5 ${isRTL ? "text-right" : ""}`}>
+                <div className={`flex items-start gap-4 ${isRTL ? "flex-row" : "flex-row"}`}>
+                  <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0 overflow-hidden" style={{ backgroundColor: `${cat.color}15` }}>
+                    {cat.iconUrl ? (
+                      <img src={cat.iconUrl} className="h-full w-full object-contain p-1.5" alt={n(cat.name)} />
+                    ) : (
+                      <Icon className="h-6 w-6" style={{ color: cat.color }} />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-[#0f172a] text-[15px]">{n(cat.name)}</h3>
-                    <p className="text-xs text-[#94a3b8] font-medium mt-0.5">{lang === "ar" ? cat.name.en : cat.name.ar}</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-bold text-[#0f172a] text-[15px] truncate">{n(cat.name)}</h3>
+                      {cat.imageUrl && (
+                        <ShadTooltip>
+                          <TooltipTrigger asChild>
+                            <div className="h-5 w-5 rounded-full bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
+                              <Eye className="h-3 w-3 text-blue-500" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent className="p-0 overflow-hidden border-none shadow-xl">
+                            <img src={cat.imageUrl} className="h-32 w-48 object-cover" alt="Mobile Preview" />
+                          </TooltipContent>
+                        </ShadTooltip>
+                      )}
+                    </div>
+                    <p className="text-xs text-[#94a3b8] font-medium mt-0.5" dir={lang === "ar" ? "ltr" : "rtl"}>{lang === "ar" ? cat.name.en : cat.name.ar}</p>
                     <p className="text-xs text-[#64748b] mt-2 line-clamp-2">{n(cat.description)}</p>
                   </div>
                 </div>
@@ -379,7 +488,7 @@ function CategoriesTab() {
                   <Badge variant="secondary" className="text-xs font-bold" style={{ color: cat.color, backgroundColor: `${cat.color}15` }}>
                     {skillCount} {t("matrix_cat_skills")}
                   </Badge>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className={`flex gap-1 ${isRTL ? "justify-start" : "justify-end"}`}>
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(cat)}><Edit className="h-3.5 w-3.5" /></Button>
                   </div>
                 </div>
@@ -398,7 +507,7 @@ function CategoriesTab() {
 
 function SkillsTab() {
   const t = useT();
-  const { lang } = useI18n();
+  const { lang, isRTL } = useI18n();
   const n = (bi: { en: string; ar: string }) => lang === "ar" ? bi.ar : bi.en;
   const [allSkills, setAllSkills] = useState(svc.getSkills());
   const allCategories = svc.getCategories();
@@ -481,9 +590,9 @@ function SkillsTab() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500" dir={isRTL ? "rtl" : "ltr"}>
       <div className="flex items-center justify-between">
-        <div>
+        <div className={isRTL ? "text-right" : ""}>
           <h2 className="text-lg font-bold text-[#0f172a]">{t("matrix_sk_heading")}</h2>
           <p className="text-sm text-[#64748b]">{filtered.length} {t("matrix_sk_subtitle")} {allCategories.length} {t("matrix_sk_subtitleCats")}</p>
         </div>
@@ -494,8 +603,8 @@ function SkillsTab() {
               <Plus className="h-4 w-4" /> {t("matrix_addSkill")}
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
+          <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto" dir={isRTL ? "rtl" : "ltr"}>
+            <DialogHeader className={isRTL ? "text-right" : ""}>
               <DialogTitle>{t("matrix_sk_createTitle")}</DialogTitle>
             </DialogHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
@@ -504,7 +613,7 @@ function SkillsTab() {
                   <Label>{t("matrix_sk_titleLabel")}</Label>
                   <div className="grid grid-cols-1 gap-2">
                     <Input placeholder="English Title" value={form.titleEn} onChange={e => setForm({...form, titleEn: e.target.value})} />
-                    <Input dir="rtl" placeholder="العنوان بالعربية" value={form.titleAr} onChange={e => setForm({...form, titleAr: e.target.value})} />
+                    <Input dir="rtl" placeholder="العنوان بالعربية" value={form.titleAr} onChange={e => setForm({...form, titleAr: e.target.value})} className="text-right" />
                   </div>
                 </div>
                 
@@ -512,7 +621,7 @@ function SkillsTab() {
                   <Label>{t("matrix_sk_descLabel")}</Label>
                   <div className="grid grid-cols-1 gap-2">
                     <Textarea placeholder="English Description" value={form.descEn} onChange={e => setForm({...form, descEn: e.target.value})} rows={2} />
-                    <Textarea dir="rtl" placeholder="الوصف بالعربية" value={form.descAr} onChange={e => setForm({...form, descAr: e.target.value})} rows={2} />
+                    <Textarea dir="rtl" placeholder="الوصف بالعربية" value={form.descAr} onChange={e => setForm({...form, descAr: e.target.value})} rows={2} className="text-right" />
                   </div>
                 </div>
 
@@ -520,7 +629,7 @@ function SkillsTab() {
                   <Label>{t("matrix_sk_tipsLabel")}</Label>
                   <div className="grid grid-cols-1 gap-2">
                     <Input placeholder="English Tip" value={form.tipEn} onChange={e => setForm({...form, tipEn: e.target.value})} />
-                    <Input dir="rtl" placeholder="نصيحة بالعربية" value={form.tipAr} onChange={e => setForm({...form, tipAr: e.target.value})} />
+                    <Input dir="rtl" placeholder="نصيحة بالعربية" value={form.tipAr} onChange={e => setForm({...form, tipAr: e.target.value})} className="text-right" />
                   </div>
                 </div>
               </div>
@@ -590,7 +699,7 @@ function SkillsTab() {
                 </div>
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-0">
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>{t("cancel")}</Button>
               <Button 
                 onClick={handleCreateSkill} 
@@ -607,8 +716,8 @@ function SkillsTab() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
         <div className="relative w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
-          <Input placeholder={t("matrix_search")} className="pl-10 h-9 bg-white" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Search className={`${isRTL ? "right-3" : "left-3"} absolute top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]`} />
+          <Input placeholder={t("matrix_search")} className={`${isRTL ? "pr-10" : "pl-10"} h-9 bg-white`} value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <Select value={selectedCat} onValueChange={setSelectedCat}>
           <SelectTrigger className="w-48 h-9"><SelectValue placeholder={t("matrix_sk_allCats")} /></SelectTrigger>
@@ -647,7 +756,7 @@ function SkillsTab() {
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-[#0f172a] text-sm">{n(skill.title)}</span>
                     <Badge className={`text-[10px] font-bold border-none ${mb.color}`}>{lang === "ar" ? metricLabelAr(skill.metricType) : mb.label}</Badge>
-                    <div className="flex -space-x-1 ml-2 overflow-hidden">
+                    <div className={`flex ${isRTL ? "space-x-reverse" : ""} -space-x-1 ml-2 overflow-hidden`}>
                        {linkedAgs.slice(0, 3).map(ag => (
                          <div key={ag.id} className="h-4 w-4 rounded-full bg-slate-100 border border-white flex items-center justify-center" title={n(ag.label)}>
                            <Baby className="h-2 w-2 text-slate-400" />
@@ -660,14 +769,14 @@ function SkillsTab() {
                        )}
                     </div>
                   </div>
-                  <p className="text-xs text-[#94a3b8] font-medium">{lang === "ar" ? skill.title.en : skill.title.ar}</p>
+                  <p className="text-xs text-[#94a3b8] font-medium" dir={lang === "ar" ? "ltr" : "rtl"}>{lang === "ar" ? skill.title.en : skill.title.ar}</p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <div className="text-right hidden sm:block">
+                  <div className={`${isRTL ? "text-left" : "text-right"} hidden sm:block`}>
                     <p className="text-xs text-[#64748b]">{t("matrix_sk_weightLabel")}</p>
                     <p className="text-sm font-bold text-[#0f172a]">{skill.weight}/10</p>
                   </div>
-                  <ChevronRight className={`h-4 w-4 text-[#94a3b8] transition-transform ${isExpanded ? "rotate-90" : ""}`} />
+                  <ChevronRight className={`h-4 w-4 text-[#94a3b8] transition-transform ${isExpanded ? "rotate-90" : ""} ${isRTL ? "rotate-180" : ""}`} />
                 </div>
               </div>
               {isExpanded && (
@@ -709,7 +818,7 @@ function SkillsTab() {
                         {skill.improvementTips.map((tip, i) => (
                           <div key={i} className="flex gap-2 items-start bg-amber-50/50 p-3 rounded-lg mb-2">
                             <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
-                            <div>
+                            <div className="flex-1">
                               <p className="text-xs text-[#475569]">{n(tip)}</p>
                               <p className="text-xs text-[#94a3b8] text-right mt-1" dir="rtl">{lang === "ar" ? tip.en : tip.ar}</p>
                             </div>
@@ -768,16 +877,16 @@ function RulesEditorTab() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500" dir={isRTL ? "rtl" : "ltr"}>
       <div className="flex items-center justify-between">
-        <div>
+        <div className={isRTL ? "text-right" : ""}>
           <h2 className="text-lg font-bold text-[#0f172a]">{t("matrix_rules_heading")}</h2>
           <p className="text-sm text-[#64748b]">{t("matrix_rules_subtitle")}</p>
         </div>
       </div>
 
       {/* Category Selector */}
-      <div className="flex gap-2 flex-wrap">
+      <div className={`flex gap-2 flex-wrap ${isRTL ? "justify-start" : "justify-start"}`}>
         {allCategories.map((cat) => {
           const Icon = iconMap[cat.iconKey] || Ruler;
           return (
@@ -798,7 +907,7 @@ function RulesEditorTab() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-100">
-                  <th className="text-left p-4 text-xs font-bold text-[#64748b] uppercase tracking-wider w-64">{t("matrix_rules_skillCol")}</th>
+                  <th className={`${isRTL ? "text-right" : "text-left"} p-4 text-xs font-bold text-[#64748b] uppercase tracking-wider w-64`}>{t("matrix_rules_skillCol")}</th>
                   {allAgeGroups.map((ag) => (
                     <th key={ag.id} className="p-4 text-xs font-bold text-[#64748b] uppercase tracking-wider text-center">{n(ag.label)}</th>
                   ))}
@@ -807,10 +916,10 @@ function RulesEditorTab() {
               <tbody>
                 {categorySkills.map((skill) => (
                   <tr key={skill.id} className="border-b border-slate-50 hover:bg-slate-50/30">
-                    <td className="p-4">
+                    <td className={`p-4 ${isRTL ? "text-right" : "text-left"}`}>
                       <div>
                         <p className="text-sm font-semibold text-[#0f172a]">{n(skill.title)}</p>
-                        <p className="text-[11px] text-[#94a3b8]">{lang === "ar" ? skill.title.en : skill.title.ar}</p>
+                        <p className="text-[11px] text-[#94a3b8]" dir={lang === "ar" ? "ltr" : "rtl"}>{lang === "ar" ? skill.title.en : skill.title.ar}</p>
                       </div>
                     </td>
                     {allAgeGroups.map((ag) => {
@@ -850,7 +959,7 @@ function RulesEditorTab() {
 
 function ScoringPreviewTab() {
   const t = useT();
-  const { lang } = useI18n();
+  const { lang, isRTL } = useI18n();
   const n = (bi: { en: string; ar: string }) => lang === "ar" ? bi.ar : bi.en;
   const allAgeGroups = svc.getAgeGroups().filter((ag) => ag.status === "active");
   const [selectedAg, setSelectedAg] = useState<string>(allAgeGroups[0]?.id || "");
@@ -893,9 +1002,9 @@ function ScoringPreviewTab() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500" dir={isRTL ? "rtl" : "ltr"}>
       <div className="flex items-center justify-between">
-        <div>
+        <div className={isRTL ? "text-right" : ""}>
           <h2 className="text-lg font-bold text-[#0f172a]">{t("matrix_score_heading")}</h2>
           <p className="text-sm text-[#64748b]">{t("matrix_score_subtitle")}</p>
         </div>
@@ -915,7 +1024,9 @@ function ScoringPreviewTab() {
         {/* Input Panel */}
         <div className="lg:col-span-2 space-y-4">
           <Card className="border-none shadow-sm">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-[#334155]">{t("matrix_score_enterValues")}</CardTitle></CardHeader>
+            <CardHeader className="pb-2">
+               <CardTitle className={`text-sm font-bold text-[#334155] ${isRTL ? "text-right" : ""}`}>{t("matrix_score_enterValues")}</CardTitle>
+            </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {ruleSkills.map(({ skill, rule, category }) => (
@@ -935,7 +1046,7 @@ function ScoringPreviewTab() {
                         </div>
                       )}
                       {skill.metricType === "numeric" && (
-                        <Input type="number" placeholder={skill.unit || "0"} className="h-8 text-sm" value={inputs[skill.id] || ""} onChange={(e) => handleInputChange(skill.id, parseFloat(e.target.value) || 0)} />
+                        <Input type="number" placeholder={skill.unit || "0"} className="h-8 text-sm" value={inputs[skill.id] || ""} onChange={(e) => handleInputChange(skill.id, parseFloat(e.target.value) || 0)} dir="ltr" />
                       )}
                       {skill.metricType === "scale" && (
                         <Select value={String(inputs[skill.id] || "")} onValueChange={(v) => handleInputChange(skill.id, parseInt(v))}>
@@ -972,15 +1083,19 @@ function ScoringPreviewTab() {
                       <span className="text-3xl font-bold text-[#0f172a]">{result.percentage}%</span>
                     </div>
                   </div>
-                  <Badge className="text-sm font-bold px-4 py-1 border-none" style={{ backgroundColor: `${progressColor(result.label)}20`, color: progressColor(result.label) }}>
-                    {result.label === "excellent" ? "⭐ Excellent" : result.label === "good" ? "👍 Good" : result.label === "needs_attention" ? "⚠️ Needs Attention" : "🚨 Critical"}
-                  </Badge>
+                  <div className="flex flex-col items-center">
+                    <Badge className="text-sm font-bold px-4 py-1 border-none" style={{ backgroundColor: `${progressColor(result.label)}20`, color: progressColor(result.label) }}>
+                      {result.label === "excellent" ? (isRTL ? "⭐ ممتاز" : "⭐ Excellent") : result.label === "good" ? (isRTL ? "👍 جيد" : "👍 Good") : result.label === "needs_attention" ? (isRTL ? "⚠️ يحتاج اهتمام" : "⚠️ Needs Attention") : (isRTL ? "🚨 حرج" : "🚨 Critical")}
+                    </Badge>
+                  </div>
                 </CardContent>
               </Card>
 
               {/* Category Breakdown */}
               <Card className="border-none shadow-sm">
-                <CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-[#334155]">{t("matrix_score_categoryScores")}</CardTitle></CardHeader>
+                <CardHeader className="pb-2">
+                   <CardTitle className={`text-sm font-bold text-[#334155] ${isRTL ? "text-right" : ""}`}>{t("matrix_score_categoryScores")}</CardTitle>
+                </CardHeader>
                 <CardContent className="space-y-3">
                   {result.categoryScores.map((cs) => (
                     <div key={cs.categoryId}>
@@ -991,7 +1106,7 @@ function ScoringPreviewTab() {
                       <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div className="h-full rounded-full transition-all duration-700" style={{ width: `${cs.score}%`, backgroundColor: cs.color }} />
                       </div>
-                      <p className="text-[10px] text-[#94a3b8] mt-0.5">{cs.achievedSkills}/{cs.totalSkills} {t("matrix_score_achieved")}</p>
+                      <p className={`text-[10px] text-[#94a3b8] mt-0.5 ${isRTL ? "text-right" : ""}`}>{cs.achievedSkills}/{cs.totalSkills} {t("matrix_score_achieved")}</p>
                     </div>
                   ))}
                 </CardContent>
@@ -1000,10 +1115,12 @@ function ScoringPreviewTab() {
               {/* Recommendations */}
               {result.skillEvaluations.filter((e) => e.recommendation).length > 0 && (
                 <Card className="border-none shadow-sm">
-                  <CardHeader className="pb-2"><CardTitle className="text-sm font-bold text-[#334155] flex items-center gap-2"><Lightbulb className="h-4 w-4 text-amber-500" /> {t("matrix_score_tips")}</CardTitle></CardHeader>
+                  <CardHeader className="pb-2">
+                     <CardTitle className={`text-sm font-bold text-[#334155] flex items-center gap-2 ${isRTL ? "flex-row-reverse text-right" : ""}`}><Lightbulb className="h-4 w-4 text-amber-500" /> {t("matrix_score_tips")}</CardTitle>
+                  </CardHeader>
                   <CardContent className="space-y-2">
                     {result.skillEvaluations.filter((e) => e.recommendation).map((ev) => (
-                      <div key={ev.skillId} className="p-3 bg-amber-50/50 rounded-lg">
+                      <div key={ev.skillId} className={`p-3 bg-amber-50/50 rounded-lg ${isRTL ? "text-right" : ""}`}>
                         <p className="text-xs font-bold text-[#334155]">{n(ev.skillTitle)}</p>
                         <p className="text-xs text-[#64748b] mt-1">{ev.recommendation ? n(ev.recommendation) : ""}</p>
                       </div>
@@ -1033,15 +1150,17 @@ function ScoringPreviewTab() {
 
 const GrowthMatrixPage = () => {
   const t = useT();
+  const { isRTL } = useI18n();
+  
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className={`space-y-6 animate-in fade-in duration-500 ${isRTL ? "text-right" : ""}`} dir={isRTL ? "rtl" : "ltr"}>
       <div>
         <h1 className="text-3xl font-bold text-[#0f172a] tracking-tight">{t("matrix_title")}</h1>
         <p className="text-[15px] text-[#64748b] mt-1">{t("matrix_subtitle")}</p>
       </div>
 
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="bg-[#f1f5f9] p-1 h-auto flex-wrap">
+      <Tabs defaultValue="overview" className="w-full" dir={isRTL ? "rtl" : "ltr"}>
+        <TabsList className={`bg-[#f1f5f9] p-1 h-auto flex flex-wrap gap-1 ${isRTL ? "justify-start" : "justify-start"}`}>
           <TabsTrigger value="overview" className="gap-1.5 data-[state=active]:bg-white data-[state=active]:shadow-sm">
             <BarChart3 className="h-3.5 w-3.5" /> {t("matrix_overview")}
           </TabsTrigger>

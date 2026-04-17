@@ -8,9 +8,9 @@ import { Globe, Check } from "lucide-react";
 import { useI18n, useT } from "@/i18n/i18n.context";
 import type { Lang } from "@/i18n/translations";
 
-const LANGUAGES: { code: Lang; label_en: string; label_native: string; dir: string; flag: string }[] = [
-  { code: "en", label_en: "English",    label_native: "English", dir: "ltr", flag: "🇺🇸" },
-  { code: "ar", label_en: "Arabic",     label_native: "العربية", dir: "rtl", flag: "🇸🇦" },
+const LANGUAGES: { code: Lang; label_en: string; label_native: string; dir: string; flag: string; countryCode: string }[] = [
+  { code: "en", label_en: "English",    label_native: "English", dir: "ltr", flag: "🇺🇸", countryCode: "US" },
+  { code: "ar", label_en: "Arabic",     label_native: "العربية", dir: "rtl", flag: "🇪🇬", countryCode: "EG" },
 ];
 
 const SettingsPage = () => {
@@ -48,7 +48,12 @@ const SettingsPage = () => {
                 <span className="text-2xl">{l.flag}</span>
                 <div className="flex-1">
                   <p className="text-sm font-bold text-foreground">{l.label_native}</p>
-                  <p className="text-xs text-muted-foreground">{l.label_en} · {l.dir.toUpperCase()}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {l.label_en} · {l.dir.toUpperCase()}
+                  </p>
+                </div>
+                <div className="text-sm font-bold text-muted-foreground/40 px-2">
+                  {l.countryCode}
                 </div>
                 {lang === l.code && (
                   <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center shrink-0">
@@ -64,16 +69,16 @@ const SettingsPage = () => {
       {/* General Settings */}
       <Card className="animate-fade-in">
         <CardHeader>
-          <CardTitle className="text-sm font-semibold">General</CardTitle>
+          <CardTitle className="text-sm font-semibold">{isRTL ? "إعدادات عامة" : "General"}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label className="text-xs font-medium">App Name</Label>
-            <Input defaultValue="Tips & Steps" className="h-9" />
+            <Label className="text-xs font-medium">{isRTL ? "اسم التطبيق" : "App Name"}</Label>
+            <Input defaultValue="Tips & Steps" className="h-9" dir="ltr" />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs font-medium">Support Email</Label>
-            <Input defaultValue="support@tipsandsteps.com" className="h-9" />
+            <Label className="text-xs font-medium">{isRTL ? "بريد الدعم" : "Support Email"}</Label>
+            <Input defaultValue="support@tipsandsteps.com" className="h-9" dir="ltr" />
           </div>
         </CardContent>
       </Card>
@@ -81,29 +86,29 @@ const SettingsPage = () => {
       {/* Security */}
       <Card className="animate-fade-in">
         <CardHeader>
-          <CardTitle className="text-sm font-semibold">Security</CardTitle>
+          <CardTitle className="text-sm font-semibold">{isRTL ? "الأمان" : "Security"}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">Two-Factor Authentication</p>
-              <p className="text-xs text-muted-foreground">Require 2FA for all admin accounts</p>
+            <div className={isRTL ? "text-right" : "text-left"}>
+              <p className="text-sm font-medium">{isRTL ? "المصادقة الثنائية" : "Two-Factor Authentication"}</p>
+              <p className="text-xs text-muted-foreground">{isRTL ? "تطلب المصادقة الثنائية لجميع حسابات الإدارة" : "Require 2FA for all admin accounts"}</p>
             </div>
             <Switch />
           </div>
           <Separator />
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">Session Timeout</p>
-              <p className="text-xs text-muted-foreground">Auto-logout after inactivity (30 min)</p>
+            <div className={isRTL ? "text-right" : "text-left"}>
+              <p className="text-sm font-medium">{isRTL ? "مهلة الجلسة" : "Session Timeout"}</p>
+              <p className="text-xs text-muted-foreground">{isRTL ? "تسجيل الخروج التلقائي بعد (30 دقيقة)" : "Auto-logout after inactivity (30 min)"}</p>
             </div>
             <Switch defaultChecked />
           </div>
           <Separator />
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">Audit Logging</p>
-              <p className="text-xs text-muted-foreground">Log all admin actions</p>
+            <div className={isRTL ? "text-right" : "text-left"}>
+              <p className="text-sm font-medium">{isRTL ? "سجلات التدقيق" : "Audit Logging"}</p>
+              <p className="text-xs text-muted-foreground">{isRTL ? "تسجيل جميع إجراءات المسؤولين" : "Log all admin actions"}</p>
             </div>
             <Switch defaultChecked />
           </div>

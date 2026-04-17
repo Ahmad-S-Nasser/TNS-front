@@ -62,9 +62,9 @@ const QuestionsPage = () => {
   const totalPending  = questions.filter(q => q.status === "Pending").length;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <div className="space-y-8 animate-in fade-in duration-700" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
-      <div>
+      <div className={isRTL ? "text-right" : ""}>
         <h1 className="text-3xl font-bold text-[#1a2e2a]">{t("questions_title")}</h1>
         <p className="text-[#64748b] mt-1 text-lg">{t("questions_subtitle")}</p>
       </div>
@@ -81,7 +81,7 @@ const QuestionsPage = () => {
               <div className={`h-12 w-12 rounded-xl ${k.bg} flex items-center justify-center`}>
                 <k.icon className={`h-6 w-6 ${k.ic}`} />
               </div>
-              <div>
+              <div className={isRTL ? "text-right" : ""}>
                 <p className="text-3xl font-bold text-[#1a2e2a]">{k.value}</p>
                 <p className="text-sm font-medium text-[#64748b]">{k.label}</p>
               </div>
@@ -90,19 +90,19 @@ const QuestionsPage = () => {
         ))}
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 items-center">
+      {/* Filters Bar */}
+      <div className={`flex flex-col md:flex-row gap-4 items-center`}>
         <div className="relative w-full max-w-md">
           <Search className={`absolute ${isRTL ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]`} />
-          <Input
+          <input
             placeholder={t("questions_searchPlaceholder")}
-            className={`h-10 ${isRTL ? "pr-10" : "pl-10"} bg-white border-[#e2e8f0] rounded-lg`}
+            className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${isRTL ? "pr-10" : "pl-10"}`}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             dir={isRTL ? "rtl" : "ltr"}
           />
         </div>
-        <div className="flex bg-[#f1f5f9] p-1 rounded-lg">
+        <div className="flex bg-[#f1f5f9] p-1 rounded-lg" dir={isRTL ? "rtl" : "ltr"}>
           {tabs.map((tab) => (
             <button
               key={tab.key}
@@ -124,36 +124,37 @@ const QuestionsPage = () => {
         {filteredQuestions.map((q) => {
           const isExpanded = expandedId === q.id;
           const isAnswered = q.status === "Answered";
+
           return (
             <Card key={q.id} className="border-none shadow-sm hover:shadow-md transition-all bg-white overflow-hidden group">
               <CardContent className="p-0">
-                <div className="p-6 cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : q.id)}>
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-3">
+                <div className={`p-6 cursor-pointer ${isRTL ? "text-right" : "text-left"}`} onClick={() => setExpandedId(isExpanded ? null : q.id)}>
+                  <div className={`flex justify-between items-start ${isRTL ? "flex-row-reverse" : "flex-row"}`}>
+                    <div className={`space-y-3 ${isRTL ? "items-start" : "items-end"}`}>
                       <Badge
                         className={`rounded-lg px-3 py-1 text-[11px] font-bold uppercase tracking-wider border-none ${
                           isAnswered ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700"
                         }`}
                       >
-                        {isAnswered ? `✓ ${t("questions_badgeAnswered")}` : `🕒 ${t("questions_badgePending")}`}
+                        {isAnswered ? `✓ ${isRTL ? "تم الرد" : t("questions_badgeAnswered")}` : `🕒 ${isRTL ? "قيد الانتظار" : t("questions_badgePending")}`}
                       </Badge>
                       <Badge variant="outline" className="text-teal-600 border-teal-100 bg-teal-50/30 font-medium px-3 flex items-center gap-1 w-fit">
                         {q.category}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-3 text-right">
-                      {isExpanded ? <ChevronUp className="h-5 w-5 text-[#94a3b8]" /> : <ChevronDown className="h-5 w-5 text-[#94a3b8]" />}
-                      <div>
+                    <div className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse text-right" : "text-left"}`}>
+                      <div className="text-right">
                         <p className="font-bold text-[#1a2e2a] text-[15px]">{q.user}</p>
                         <p className="text-xs text-[#94a3b8] font-medium">{q.time}</p>
                       </div>
                       <Avatar className="h-10 w-10 border-none bg-slate-100">
                         <AvatarFallback className="text-slate-500 font-bold bg-[#f1f5f9] text-[13px]">{q.avatar}</AvatarFallback>
                       </Avatar>
+                      {isExpanded ? <ChevronUp className="h-5 w-5 text-[#94a3b8]" /> : <ChevronDown className="h-5 w-5 text-[#94a3b8]" />}
                     </div>
                   </div>
 
-                  <div className="mt-8 text-right" dir="rtl">
+                  <div className={`mt-8 ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                     <p className="text-[17px] font-medium text-[#334155] leading-relaxed">{q.question}</p>
                   </div>
                 </div>
@@ -162,7 +163,7 @@ const QuestionsPage = () => {
                   <div className="px-6 pb-6 pt-2 animate-in slide-in-from-top-2 duration-300">
                     <div className="space-y-6">
                       {q.reply && (
-                        <div className="bg-[#f0f9f9] border border-teal-50 rounded-xl p-5" dir="rtl">
+                        <div className={`bg-[#f0f9f9] border border-teal-50 rounded-xl p-5 ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                           <p className="text-[13px] font-bold text-teal-700 mb-2">{t("questions_adminReply")}</p>
                           <p className="text-[15px] text-[#475569] leading-relaxed">{q.reply}</p>
                         </div>
@@ -170,12 +171,12 @@ const QuestionsPage = () => {
                       <div className="space-y-4">
                         <Textarea
                           placeholder={t("questions_writeReply")}
-                          className="min-h-[120px] bg-white border-[#e2e8f0] rounded-xl p-4 text-right focus-visible:ring-teal-500/20 focus-visible:border-teal-500"
-                          dir="rtl"
+                          className={`min-h-[120px] bg-white border-[#e2e8f0] rounded-xl p-4 focus-visible:ring-teal-500/20 focus-visible:border-teal-500 ${isRTL ? "text-right" : "text-left"}`}
+                          dir={isRTL ? "rtl" : "ltr"}
                         />
-                        <div className="flex justify-end">
+                        <div className={`flex ${isRTL ? "justify-start" : "justify-end"}`}>
                           <Button className="bg-[#0f9d8c] hover:bg-[#0c8a7b] text-white px-6 h-11 rounded-xl flex gap-2 items-center font-bold">
-                            <Send className="h-4 w-4" />
+                            <Send className={`h-4 w-4 ${isRTL ? "rotate-180" : ""}`} />
                             {t("questions_sendReply")}
                           </Button>
                         </div>

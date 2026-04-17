@@ -20,25 +20,27 @@ interface ContentListViewProps {
   section: CMSSection;
 }
 
-const statusConfig: Record<ContentStatus, { label: string; color: string; bg: string }> = {
-  draft:     { label: "Draft",     color: "text-slate-600",   bg: "bg-slate-50 border-slate-200" },
-  review:    { label: "In Review", color: "text-amber-700",   bg: "bg-amber-50 border-amber-200" },
-  approved:  { label: "Approved",  color: "text-blue-700",    bg: "bg-blue-50 border-blue-200" },
-  published: { label: "Published", color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-200" },
-  archived:  { label: "Archived",  color: "text-slate-400",   bg: "bg-slate-50 border-slate-100" },
-};
-
-const statusIcons: Record<ContentStatus, any> = {
-  draft:     FileText,
-  review:    Clock,
-  approved:  CheckCircle2,
-  published: Globe,
-  archived:  Archive,
-};
-
 export function ContentListView({ section }: ContentListViewProps) {
   const t = useT();
-  const { isRTL } = useI18n();
+  const { lang, isRTL } = useI18n();
+  
+  const statusConfig: Record<ContentStatus, { label: string; color: string; bg: string }> = {
+    draft:     { label: t("cms_statusDraft"),     color: "text-slate-600",   bg: "bg-slate-50 border-slate-200" },
+    review:    { label: t("cms_statusReview"),    color: "text-amber-700",   bg: "bg-amber-50 border-amber-200" },
+    approved:  { label: t("cms_statusApproved"),  color: "text-blue-700",    bg: "bg-blue-50 border-blue-200" },
+    published: { label: t("cms_statusPublished"), color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-200" },
+    archived:  { label: t("cms_statusArchived"),  color: "text-slate-400",   bg: "bg-slate-50 border-slate-100" },
+  };
+
+  const statusIcons: Record<ContentStatus, any> = {
+    draft:     FileText,
+    review:    Clock,
+    approved:  CheckCircle2,
+    published: Globe,
+    archived:  Archive,
+  };
+
+  const n = (en: string, ar: string) => lang === "ar" ? ar : en;
   const cfg = getSectionConfig(section);
   const [items, setItems] = useState<CMSContent[]>(() => getAllContent(section));
   const [statusFilter, setStatusFilter] = useState<ContentStatus | "all">("all");
@@ -74,7 +76,7 @@ export function ContentListView({ section }: ContentListViewProps) {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this item?")) {
+    if (confirm(t("confirm") + "?")) {
       deleteContent(id);
       refresh();
     }
@@ -111,22 +113,22 @@ export function ContentListView({ section }: ContentListViewProps) {
   }), [items]);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500" dir={isRTL ? "rtl" : "ltr"}>
       {/* Section Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className={`flex items-center justify-between`}>
+        <div className={`flex items-center gap-4`}>
           <div
             className="h-12 w-12 rounded-2xl flex items-center justify-center shadow-sm"
             style={{ backgroundColor: `${cfg.color}20` }}
           >
-            <ChevronRight className="h-5 w-5" style={{ color: cfg.color }} />
+            {isRTL ? <ChevronRight className="h-5 w-5 rotate-180" style={{ color: cfg.color }} /> : <ChevronRight className="h-5 w-5" style={{ color: cfg.color }} />}
           </div>
-          <div>
-            <h2 className="text-xl font-bold text-[#0f172a]">{cfg.label_en}</h2>
-            <p className="text-sm text-[#64748b]" dir="rtl">{cfg.label_ar}</p>
+          <div className={isRTL ? "text-right" : ""}>
+            <h2 className="text-xl font-bold text-[#0f172a]">{n(cfg.label_en, cfg.label_ar)}</h2>
+            <p className={`text-sm text-[#64748b] ${isRTL ? "text-right" : ""}`} dir={lang === "ar" ? "ltr" : "rtl"}>{lang === "ar" ? cfg.label_en : cfg.label_ar}</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className={`flex gap-2`}>
           {can("canExport", section) && (
             <Button variant="outline" size="sm" onClick={handleExport} className="gap-2 h-9">
               <Download className="h-3.5 w-3.5" /> {t("cms_exportJson")}
@@ -146,10 +148,10 @@ export function ContentListView({ section }: ContentListViewProps) {
       </div>
 
       {/* Filters Bar */}
-      <div className="flex flex-wrap gap-3 items-center">
+      <div className={`flex flex-wrap gap-3 items-center`}>
         {/* Search */}
         <div className="relative w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
+          <Search className={`absolute ${isRTL ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]`} />
           <Input
             placeholder={t("cms_searchPlaceholder")}
             className={`${isRTL ? "pr-10" : "pl-10"} h-9 bg-white`}
@@ -160,7 +162,7 @@ export function ContentListView({ section }: ContentListViewProps) {
         </div>
 
         {/* Status filter tabs */}
-        <div className="flex bg-slate-100 rounded-xl p-1 gap-0.5">
+        <div className="flex bg-slate-100 rounded-xl p-1 gap-0.5" dir={isRTL ? "rtl" : "ltr"}>
           {(["all", "draft", "review", "approved", "published", "archived"] as const).map(s => (
             <button
               key={s}
@@ -210,8 +212,12 @@ export function ContentListView({ section }: ContentListViewProps) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="font-bold text-[#0f172a] text-[15px] leading-tight">{item.title_en}</p>
-                        <p className="text-sm text-[#94a3b8] font-medium mt-0.5" dir="rtl">{item.title_ar}</p>
+                        <p className={`font-bold text-[#0f172a] text-[15px] leading-tight ${lang === "ar" ? "text-right" : ""}`}>
+                          {n(item.title_en, item.title_ar)}
+                        </p>
+                        <p className="text-sm text-[#94a3b8] font-medium mt-0.5" dir={lang === "ar" ? "ltr" : "rtl"}>
+                          {lang === "ar" ? item.title_en : item.title_ar}
+                        </p>
                       </div>
                       <Badge
                         variant="outline"
@@ -221,7 +227,9 @@ export function ContentListView({ section }: ContentListViewProps) {
                       </Badge>
                     </div>
 
-                    <p className="text-xs text-[#64748b] mt-2 line-clamp-1">{item.description_en}</p>
+                    <p className={`text-xs text-[#64748b] mt-2 line-clamp-1 ${lang === "ar" ? "text-right" : ""}`}>
+                      {n(item.description_en, item.description_ar)}
+                    </p>
 
                     <div className="flex items-center gap-3 mt-3">
                       <span className="text-[11px] text-[#94a3b8]">{t("cms_by")} {item.created_by}</span>
@@ -249,10 +257,10 @@ export function ContentListView({ section }: ContentListViewProps) {
                         className="h-8 gap-1 text-xs font-semibold"
                         style={{ color: cfg.color }}
                         onClick={() => handlePromote(item.id)}
-                        title={`Move to ${next}`}
+                        title={`${t("cms_statusApproved")} ${next}`}
                       >
-                        <ArrowRight className="h-3 w-3" />
-                        {next.charAt(0).toUpperCase() + next.slice(1)}
+                        {isRTL ? <ArrowRight className="h-3 w-3 rotate-180" /> : <ArrowRight className="h-3 w-3" />}
+                        {t(`cms_status${next.charAt(0).toUpperCase() + next.slice(1)}` as any)}
                       </Button>
                     )}
                     {can("canDelete", section) && item.status !== "archived" && (

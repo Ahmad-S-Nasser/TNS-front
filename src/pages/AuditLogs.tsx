@@ -29,7 +29,45 @@ const AuditLogs = () => {
   const { isRTL } = useI18n();
   const [search, setSearch] = useState("");
 
-  const filtered = logs.filter(
+  const localizedLogs = logs.map(log => ({
+    ...log,
+    action: isRTL ? log.action
+      .replace("suspended", "تم إيقافه")
+      .replace("published", "تم نشره")
+      .replace("updated", "تم تحديثه")
+      .replace("changed", "تم تغييره")
+      .replace("activated", "تم تفعيله")
+      .replace("deleted", "تم حذفه")
+      .replace("reset", "إعادة تعيين")
+      .replace("added", "تم إضافته")
+      .replace("User", "مستخدم")
+      .replace("Article", "مقال")
+      .replace("Role", "دبل")
+      .replace("Settings", "إعدادات")
+      .replace("Password", "كلمة المرور")
+      : log.action,
+    actor: isRTL ? log.actor
+      .replace("Admin Team", "فريق الإدارة")
+      .replace("Super Admin", "مدير النظام")
+      .replace("Manager", "مدير")
+      .replace("Marketing", "التسويق")
+      .replace("IT Support", "الدعم الفني")
+      : log.actor,
+    time: isRTL ? log.time
+      .replace("m ago", " د")
+      .replace("h ago", " س")
+      .replace("d ago", " ي")
+      : log.time,
+    type: isRTL ? {
+      user: "مستخدم",
+      content: "محتوى",
+      role: "صلاحية",
+      system: "نظام"
+    }[log.type] || log.type : log.type,
+    originalType: log.type
+  }));
+
+  const filtered = localizedLogs.filter(
     (l) =>
       l.action.toLowerCase().includes(search.toLowerCase()) ||
       l.actor.toLowerCase().includes(search.toLowerCase()) ||
@@ -37,9 +75,9 @@ const AuditLogs = () => {
   );
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500" dir={isRTL ? "rtl" : "ltr"}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+        <div className={isRTL ? "text-right" : ""}>
           <h1 className="text-2xl font-bold tracking-tight text-[#0f172a]">{t("auditLogs_title")}</h1>
           <p className="text-[15px] text-[#64748b] mt-1">{t("auditLogs_subtitle")}</p>
         </div>
@@ -72,14 +110,14 @@ const AuditLogs = () => {
           <div className="divide-y divide-[#f1f5f9]">
             {filtered.length > 0 ? (
               filtered.map((log) => {
-                const style = typeStyles[log.type];
+                const style = typeStyles[log.originalType || log.type] || typeStyles.system;
                 return (
                   <div key={log.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-5 hover:bg-[#f8fafc] transition-colors group">
                     <div className={`h-11 w-11 rounded-xl ${style.bg} flex items-center justify-center shrink-0 shadow-sm border border-transparent group-hover:border-white transition-all`}>
                       <style.icon className={`h-5 w-5 ${style.color}`} />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
+                    <div className={`flex-1 min-w-0 ${isRTL ? "text-right" : "text-left"}`}>
+                      <div className={`flex items-center gap-2 mb-0.5 ${isRTL ? "flex-row" : "flex-row"}`}>
                         <span className="font-bold text-[#334155]">{log.actor}</span>
                         <Badge variant="secondary" className={`text-[10px] uppercase tracking-wider font-bold h-5 px-2 bg-white border border-[#e2e8f0] ${style.color}`}>
                           {log.type}
@@ -90,7 +128,7 @@ const AuditLogs = () => {
                         <span className="font-semibold text-[#1e293b]">{log.target}</span>
                       </p>
                     </div>
-                    <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1.5 shrink-0">
+                    <div className={`flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-1.5 shrink-0 ${isRTL ? "sm:items-start" : "sm:items-end"}`}>
                       <span className="text-[13px] font-medium text-[#1e293b]">{log.time}</span>
                       <span className="text-[11px] text-[#94a3b8]">{log.date}</span>
                     </div>

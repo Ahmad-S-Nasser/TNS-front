@@ -55,7 +55,17 @@ const emergencyPermissions: RolePermissionMatrix = {
   SUPER_ADMIN:  { canView: true,  canCreate: true,  canEdit: true,  canDelete: true,  canApprove: true,  canPublish: true,  canExport: true  },
   MANAGER:      { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: true,  canPublish: true,  canExport: true  },
   MARKETING:    { canView: false, canCreate: false, canEdit: false, canDelete: false, canApprove: false, canPublish: false, canExport: false },
-  DOCTOR:       { canView: false, canCreate: false, canEdit: false, canDelete: false, canApprove: false, canPublish: false, canExport: false },
+  IT_SUPPORT:   { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: false, canPublish: false, canExport: false },
+};
+
+// ─── Vaccine Content Permissions ─────────────────────────────────────────────
+// Section: vaccines — Doctors and Admins can publish, Marketing can draft
+
+const vaccinePermissions: RolePermissionMatrix = {
+  SUPER_ADMIN:  { canView: true,  canCreate: true,  canEdit: true,  canDelete: true,  canApprove: true,  canPublish: true,  canExport: true  },
+  MANAGER:      { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: true,  canPublish: true,  canExport: true  },
+  MARKETING:    { canView: true,  canCreate: true,  canEdit: true,  canDelete: false, canApprove: false, canPublish: false, canExport: false },
+  DOCTOR:       { canView: true,  canCreate: true,  canEdit: true,  canDelete: false, canApprove: true,  canPublish: true,  canExport: true  },
   IT_SUPPORT:   { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: false, canPublish: false, canExport: false },
 };
 
@@ -70,6 +80,7 @@ const sectionPermissionMap: Record<CMSSection, RolePermissionMatrix> = {
   "hospitals":         servicePermissions,
   "health-units":      servicePermissions,
   "emergency":         emergencyPermissions,
+  "vaccines":          vaccinePermissions,
 };
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -89,6 +100,7 @@ export function getAccessibleSections(role: ContentRole = CURRENT_USER_ROLE): CM
   const all: CMSSection[] = [
     "behavioral", "psychological", "nutrition", "sexual-education",
     "educational-games", "hospitals", "health-units", "emergency",
+    "vaccines",
   ];
   return all.filter(s => getPermissions(role, s).canView);
 }

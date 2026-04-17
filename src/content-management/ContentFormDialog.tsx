@@ -18,14 +18,16 @@ import { EducationalGamesForm } from "./sections/EducationalGamesForm";
 import { HospitalsForm } from "./sections/HospitalsForm";
 import { HealthUnitsForm } from "./sections/HealthUnitsForm";
 import { EmergencyForm } from "./sections/EmergencyForm";
-
-const AGE_CATEGORIES: { value: AgeCategory; label: string }[] = [
-  { value: "infant", label: "Infant (0–2 yrs)" },
-  { value: "toddler", label: "Toddler (2–4 yrs)" },
-  { value: "preschool", label: "Preschool (4–6 yrs)" },
-  { value: "school-age", label: "School Age (6–12 yrs)" },
-  { value: "adolescent", label: "Adolescent (12–18 yrs)" },
-  { value: "all", label: "All Ages" },
+import { VaccineEditor } from "./vaccines/VaccineEditor";
+import { useT, useI18n } from "@/i18n/i18n.context";
+import { TranslationKey } from "@/i18n/translations";
+const AGE_CATEGORIES: { value: AgeCategory; labelKey: TranslationKey }[] = [
+  { value: "infant", labelKey: "cat_infant" },
+  { value: "toddler", labelKey: "cat_toddler" },
+  { value: "preschool", labelKey: "cat_preschool" },
+  { value: "school-age", labelKey: "cat_schoolAge" },
+  { value: "adolescent", labelKey: "cat_adolescent" },
+  { value: "all", labelKey: "cat_allAges" },
 ];
 
 interface Props {
@@ -39,9 +41,16 @@ interface Props {
 type Step = "base" | "section" | "review";
 
 const STEPS: Step[] = ["base", "section", "review"];
-const STEP_LABELS = { base: "Base Info", section: "Section Details", review: "Review & Save" };
+const STEP_LABEL_KEYS: Record<Step, TranslationKey> = {
+  base: "cms_form_baseInfo",
+  section: "cms_form_sectionDetails",
+  review: "cms_form_reviewSave"
+};
 
 export function ContentFormDialog({ open, onOpenChange, section, editItem, onSaved }: Props) {
+  const t = useT();
+  const { lang, isRTL } = useI18n();
+  const n = (en: string, ar: string) => lang === "ar" ? ar : en;
   const cfg = getSectionConfig(section);
   const [step, setStep] = useState<Step>("base");
 
@@ -122,6 +131,8 @@ export function ContentFormDialog({ open, onOpenChange, section, editItem, onSav
         return <HealthUnitsForm data={sectionData as any} onChange={patch => setSectionData(prev => ({ ...prev, ...patch }))} />;
       case "emergency":
         return <EmergencyForm data={sectionData as any} onChange={patch => setSectionData(prev => ({ ...prev, ...patch }))} />;
+      case "vaccines":
+        return <VaccineEditor data={sectionData as any} onChange={patch => setSectionData(prev => ({ ...prev, ...patch }))} />;
       default:
         return null;
     }
@@ -135,7 +146,7 @@ export function ContentFormDialog({ open, onOpenChange, section, editItem, onSav
             <div className="h-8 w-8 rounded-xl flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: cfg.color }}>
               {stepIndex + 1}
             </div>
-            {editItem ? "Edit" : "Create"} Content — {cfg.label_en}
+            {editItem ? t("edit") : t("create")} {t("nav_content")} — {n(cfg.label_en, cfg.label_ar)}
           </DialogTitle>
 
           {/* Step Indicators */}
@@ -154,9 +165,9 @@ export function ContentFormDialog({ open, onOpenChange, section, editItem, onSav
                   style={step === s ? { backgroundColor: cfg.color } : {}}
                 >
                   {i < stepIndex && <Check className="h-3 w-3" />}
-                  {STEP_LABELS[s]}
+                  {t(STEP_LABEL_KEYS[s])}
                 </button>
-                {i < STEPS.length - 1 && <ChevronRight className="h-3 w-3 text-slate-300" />}
+                {i < STEPS.length - 1 && <ChevronRight className={`h-3 w-3 text-slate-300 ${isRTL ? "rotate-180" : ""}`} />}
               </div>
             ))}
           </div>
@@ -171,44 +182,44 @@ export function ContentFormDialog({ open, onOpenChange, section, editItem, onSav
             <div className="space-y-5">
               <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
-                  <Label>Title (Arabic) <span className="text-red-500">*</span></Label>
-                  <Input dir="rtl" value={baseData.title_ar} onChange={e => setBaseData(x => ({ ...x, title_ar: e.target.value }))} placeholder="العنوان بالعربية" className="text-right" />
+                  <Label>{t("cms_form_titleAr")} <span className="text-red-500">*</span></Label>
+                  <Input dir="rtl" value={baseData.title_ar} onChange={e => setBaseData(x => ({ ...x, title_ar: e.target.value }))} placeholder={t("cms_form_titleAr")} className="text-right" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Title (English) <span className="text-red-500">*</span></Label>
-                  <Input value={baseData.title_en} onChange={e => setBaseData(x => ({ ...x, title_en: e.target.value }))} placeholder="Title in English" />
+                  <Label>{t("cms_form_titleEn")} <span className="text-red-500">*</span></Label>
+                  <Input value={baseData.title_en} onChange={e => setBaseData(x => ({ ...x, title_en: e.target.value }))} placeholder={t("cms_form_titleEn")} />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
-                  <Label>Description (Arabic)</Label>
-                  <Textarea dir="rtl" value={baseData.description_ar} onChange={e => setBaseData(x => ({ ...x, description_ar: e.target.value }))} rows={3} placeholder="الوصف بالعربية" />
+                  <Label>{t("cms_form_descAr")}</Label>
+                  <Textarea dir="rtl" value={baseData.description_ar} onChange={e => setBaseData(x => ({ ...x, description_ar: e.target.value }))} rows={3} placeholder={t("cms_form_descAr")} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Description (English)</Label>
-                  <Textarea value={baseData.description_en} onChange={e => setBaseData(x => ({ ...x, description_en: e.target.value }))} rows={3} placeholder="Description in English" />
+                  <Label>{t("cms_form_descEn")}</Label>
+                  <Textarea value={baseData.description_en} onChange={e => setBaseData(x => ({ ...x, description_en: e.target.value }))} rows={3} placeholder={t("cms_form_descEn")} />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>Initial Status</Label>
+                <Label>{t("cms_form_initialStatus")}</Label>
                 <Select value={baseData.status} onValueChange={v => setBaseData(x => ({ ...x, status: v as ContentStatus }))}>
                   <SelectTrigger className="w-48">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="review">Send to Review</SelectItem>
+                    <SelectItem value="draft">{t("cms_statusDraft")}</SelectItem>
+                    <SelectItem value="review">{t("cms_statusReview")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Visibility */}
               <div className="space-y-3 p-4 bg-slate-50 rounded-xl">
-                <p className="text-sm font-bold text-[#334155]">Visibility Settings</p>
+                <p className="text-sm font-bold text-[#334155]">{t("cms_form_visibility")}</p>
                 <div className="space-y-2">
-                  <Label className="text-xs">Target Age Categories</Label>
+                  <Label className="text-xs">{t("cms_form_targetAge")}</Label>
                   <div className="flex flex-wrap gap-2">
                     {AGE_CATEGORIES.map(ac => (
                       <button
@@ -227,13 +238,13 @@ export function ContentFormDialog({ open, onOpenChange, section, editItem, onSav
                         }`}
                         style={baseData.visibility.age_categories.includes(ac.value) ? { backgroundColor: cfg.color } : {}}
                       >
-                        {ac.label}
+                        {t(ac.labelKey)}
                       </button>
                     ))}
                   </div>
                 </div>
                 <div className="flex items-center justify-between pt-2">
-                  <p className="text-xs font-semibold text-[#334155]">Requires Login to View</p>
+                  <p className="text-xs font-semibold text-[#334155]">{t("cms_form_requiresLogin")}</p>
                   <Switch checked={baseData.visibility.requires_login} onCheckedChange={v => setBaseData(x => ({ ...x, visibility: { ...x.visibility, requires_login: v } }))} />
                 </div>
               </div>
@@ -243,9 +254,9 @@ export function ContentFormDialog({ open, onOpenChange, section, editItem, onSav
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex gap-3">
                   <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
                   <div className="text-xs text-amber-800 space-y-1">
-                    <p className="font-bold">Approval Required</p>
-                    {cfg.requires_doctor_approval && <p>• Doctor must approve before publishing</p>}
-                    {cfg.requires_admin_approval && <p>• Admin must approve before publishing</p>}
+                    <p className="font-bold">{t("cms_requiresApproval")}</p>
+                    {cfg.requires_doctor_approval && <p>• {t("cms_doctorApproval")}</p>}
+                    {cfg.requires_admin_approval && <p>• {t("cms_adminApproval")}</p>}
                   </div>
                 </div>
               )}
@@ -256,7 +267,7 @@ export function ContentFormDialog({ open, onOpenChange, section, editItem, onSav
           {step === "section" && (
             <div>
               <div className="mb-5 p-3 rounded-xl text-xs font-medium text-slate-600 bg-slate-50 border border-slate-100">
-                Fill in {cfg.label_en}-specific fields. All fields are optional during draft creation.
+                {t("cms_form_fillSectionDetails").replace("{section}", n(cfg.label_en, cfg.label_ar))}
               </div>
               {renderSectionForm()}
             </div>
@@ -267,39 +278,39 @@ export function ContentFormDialog({ open, onOpenChange, section, editItem, onSav
             <div className="space-y-4">
               <div className="p-5 bg-slate-50 rounded-2xl space-y-3">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-bold text-[#0f172a]">{baseData.title_en}</p>
-                  <Badge variant="outline" className="text-xs">{baseData.status}</Badge>
+                  <p className={`text-sm font-bold text-[#0f172a] ${lang === "ar" ? "text-right" : ""}`}>{baseData.title_en}</p>
+                  <Badge variant="outline" className="text-xs">{t(`cms_status${baseData.status.charAt(0).toUpperCase() + baseData.status.slice(1)}` as any)}</Badge>
                 </div>
                 <p className="text-xs font-medium text-[#94a3b8]" dir="rtl">{baseData.title_ar}</p>
                 <Separator />
-                <p className="text-xs text-[#64748b]">{baseData.description_en}</p>
+                <p className={`text-xs text-[#64748b] ${lang === "ar" ? "text-right" : ""}`}>{baseData.description_en}</p>
 
                 <div className="grid grid-cols-2 gap-3 mt-3">
                   <div className="p-3 bg-white rounded-xl">
-                    <p className="text-[10px] text-[#94a3b8] uppercase tracking-wider font-bold mb-1">Section</p>
-                    <p className="text-xs font-bold" style={{ color: cfg.color }}>{cfg.label_en}</p>
+                    <p className="text-[10px] text-[#94a3b8] uppercase tracking-wider font-bold mb-1">{t("nav_content")}</p>
+                    <p className="text-xs font-bold" style={{ color: cfg.color }}>{n(cfg.label_en, cfg.label_ar)}</p>
                   </div>
                   <div className="p-3 bg-white rounded-xl">
-                    <p className="text-[10px] text-[#94a3b8] uppercase tracking-wider font-bold mb-1">Visibility</p>
+                    <p className="text-[10px] text-[#94a3b8] uppercase tracking-wider font-bold mb-1">{t("cms_form_visibility")}</p>
                     <p className="text-xs font-bold text-[#334155]">{baseData.visibility.age_categories.join(", ")}</p>
                   </div>
                   <div className="p-3 bg-white rounded-xl">
-                    <p className="text-[10px] text-[#94a3b8] uppercase tracking-wider font-bold mb-1">Doctor Approval</p>
-                    <p className={`text-xs font-bold ${cfg.requires_doctor_approval ? "text-amber-600" : "text-emerald-600"}`}>{cfg.requires_doctor_approval ? "Required" : "Not Required"}</p>
+                    <p className="text-[10px] text-[#94a3b8] uppercase tracking-wider font-bold mb-1">{t("cms_doctorApproval")}</p>
+                    <p className={`text-xs font-bold ${cfg.requires_doctor_approval ? "text-amber-600" : "text-emerald-600"}`}>{cfg.requires_doctor_approval ? t("yes") : t("no")}</p>
                   </div>
                   <div className="p-3 bg-white rounded-xl">
-                    <p className="text-[10px] text-[#94a3b8] uppercase tracking-wider font-bold mb-1">Admin Approval</p>
-                    <p className={`text-xs font-bold ${cfg.requires_admin_approval ? "text-amber-600" : "text-emerald-600"}`}>{cfg.requires_admin_approval ? "Required" : "Not Required"}</p>
+                    <p className="text-[10px] text-[#94a3b8] uppercase tracking-wider font-bold mb-1">{t("cms_adminApproval")}</p>
+                    <p className={`text-xs font-bold ${cfg.requires_admin_approval ? "text-amber-600" : "text-emerald-600"}`}>{cfg.requires_admin_approval ? t("yes") : t("no")}</p>
                   </div>
                 </div>
               </div>
 
               <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
-                <p className="text-sm font-bold text-emerald-800">Ready to {editItem ? "update" : "create"}?</p>
+                <p className="text-sm font-bold text-emerald-800">{t("cms_form_readyTo")} {editItem ? t("update") : t("create")}?</p>
                 <p className="text-xs text-emerald-700 mt-1">
                   {baseData.status === "draft"
-                    ? "This will be saved as a draft. You can promote it to Review when ready."
-                    : "This will be submitted for review immediately."}
+                    ? t("cms_form_draftSaveHint")
+                    : t("cms_form_reviewSubmitHint")}
                 </p>
               </div>
             </div>
@@ -315,8 +326,8 @@ export function ContentFormDialog({ open, onOpenChange, section, editItem, onSav
             onClick={() => stepIndex > 0 ? setStep(STEPS[stepIndex - 1]) : onOpenChange(false)}
             className="gap-2"
           >
-            <ChevronLeft className="h-4 w-4" />
-            {stepIndex === 0 ? "Cancel" : "Back"}
+            {isRTL ? <ChevronLeft className="h-4 w-4 rotate-180" /> : <ChevronLeft className="h-4 w-4" />}
+            {stepIndex === 0 ? t("cancel") : t("back")}
           </Button>
 
           <div className="flex gap-2">
@@ -327,8 +338,8 @@ export function ContentFormDialog({ open, onOpenChange, section, editItem, onSav
                 className="gap-2 text-white"
                 style={{ backgroundColor: cfg.color }}
               >
-                Next
-                <ChevronRight className="h-4 w-4" />
+                {t("next")}
+                {isRTL ? <ChevronRight className="h-4 w-4 rotate-180" /> : <ChevronRight className="h-4 w-4" />}
               </Button>
             )}
             {step === "review" && (
@@ -337,7 +348,7 @@ export function ContentFormDialog({ open, onOpenChange, section, editItem, onSav
                 className="gap-2 text-white bg-emerald-600 hover:bg-emerald-700"
               >
                 <Check className="h-4 w-4" />
-                {editItem ? "Update Content" : "Create Content"}
+                {editItem ? t("update") : t("create")}
               </Button>
             )}
           </div>

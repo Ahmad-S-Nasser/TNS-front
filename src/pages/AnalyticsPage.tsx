@@ -27,6 +27,29 @@ const AnalyticsPage = () => {
   const t = useT();
   const { isRTL } = useI18n();
 
+  // Localized months for the chart
+  const months = isRTL 
+    ? ["أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر", "يناير"]
+    : ["Aug", "Sep", "Oct", "Nov", "Dec", "Jan"];
+
+  const localizedMonthlyData = monthlyData.map((d, i) => ({
+    ...d,
+    month: months[i] || d.month
+  }));
+
+  // Localized content types
+  const contentTypes: Record<string, string> = {
+    Tips: isRTL ? "نصائح" : "Tips",
+    Steps: isRTL ? "خطوات" : "Steps",
+    Articles: isRTL ? "مقالات" : "Articles",
+    Videos: isRTL ? "فيديوهات" : "Videos"
+  };
+
+  const localizedEngagementData = engagementByContent.map(d => ({
+    ...d,
+    type: contentTypes[d.type] || d.type
+  }));
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -51,7 +74,7 @@ const AnalyticsPage = () => {
               <div className={`h-12 w-12 rounded-xl ${k.bg} flex items-center justify-center`}>
                 <k.icon className={`h-6 w-6 ${k.ic}`} />
               </div>
-              <div>
+              <div className={isRTL ? "text-right" : "text-left"}>
                 <p className="text-2xl font-bold">{k.value}</p>
                 <p className="text-xs text-muted-foreground">{k.label}</p>
               </div>
@@ -66,7 +89,7 @@ const AnalyticsPage = () => {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={monthlyData}>
+            <AreaChart data={localizedMonthlyData}>
               <defs>
                 <linearGradient id="userGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
@@ -74,9 +97,17 @@ const AnalyticsPage = () => {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="month" fontSize={11} tick={{ fill: "hsl(var(--muted-foreground))" }} />
-              <YAxis fontSize={11} tick={{ fill: "hsl(var(--muted-foreground))" }} />
-              <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)", fontSize: 12 }} />
+              <XAxis dataKey="month" fontSize={11} tick={{ fill: "hsl(var(--muted-foreground))" }} reversed={isRTL} />
+              <YAxis fontSize={11} orientation={isRTL ? "right" : "left"} tick={{ fill: "hsl(var(--muted-foreground))" }} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: "hsl(var(--card))", 
+                  border: "1px solid hsl(var(--border))", 
+                  borderRadius: "var(--radius)", 
+                  fontSize: 12,
+                  textAlign: isRTL ? "right" : "left"
+                }} 
+              />
               <Area type="monotone" dataKey="users" stroke="hsl(var(--primary))" fill="url(#userGrad)" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>
@@ -89,14 +120,22 @@ const AnalyticsPage = () => {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={engagementByContent}>
+            <BarChart data={localizedEngagementData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="type" fontSize={11} tick={{ fill: "hsl(var(--muted-foreground))" }} />
-              <YAxis fontSize={11} tick={{ fill: "hsl(var(--muted-foreground))" }} />
-              <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)", fontSize: 12 }} />
-              <Bar dataKey="views"  fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="likes"  fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="shares" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
+              <XAxis dataKey="type" fontSize={11} tick={{ fill: "hsl(var(--muted-foreground))" }} reversed={isRTL} />
+              <YAxis fontSize={11} orientation={isRTL ? "right" : "left"} tick={{ fill: "hsl(var(--muted-foreground))" }} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: "hsl(var(--card))", 
+                  border: "1px solid hsl(var(--border))", 
+                  borderRadius: "var(--radius)", 
+                  fontSize: 12,
+                  textAlign: isRTL ? "right" : "left"
+                }} 
+              />
+              <Bar dataKey="views" name={isRTL ? "مشاهدات" : "Views"} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="likes" name={isRTL ? "إعجابات" : "Likes"} fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="shares" name={isRTL ? "مشاركات" : "Shares"} fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

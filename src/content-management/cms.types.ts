@@ -1,3 +1,4 @@
+import { VaccineContent } from "./vaccines/vaccine.types";
 // ─── Advanced CMS Type System ─────────────────────────────────────────────────
 // Tips & Steps — Multi-section content management for mobile app consumption.
 // All types are API-ready and serializable.
@@ -12,7 +13,8 @@ export type CMSSection =
   | "educational-games"
   | "hospitals"
   | "health-units"
-  | "emergency";
+  | "emergency"
+  | "vaccines";
 
 export type ContentStatus = "draft" | "review" | "approved" | "published" | "archived";
 
@@ -178,7 +180,8 @@ export type CMSContent =
   | EducationalGameContent
   | HospitalContent
   | HealthUnitContent
-  | EmergencyContent;
+  | EmergencyContent
+  | VaccineContent;
 
 // ─── Form Data Types ─────────────────────────────────────────────────────────
 

@@ -1,14 +1,18 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
-import type { CMSSection } from "./cms.types";
-import { SectionList } from "./SectionList";
+import { useI18n, useT } from "@/i18n/i18n.context";
 import { ContentListView } from "./ContentListView";
+import { SectionList } from "./SectionList";
 import { getSectionStats, getSectionConfig } from "./cms.service";
 import { getAccessibleSections } from "./permissions";
+import { CMSSection } from "./cms.types";
+import { VaccineListView } from "./vaccines/VaccineListView";
 
 export function ContentRouter() {
   const [activeSection, setActiveSection] = useState<CMSSection | null>(null);
+  const { lang, isRTL } = useI18n();
+  const t = useT();
+  const n = (en: string, ar: string) => lang === "ar" ? ar : en;
 
   const stats = getSectionStats();
   const accessibleSections = getAccessibleSections();
@@ -23,16 +27,22 @@ export function ContentRouter() {
             onClick={() => setActiveSection(null)}
             className="flex items-center gap-1.5 hover:text-[#0f172a] transition-colors font-medium"
           >
-            <ChevronLeft className="h-4 w-4" />
-            Content Management
+            {isRTL ? <ChevronLeft className="h-4 w-4 rotate-180" /> : <ChevronLeft className="h-4 w-4" />}
+            {t("cms_title")}
           </button>
           <span className="text-[#cbd5e1]">/</span>
-          <span className="text-[#0f172a] font-semibold">{cfg.label_en}</span>
+          <span className="text-[#0f172a] font-semibold">{n(cfg.label_en, cfg.label_ar)}</span>
           <span className="text-[#cbd5e1]">—</span>
-          <span className="text-xs font-medium" style={{ color: cfg.color }} dir="rtl">{cfg.label_ar}</span>
+          <span className="text-[11px] font-medium text-[#94a3b8]" dir={lang === "ar" ? "ltr" : "rtl"}>
+            {lang === "ar" ? cfg.label_en : cfg.label_ar}
+          </span>
         </div>
 
-        <ContentListView section={activeSection} />
+        {activeSection === "vaccines" ? (
+          <VaccineListView />
+        ) : (
+          <ContentListView section={activeSection} />
+        )}
       </div>
     );
   }
