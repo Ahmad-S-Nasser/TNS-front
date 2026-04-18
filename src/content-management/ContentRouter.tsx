@@ -7,6 +7,8 @@ import { getSectionStats, getSectionConfig } from "./cms.service";
 import { getAccessibleSections } from "./permissions";
 import { CMSSection } from "./cms.types";
 import { VaccineListView } from "./vaccines/VaccineListView";
+import { QuestionnaireList } from "@/questionnaires/QuestionnaireList";
+import { FAQList } from "@/faqs/FAQList";
 
 export function ContentRouter() {
   const [activeSection, setActiveSection] = useState<CMSSection | null>(null);
@@ -40,6 +42,10 @@ export function ContentRouter() {
 
         {activeSection === "vaccines" ? (
           <VaccineListView />
+        ) : activeSection === "questionnaires" ? (
+          <QuestionnaireList />
+        ) : activeSection === "faqs" ? (
+          <FAQList />
         ) : (
           <ContentListView section={activeSection} />
         )}

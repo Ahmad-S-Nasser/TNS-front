@@ -13,9 +13,12 @@ import {
   MessageSquare,
   HelpCircle,
   TrendingUp,
+  BrainCircuit,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { rbacService, currentUserId } from "@/rbac/rbac.service";
+import { Permission } from "@/rbac/rbac.types";
 import {
   Sidebar,
   SidebarContent,
@@ -39,24 +42,25 @@ export function AdminSidebar() {
 
   const mainNav = [
     { titleKey: "nav_dashboard", url: "/", icon: LayoutDashboard },
-    { titleKey: "nav_users", url: "/users", icon: Users },
-    { titleKey: "nav_questions", url: "/questions", icon: MessageSquare },
-    { titleKey: "nav_growthMatrix", url: "/growth-matrix", icon: TrendingUp },
-    { titleKey: "nav_content", url: "/content", icon: FileText },
-    { titleKey: "nav_analytics", url: "/analytics", icon: BarChart3 },
+    { titleKey: "nav_users", url: "/users", icon: Users, permission: 'users.manage' as Permission },
+    { titleKey: "nav_questions", url: "/questions", icon: MessageSquare, permission: 'questions.answer' as Permission },
+    { titleKey: "nav_growthMatrix", url: "/growth-matrix", icon: TrendingUp, permission: 'analytics.view' as Permission },
+    { titleKey: "nav_content", url: "/content", icon: FileText, permission: 'analytics.view' as Permission },
+    { titleKey: "nav_analytics", url: "/analytics", icon: BarChart3, permission: 'analytics.view' as Permission },
+    { titleKey: "nav_healthIntelligence", url: "/health-intelligence", icon: BrainCircuit, permission: 'health_intelligence.view' as Permission },
   ] as const;
 
-  const managementNav = [
-    { titleKey: "nav_doctors", url: "/doctors", icon: HeartPulse },
-    { titleKey: "nav_marketing", url: "/marketing", icon: Megaphone },
-    { titleKey: "nav_itSupport", url: "/it-support", icon: Wrench },
-  ] as const;
 
   const systemNav = [
-    { titleKey: "nav_auditLogs", url: "/audit-logs", icon: ClipboardList },
+    { titleKey: "nav_auditLogs", url: "/audit-logs", icon: ClipboardList, permission: 'system.logs.view' as Permission },
     { titleKey: "nav_support", url: "/support", icon: HelpCircle },
-    { titleKey: "nav_settings", url: "/settings", icon: Settings },
+    { titleKey: "nav_settings", url: "/settings", icon: Settings, permission: 'settings.manage' as Permission },
+    { titleKey: "nav_roles", url: "/roles", icon: Shield, permission: 'rbac.manage' as Permission },
   ] as const;
+
+  const filterNav = (items: any[]) => items.filter(item => 
+    !item.permission || rbacService.hasPermission(currentUserId, item.permission)
+  );
 
   return (
     <Sidebar collapsible="icon" className="border-r-0" side={isRTL ? "right" : "left"}>
@@ -86,7 +90,7 @@ export function AdminSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainNav.map((item) => (
+              {filterNav([...mainNav]).map((item) => (
                 <SidebarMenuItem key={item.titleKey}>
                   <SidebarMenuButton asChild tooltip={t(item.titleKey)}>
                     <NavLink
@@ -105,30 +109,6 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Management */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/50 text-[10px] uppercase tracking-widest font-semibold">
-            {t("nav_management")}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {managementNav.map((item) => (
-                <SidebarMenuItem key={item.titleKey}>
-                  <SidebarMenuButton asChild tooltip={t(item.titleKey)}>
-                    <NavLink
-                      to={item.url}
-                      className="text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{t(item.titleKey)}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
 
         {/* System */}
         <SidebarGroup>
@@ -137,7 +117,7 @@ export function AdminSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {systemNav.map((item) => (
+              {filterNav([...systemNav]).map((item) => (
                 <SidebarMenuItem key={item.titleKey}>
                   <SidebarMenuButton asChild tooltip={t(item.titleKey)}>
                     <NavLink

@@ -133,6 +133,32 @@ export const SECTION_CONFIGS: SectionConfig[] = [
     requires_admin_approval: false,
     allowed_roles: ["SUPER_ADMIN", "MANAGER", "DOCTOR"],
   },
+  {
+    key: "questionnaires",
+    label_ar: "الاستبيانات الصحية",
+    label_en: "Health Questionnaires",
+    description_ar: "إدارة استبيانات جمع البيانات الصحية وتتبع الإشارات",
+    description_en: "Manage health data collection and signal tracking questionnaires",
+    icon: "clipboard-list",
+    color: "#6366F1",
+    gradient: "from-indigo-500 to-blue-600",
+    requires_doctor_approval: true,
+    requires_admin_approval: false,
+    allowed_roles: ["SUPER_ADMIN", "DOCTOR", "MANAGER"],
+  },
+  {
+    key: "faqs",
+    label_ar: "الأسئلة الشائعة",
+    label_en: "FAQs & Guidance",
+    description_ar: "إدارة المحتوى التعليمي والأسئلة الشائعة للأهل",
+    description_en: "Manage educational FAQs and guidance for parents",
+    icon: "help-circle",
+    color: "#F59E0B",
+    gradient: "from-amber-400 to-orange-500",
+    requires_doctor_approval: false,
+    requires_admin_approval: false,
+    allowed_roles: ["SUPER_ADMIN", "MANAGER", "MARKETING", "DOCTOR"],
+  },
 ];
 
 export function getSectionConfig(key: CMSSection): SectionConfig {
@@ -406,6 +432,44 @@ let store: CMSContent[] = [
     visibility: { age_categories: ["infant"], requires_login: false },
     requires_doctor_approval: true, requires_admin_approval: false,
     created_by: "Dr. Hana", created_at: now(), updated_at: now(), tags: ["optional", "rotavirus"],
+  } as any,
+
+  // ── Questionnaires ────────────────────────────────────────────────────────
+  {
+    id: "que-1", section: "questionnaires", status: "published",
+    title_ar: "استبيان ما بعد التطعيم (شهرين)",
+    title_en: "Post-Vaccination Follow-up (2 Months)",
+    description_ar: "متابعة الآثار الجانبية بعد تلقي تطعيم الشهرين",
+    description_en: "Follow-up on side effects after the 2-month vaccination",
+    type: "post-vax", is_active: true,
+    trigger: { type: "vaccine", value: "vac-1" },
+    questions: [
+      {
+        id: "q1", text_ar: "هل يعاني الطفل من ارتفاع في درجة الحرارة؟", text_en: "Does the child have a fever?",
+        type: "yes-no", is_required: true, linked_signal_type: "fever"
+      },
+      {
+        id: "q2", text_ar: "مستوى شدة الألم في موقع الحقن", text_en: "Severity of pain at injection site",
+        type: "scale", is_required: true, linked_signal_type: "pain"
+      }
+    ],
+    visibility: { age_categories: ["infant"], requires_login: true },
+    requires_doctor_approval: true, requires_admin_approval: false,
+    created_by: "Dr. Hana", created_at: now(), updated_at: now(),
+  } as any,
+
+  // ── FAQs ──────────────────────────────────────────────────────────────────
+  {
+    id: "faq-1", section: "faqs", status: "published",
+    title_ar: "التعامل مع الحرارة بعد التطعيم",
+    title_en: "Handling Fever After Vaccination",
+    description_ar: "نصائح للأهل حول كيفية التعامل مع ارتفاع الحرارة البسيط",
+    description_en: "Tips for parents on how to handle mild post-vaccination fever",
+    category: "Vaccine Safety", is_reassurance: true, is_warning: false,
+    links: { vaccine_ids: ["vac-1"], symptoms: ["fever"] },
+    visibility: { age_categories: ["infant", "toddler"], requires_login: false },
+    requires_doctor_approval: false, requires_admin_approval: false,
+    created_by: "Marketing", created_at: now(), updated_at: now(),
   } as any,
 ];
 

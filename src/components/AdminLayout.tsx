@@ -12,7 +12,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full" dir={isRTL ? "rtl" : "ltr"}>
+      <div className="h-screen flex w-full overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
         <AdminSidebar />
         <div className="flex-1 flex flex-col min-w-0">
           <AdminHeader />

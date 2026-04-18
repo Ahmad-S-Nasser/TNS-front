@@ -14,7 +14,9 @@ export type CMSSection =
   | "hospitals"
   | "health-units"
   | "emergency"
-  | "vaccines";
+  | "vaccines"
+  | "questionnaires"
+  | "faqs";
 
 export type ContentStatus = "draft" | "review" | "approved" | "published" | "archived";
 
@@ -181,7 +183,49 @@ export type CMSContent =
   | HospitalContent
   | HealthUnitContent
   | EmergencyContent
-  | VaccineContent;
+  | VaccineContent
+  | QuestionnaireContent
+  | FAQContent;
+
+// ─── Section 9: Questionnaires ──────────────────────────────────────────────
+
+export type QuestionnaireType = "post-vax" | "monthly-check" | "missed-followup" | "symptom-monitor" | "availability";
+export type TriggerType = "age" | "vaccine" | "time" | "event";
+
+export interface QuestionnaireQuestion {
+  id: string;
+  text_ar: string;
+  text_en: string;
+  type: "yes-no" | "multiple-choice" | "scale";
+  options?: { value: string; label_ar: string; label_en: string; signal_type?: string }[];
+  is_required: boolean;
+  linked_signal_type?: string; 
+}
+
+export interface QuestionnaireContent extends BaseContent {
+  section: "questionnaires";
+  type: QuestionnaireType;
+  trigger: {
+    type: TriggerType;
+    value: string; // Age in months, Vaccine ID, etc.
+  };
+  questions: QuestionnaireQuestion[];
+  is_active: boolean;
+}
+
+// ─── Section 10: FAQs ────────────────────────────────────────────────────────
+
+export interface FAQContent extends BaseContent {
+  section: "faqs";
+  category: string;
+  links: {
+    vaccine_ids?: string[];
+    age_groups?: AgeCategory[];
+    symptoms?: string[];
+  };
+  is_reassurance: boolean;
+  is_warning: boolean;
+}
 
 // ─── Form Data Types ─────────────────────────────────────────────────────────
 

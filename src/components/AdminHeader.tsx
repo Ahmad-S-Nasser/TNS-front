@@ -2,6 +2,7 @@ import { Bell, Search, User, Languages } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NotificationCenter } from "./NotificationCenter";
 import { useI18n } from "@/i18n/i18n.context";
 
 export function AdminHeader() {
@@ -36,12 +37,7 @@ export function AdminHeader() {
         </Button>
 
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
-          <Bell className="h-4 w-4" />
-          <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-accent text-[10px] font-bold flex items-center justify-center text-accent-foreground">
-            3
-          </span>
-        </Button>
+        <NotificationCenter />
 
         {/* User */}
         <div className={`flex items-center gap-2 pl-2 ${isRTL ? "border-r pr-2" : "border-l pl-2"}`}>

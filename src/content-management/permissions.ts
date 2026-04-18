@@ -1,7 +1,9 @@
 // ─── CMS Permissions ──────────────────────────────────────────────────────────
-// Role-Based Access Control for each CMS section.
+// Refactored to use Dynamic RBAC resolver.
 
 import type { CMSSection, ContentRole } from "./cms.types";
+import { rbacService, currentUserId } from "@/rbac/rbac.service";
+import { Permission } from "@/rbac/rbac.types";
 
 export interface SectionPermissions {
   canView: boolean;
@@ -13,94 +15,53 @@ export interface SectionPermissions {
   canExport: boolean;
 }
 
-type RolePermissionMatrix = Record<ContentRole, SectionPermissions>;
+// ─── Mapping Logic ───
+// Maps the old section-based actions to the new atomic permissions.
 
-// ─── Educational Content Permissions ─────────────────────────────────────────
-// Sections: behavioral, psychological, nutrition, educational-games
+function mapActionToPermission(action: keyof SectionPermissions, section: CMSSection): Permission {
+  if (section === 'questionnaires') return 'questionnaires.manage';
+  if (section === 'faqs') return 'faqs.manage';
+  
+  switch(action) {
+    case 'canCreate': return 'content.create';
+    case 'canPublish': return 'content.publish';
+    case 'canApprove': return 'content.review';
+    case 'canDelete': return 'content.delete';
+    case 'canExport': return 'analytics.view';
+    case 'canView': 
+    default: return 'analytics.view'; // Base viewing rights
+  }
+}
 
-const educationalPermissions: RolePermissionMatrix = {
-  SUPER_ADMIN:  { canView: true,  canCreate: true,  canEdit: true,  canDelete: true,  canApprove: true,  canPublish: true,  canExport: true  },
-  MANAGER:      { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: true,  canPublish: true,  canExport: true  },
-  MARKETING:    { canView: true,  canCreate: true,  canEdit: true,  canDelete: false, canApprove: false, canPublish: false, canExport: false },
-  DOCTOR:       { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: true,  canPublish: false, canExport: false },
-  IT_SUPPORT:   { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: false, canPublish: false, canExport: false },
-};
-
-// ─── Medical Content Permissions ──────────────────────────────────────────────
-// Sections: sexual-education (requires professional review)
-
-const medicalPermissions: RolePermissionMatrix = {
-  SUPER_ADMIN:  { canView: true,  canCreate: true,  canEdit: true,  canDelete: true,  canApprove: true,  canPublish: true,  canExport: true  },
-  MANAGER:      { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: true,  canPublish: true,  canExport: true  },
-  MARKETING:    { canView: false, canCreate: false, canEdit: false, canDelete: false, canApprove: false, canPublish: false, canExport: false },
-  DOCTOR:       { canView: true,  canCreate: true,  canEdit: true,  canDelete: false, canApprove: true,  canPublish: false, canExport: false },
-  IT_SUPPORT:   { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: false, canPublish: false, canExport: false },
-};
-
-// ─── Service/Location Content Permissions ────────────────────────────────────
-// Sections: hospitals, health-units
-
-const servicePermissions: RolePermissionMatrix = {
-  SUPER_ADMIN:  { canView: true,  canCreate: true,  canEdit: true,  canDelete: true,  canApprove: true,  canPublish: true,  canExport: true  },
-  MANAGER:      { canView: true,  canCreate: true,  canEdit: true,  canDelete: false, canApprove: true,  canPublish: true,  canExport: true  },
-  MARKETING:    { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: false, canPublish: false, canExport: false },
-  DOCTOR:       { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: false, canPublish: false, canExport: false },
-  IT_SUPPORT:   { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: false, canPublish: false, canExport: false },
-};
-
-// ─── Emergency Content Permissions ───────────────────────────────────────────
-// Section: emergency — only admin-level roles can manage
-
-const emergencyPermissions: RolePermissionMatrix = {
-  SUPER_ADMIN:  { canView: true,  canCreate: true,  canEdit: true,  canDelete: true,  canApprove: true,  canPublish: true,  canExport: true  },
-  MANAGER:      { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: true,  canPublish: true,  canExport: true  },
-  MARKETING:    { canView: false, canCreate: false, canEdit: false, canDelete: false, canApprove: false, canPublish: false, canExport: false },
-  IT_SUPPORT:   { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: false, canPublish: false, canExport: false },
-};
-
-// ─── Vaccine Content Permissions ─────────────────────────────────────────────
-// Section: vaccines — Doctors and Admins can publish, Marketing can draft
-
-const vaccinePermissions: RolePermissionMatrix = {
-  SUPER_ADMIN:  { canView: true,  canCreate: true,  canEdit: true,  canDelete: true,  canApprove: true,  canPublish: true,  canExport: true  },
-  MANAGER:      { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: true,  canPublish: true,  canExport: true  },
-  MARKETING:    { canView: true,  canCreate: true,  canEdit: true,  canDelete: false, canApprove: false, canPublish: false, canExport: false },
-  DOCTOR:       { canView: true,  canCreate: true,  canEdit: true,  canDelete: false, canApprove: true,  canPublish: true,  canExport: true  },
-  IT_SUPPORT:   { canView: true,  canCreate: false, canEdit: false, canDelete: false, canApprove: false, canPublish: false, canExport: false },
-};
-
-// ─── Section → Permission Matrix Map ─────────────────────────────────────────
-
-const sectionPermissionMap: Record<CMSSection, RolePermissionMatrix> = {
-  "behavioral":        educationalPermissions,
-  "psychological":     educationalPermissions,
-  "nutrition":         educationalPermissions,
-  "educational-games": educationalPermissions,
-  "sexual-education":  medicalPermissions,
-  "hospitals":         servicePermissions,
-  "health-units":      servicePermissions,
-  "emergency":         emergencyPermissions,
-  "vaccines":          vaccinePermissions,
-};
-
-// ─── Public API ───────────────────────────────────────────────────────────────
+// ─── Public API ───
 
 export function getPermissions(role: ContentRole, section: CMSSection): SectionPermissions {
-  return sectionPermissionMap[section][role];
+  // role is no longer the primary driver, accountId is.
+  // We use currentUserId for now as the source of truth.
+  
+  return {
+    canView: rbacService.hasPermission(currentUserId, mapActionToPermission('canView', section)),
+    canCreate: rbacService.hasPermission(currentUserId, mapActionToPermission('canCreate', section)),
+    canEdit: rbacService.hasPermission(currentUserId, mapActionToPermission('canCreate', section)), // Map edit to create for now
+    canDelete: rbacService.hasPermission(currentUserId, mapActionToPermission('canDelete', section)),
+    canApprove: rbacService.hasPermission(currentUserId, mapActionToPermission('canApprove', section)),
+    canPublish: rbacService.hasPermission(currentUserId, mapActionToPermission('canPublish', section)),
+    canExport: rbacService.hasPermission(currentUserId, mapActionToPermission('canExport', section)),
+  };
 }
 
-// Simulated current user role — replace with auth context when backend is ready
+// Simulated current user role — maintained for legacy compat
 export const CURRENT_USER_ROLE: ContentRole = "SUPER_ADMIN";
 
-export function can(action: keyof SectionPermissions, section: CMSSection, role: ContentRole = CURRENT_USER_ROLE): boolean {
-  return getPermissions(role, section)[action];
+export function can(action: keyof SectionPermissions, section: CMSSection): boolean {
+  return rbacService.hasPermission(currentUserId, mapActionToPermission(action, section));
 }
 
-export function getAccessibleSections(role: ContentRole = CURRENT_USER_ROLE): CMSSection[] {
+export function getAccessibleSections(): CMSSection[] {
   const all: CMSSection[] = [
     "behavioral", "psychological", "nutrition", "sexual-education",
     "educational-games", "hospitals", "health-units", "emergency",
-    "vaccines",
+    "vaccines", "questionnaires", "faqs",
   ];
-  return all.filter(s => getPermissions(role, s).canView);
+  return all.filter(s => can('canView', s));
 }
