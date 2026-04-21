@@ -44,7 +44,6 @@ const App = () => (
             <Route path="/audit-logs" element={<AdminRoute><AuditLogs /></AdminRoute>} />
             <Route path="/roles" element={<AdminRoute><RolesPermissions /></AdminRoute>} />
             <Route path="/settings" element={<AdminRoute><SettingsPage /></AdminRoute>} />
-            <Route path="/support" element={<AdminRoute><PlaceholderPage title="Support" description="Contact support or review system tickets." /></AdminRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

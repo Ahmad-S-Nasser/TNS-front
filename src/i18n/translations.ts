@@ -50,10 +50,15 @@ export const translations = {
   nav_analytics: { en: "Analytics", ar: "التحليلات" },
   nav_healthIntelligence: { en: "Health Intelligence", ar: "الاستخبارات الصحية" },
   nav_auditLogs: { en: "Audit Logs", ar: "سجلات المراجعة" },
-  nav_support: { en: "Support", ar: "الدعم" },
   nav_settings: { en: "Settings", ar: "الإعدادات" },
+  nav_roles: { en: "Roles & Permissions", ar: "الأدوار والصلاحيات" },
   nav_main: { en: "Main", ar: "الرئيسية" },
   nav_system: { en: "System", ar: "النظام" },
+
+  // ─── 404 Page ───────────────────────────────────────────────────────────────
+  error_404_title: { en: "404 Oops! Page not found", ar: "٤٠٤ عذراً! الصفحة غير موجودة" },
+  error_404_desc: { en: "The page you looking for doesn't exist or has been moved.", ar: "الصفحة التي تبحث عنها غير موجودة أو تم نقلها." },
+  error_404_backHome: { en: "Back to Home", ar: "العودة للرئيسية" },
 
   // ─── Header ─────────────────────────────────────────────────────────────────
   header_search: { en: "Search...", ar: "بحث في النظام..." },
@@ -534,6 +539,58 @@ export const translations = {
   // ─── Roles & Permissions ─────────────────────────────────────────────────
   roles_title: { en: "Roles & Permissions", ar: "الأدوار والصلاحيات" },
   roles_subtitle: { en: "Manage access control and role assignments.", ar: "إدارة التحكم في الوصول وتعيين الأدوار." },
+
+  // ─── RBAC / Privilege System ─────────────────────────────────────────────
+  rbac_title: { en: "Privilege System", ar: "نظام الصلاحيات" },
+  rbac_subtitle: { en: "Configure atomic permission groups and manage account-level overrides.", ar: "تكوين مجموعات الصلاحيات الذرية وإدارة استثناءات مستوى الحساب." },
+  rbac_securityFramework: { en: "Security Framework", ar: "إطار الحماية" },
+  rbac_categories: { en: "Role Categories", ar: "فئات الأدوار" },
+  rbac_personnel: { en: "Category Personnel", ar: "موظفو الفئة" },
+  rbac_personnelSubtitle: { en: "Manage individual account overrides", ar: "إدارة استثناءات الحسابات الفردية" },
+  rbac_searchPlaceholder: { en: "Search accounts...", ar: "بحث عن الحسابات..." },
+  rbac_recentEvents: { en: "Recent Security Events", ar: "الأحداث الأمنية الأخيرة" },
+  rbac_eventsDesc: { en: "Permission changes logged in the last 24h", ar: "تم تسجيل تغييرات الصلاحيات في آخر ٢٤ ساعة" },
+  rbac_viewAudit: { en: "View Full Audit", ar: "عرض السجل الكامل" },
+  
+  // Categories
+  rbac_cat_doctors: { en: "Doctors", ar: "الأطباء" },
+  rbac_cat_doctorsDesc: { en: "Medical review & questionnaire management", ar: "المراجعة الطبية وإدارة الاستبيانات" },
+  rbac_cat_marketing: { en: "Marketing", ar: "التسويق" },
+  rbac_cat_marketingDesc: { en: "Content creation & educational guidance", ar: "إنشاء المحتوى والتوجيه التعليمي" },
+  rbac_cat_it: { en: "IT Support", ar: "الدعم التقني" },
+  rbac_cat_itDesc: { en: "System logs, defaults & account management", ar: "سجلات النظام، الافتراضات وإدارة الحسابات" },
+  rbac_cat_super: { en: "Super Admins", ar: "المديرين العامين" },
+  rbac_cat_superDesc: { en: "Global privileges and root configuration", ar: "الصلاحيات العامة وتكوين الجذر" },
+
+  // Matrix
+  rbac_matrix_globalPolicy: { en: "Global Policy", ar: "السياسة العامة" },
+  rbac_matrix_defaults: { en: "Defaults", ar: "الافتراضات" },
+  rbac_matrix_desc: { en: "Baseline permissions inherited by all accounts in this category.", ar: "الصلاحيات الأساسية الموروثة من قبل جميع الحسابات في هذه الفئة." },
+  rbac_group_content: { en: "Content & CMS", ar: "المحتوى وإدارة النظام" },
+  rbac_group_health: { en: "Health Data", ar: "البيانات الصحية" },
+  rbac_group_intel: { en: "Intelligence & Analytics", ar: "الذكاء والتحليلات" },
+  rbac_group_security: { en: "Security & System", ar: "الأمن والنظام" },
+
+  // Table
+  rbac_table_admin: { en: "Administrator", ar: "المسؤول" },
+  rbac_table_status: { en: "Status", ar: "الحالة" },
+  rbac_table_level: { en: "Privilege Level", ar: "مستوى الصلاحية" },
+  rbac_table_custom: { en: "Custom Overrides", ar: "استثناءات مخصصة" },
+  rbac_table_standard: { en: "Standard", ar: "قياسي" },
+  rbac_table_edit: { en: "Edit Account", ar: "تعديل الحساب" },
+  rbac_table_log: { en: "Activity Log", ar: "سجل النشاط" },
+  rbac_table_disable: { en: "Disable Account", ar: "تعطيل الحساب" },
+
+  // Editor
+  rbac_edit_title: { en: "Account Privileges", ar: "صلاحيات الحساب" },
+  rbac_edit_reset: { en: "Reset Defaults", ar: "إعادة ضبط الافتراضات" },
+  rbac_edit_inherited: { en: "Inherited", ar: "موروث" },
+  rbac_edit_modifier: { en: "Modifier", ar: "معدل" },
+  rbac_edit_point: { en: "Atomic Access Point", ar: "نقطة وصول ذرية" },
+  rbac_edit_grant: { en: "Grant", ar: "منح" },
+  rbac_edit_deny: { en: "Deny", ar: "منع" },
+  rbac_edit_save: { en: "Save Privilege Overrides", ar: "حفظ تعديلات الصلاحيات" },
+  rbac_edit_note: { en: "Account-level overrides take precedence over global defaults.", ar: "استثناءات مستوى الحساب لها الأولوية على الافتراضات العامة." },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

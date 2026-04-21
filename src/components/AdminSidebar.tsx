@@ -53,7 +53,6 @@ export function AdminSidebar() {
 
   const systemNav = [
     { titleKey: "nav_auditLogs", url: "/audit-logs", icon: ClipboardList, permission: 'system.logs.view' as Permission },
-    { titleKey: "nav_support", url: "/support", icon: HelpCircle },
     { titleKey: "nav_settings", url: "/settings", icon: Settings, permission: 'settings.manage' as Permission },
     { titleKey: "nav_roles", url: "/roles", icon: Shield, permission: 'rbac.manage' as Permission },
   ] as const;

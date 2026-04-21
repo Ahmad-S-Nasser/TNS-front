@@ -1,6 +1,7 @@
 import React from "react";
 import { RoleCategory } from "./rbac.types";
 import { Shield, Users, Cog, LayoutDashboard } from "lucide-react";
+import { useI18n } from "@/i18n/i18n.context";
 
 interface Props {
   activeCategory: RoleCategory;
@@ -8,34 +9,36 @@ interface Props {
 }
 
 export function RoleCategories({ activeCategory, onSelect }: Props) {
+  const { t } = useI18n();
+
   const categories: { id: RoleCategory; label: string; icon: any; color: string; desc: string }[] = [
     { 
       id: "DOCTORS", 
-      label: "Doctors", 
+      label: t("rbac_cat_doctors"), 
       icon: Shield, 
       color: "blue",
-      desc: "Medical review & questionnaire management" 
+      desc: t("rbac_cat_doctorsDesc") 
     },
     { 
       id: "MARKETING", 
-      label: "Marketing", 
+      label: t("rbac_cat_marketing"), 
       icon: Users, 
       color: "emerald",
-      desc: "Content creation & educational guidance" 
+      desc: t("rbac_cat_marketingDesc") 
     },
     { 
       id: "IT_SUPPORT", 
-      label: "IT Support", 
+      label: t("rbac_cat_it"), 
       icon: Cog, 
       color: "slate",
-      desc: "System logs, defaults & account management" 
+      desc: t("rbac_cat_itDesc") 
     },
     { 
       id: "SUPER_ADMIN", 
-      label: "Super Admins", 
+      label: t("rbac_cat_super"), 
       icon: LayoutDashboard, 
       color: "rose",
-      desc: "Global privileges and root configuration" 
+      desc: t("rbac_cat_superDesc") 
     }
   ];
 

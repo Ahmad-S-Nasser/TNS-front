@@ -10,6 +10,7 @@ import { Shield, Users, History, Settings2, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useI18n } from "@/i18n/i18n.context";
 
 const RolesPermissions = () => {
   const [activeCategory, setActiveCategory] = useState<RoleCategory>("DOCTORS");
@@ -17,6 +18,8 @@ const RolesPermissions = () => {
   const [defaults, setDefaults] = useState<Permission[]>([]);
   const [editingAccount, setEditingAccount] = useState<AdminAccount | null>(null);
   const [search, setSearch] = useState("");
+
+  const { t, isRTL } = useI18n();
 
   useEffect(() => {
     loadData();
@@ -45,21 +48,21 @@ const RolesPermissions = () => {
   );
 
   return (
-    <div className="space-y-10 pb-20">
+    <div className={`space-y-10 pb-20 ${isRTL ? "text-right" : ""}`} dir={isRTL ? "rtl" : "ltr"}>
       <div>
         <div className="flex items-center gap-2 mb-2">
            <Shield className="h-5 w-5 text-[#0d9488]" />
-           <span className="text-[10px] font-black uppercase text-[#0d9488] tracking-[0.2em]">Security Framework</span>
+           <span className="text-[10px] font-black uppercase text-[#0d9488] tracking-[0.2em]">{t("rbac_securityFramework")}</span>
         </div>
-        <h1 className="text-3xl font-black tracking-tighter text-[#0f172a] uppercase">Privilege System</h1>
+        <h1 className="text-3xl font-black tracking-tighter text-[#0f172a] uppercase">{t("rbac_title")}</h1>
         <p className="text-sm font-bold text-slate-400 mt-1 max-w-2xl">
-           Configure atomic permission groups and manage account-level overrides for the Tips & Steps ecosystem.
+           {t("rbac_subtitle")}
         </p>
       </div>
 
       {/* Category Navigation */}
       <div className="space-y-4">
-         <h2 className="text-[11px] font-black uppercase text-slate-400 tracking-widest px-1">Role Categories</h2>
+         <h2 className="text-[11px] font-black uppercase text-slate-400 tracking-widest px-1">{t("rbac_categories")}</h2>
          <RoleCategories activeCategory={activeCategory} onSelect={setActiveCategory} />
       </div>
 
@@ -77,14 +80,14 @@ const RolesPermissions = () => {
          <div className="lg:col-span-7 space-y-6">
             <div className="flex items-center justify-between px-2">
                <div>
-                  <h3 className="text-lg font-black text-[#0f172a] uppercase tracking-tighter">Category Personnel</h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Manage individual account overrides</p>
+                  <h3 className="text-lg font-black text-[#0f172a] uppercase tracking-tighter">{t("rbac_personnel")}</h3>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t("rbac_personnelSubtitle")}</p>
                </div>
                <div className="relative w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-300" />
+                  <Search className={`absolute ${isRTL ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-300`} />
                   <Input 
-                    placeholder="Search accounts..." 
-                    className="h-10 pl-9 rounded-xl border-slate-100 bg-white" 
+                    placeholder={t("rbac_searchPlaceholder")} 
+                    className={`h-10 ${isRTL ? "pr-9" : "pl-9"} rounded-xl border-slate-100 bg-white`} 
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
@@ -102,12 +105,12 @@ const RolesPermissions = () => {
                      <History className="h-5 w-5" />
                   </div>
                   <div>
-                     <p className="text-[11px] font-black uppercase text-white tracking-widest">Recent Security Events</p>
-                     <p className="text-[10px] font-medium text-slate-400 mt-0.5">3 Permission changes logged in the last 24h</p>
+                     <p className="text-[11px] font-black uppercase text-white tracking-widest">{t("rbac_recentEvents")}</p>
+                     <p className="text-[10px] font-medium text-slate-400 mt-0.5">3 {t("rbac_eventsDesc")}</p>
                   </div>
                </div>
                <Badge className="bg-[#0d9488] text-white hover:bg-[#0d9488]/80 text-[10px] font-black uppercase tracking-widest px-4 cursor-pointer">
-                  View Full Audit
+                  {t("rbac_viewAudit")}
                </Badge>
             </div>
          </div>

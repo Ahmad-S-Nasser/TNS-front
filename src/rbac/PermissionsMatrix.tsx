@@ -2,6 +2,7 @@ import React from "react";
 import { Permission, RoleCategory } from "./rbac.types";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/i18n/i18n.context";
 import { 
   FileText, ClipboardCheck, MessageSquare, 
   BarChart4, ShieldCheck, Mail, Settings 
@@ -13,60 +14,62 @@ interface Props {
   onToggle: (permission: Permission) => void;
 }
 
-const PERMISSION_GROUPS = [
-  {
-    label: "Content & CMS",
-    icon: FileText,
-    items: [
-      { id: 'content.create', label: 'Create Content' },
-      { id: 'content.publish', label: 'Publish Live' },
-      { id: 'content.review', label: 'Medical Review' },
-      { id: 'content.delete', label: 'Delete Records' }
-    ]
-  },
-  {
-    label: "Health Data",
-    icon: ClipboardCheck,
-    items: [
-      { id: 'questionnaires.manage', label: 'Manage Questionnaires' },
-      { id: 'faqs.manage', label: 'Manage Guidance (FAQs)' },
-      { id: 'questions.create', label: 'Create Questions' },
-      { id: 'questions.answer', label: 'Answer Inquiries' }
-    ]
-  },
-  {
-    label: "Intelligence & Analytics",
-    icon: BarChart4,
-    items: [
-      { id: 'analytics.view', label: 'View Reports' },
-      { id: 'health_intelligence.view', label: 'Access Heatmaps' }
-    ]
-  },
-  {
-    label: "Security & System",
-    icon: ShieldCheck,
-    items: [
-      { id: 'users.manage', label: 'User Management' },
-      { id: 'rbac.manage', label: 'RBAC Administration' },
-      { id: 'system.logs.view', label: 'Audit Logs' },
-      { id: 'settings.manage', label: 'Global Settings' }
-    ]
-  }
-];
-
 export function PermissionsMatrix({ category, defaults, onToggle }: Props) {
+  const { t, isRTL } = useI18n();
+
+  const PERMISSION_GROUPS = [
+    {
+      label: t("rbac_group_content"),
+      icon: FileText,
+      items: [
+        { id: 'content.create', label: t("create") },
+        { id: 'content.publish', label: t("cms_statusPublished") },
+        { id: 'content.review', label: t("cms_statusReview") },
+        { id: 'content.delete', label: t("delete") }
+      ]
+    },
+    {
+      label: t("rbac_group_health"),
+      icon: ClipboardCheck,
+      items: [
+        { id: 'questionnaires.manage', label: t("que_builder") },
+        { id: 'faqs.manage', label: t("faq_builder") },
+        { id: 'questions.create', label: t("que_add_question") },
+        { id: 'questions.answer', label: t("questions_sendReply") }
+      ]
+    },
+    {
+      label: t("rbac_group_intel"),
+      icon: BarChart4,
+      items: [
+        { id: 'analytics.view', label: t("analytics_title") },
+        { id: 'health_intelligence.view', label: t("intel_title") }
+      ]
+    },
+    {
+      label: t("rbac_group_security"),
+      icon: ShieldCheck,
+      items: [
+        { id: 'users.manage', label: t("users_title") },
+        { id: 'rbac.manage', label: t("roles_title") },
+        { id: 'system.logs.view', label: t("auditLogs_title") },
+        { id: 'settings.manage', label: t("settings_title") }
+      ]
+    }
+  ];
+
   return (
-    <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-8 space-y-8 animate-in fade-in slide-in-from-bottom duration-500">
+    <div className={`bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-8 space-y-8 animate-in fade-in slide-in-from-bottom duration-500 ${isRTL ? "text-right" : "text-left"}`}>
       <div className="flex items-center justify-between border-b border-slate-50 pb-6">
         <div>
            <Badge variant="outline" className="mb-2 uppercase text-[10px] font-black tracking-widest text-[#0d9488] bg-[#0d9488]/5 border-[#0d9488]/20">
-              Global Policy
+              {t("rbac_matrix_globalPolicy")}
            </Badge>
            <h3 className="text-lg font-black text-[#0f172a] uppercase tracking-tighter">
-              {category} Defaults
+              {category} {t("rbac_matrix_defaults")}
            </h3>
-           <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-               baseline permissions inherited by all accounts in this category.
+           <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1 leading-relaxed">
+               {t("rbac_matrix_desc")}
            </p>
         </div>
       </div>
