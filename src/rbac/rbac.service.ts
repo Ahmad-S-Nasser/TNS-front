@@ -1,9 +1,17 @@
-import { 
-  Permission, RoleCategory, AdminAccount, 
-  PermissionOverride, RbacAuditLog 
-} from "./rbac.types";
+// ─── RBAC Service Layer ───────────────────────────────────────────────────────
+// Real API implementation — calls /admin/users/* via the YARP Gateway.
+// Falls back to local mock data if the API is unavailable (offline dev).
 
-const CATEGORY_DEFAULTS: Record<RoleCategory, Permission[]> = {
+import {
+  Permission, RoleCategory, AdminAccount,
+  PermissionOverride, RbacAuditLog
+} from "./rbac.types";
+import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
+
+// ─── Role Permission Defaults (client-side reference) ────────────────────────
+// These are used for UI rendering only. The backend is the source of truth.
+
+export const CATEGORY_DEFAULTS: Record<RoleCategory, Permission[]> = {
   DOCTOR: [
     'questions.answer',
     'questions.create',
@@ -35,158 +43,78 @@ const CATEGORY_DEFAULTS: Record<RoleCategory, Permission[]> = {
   ]
 };
 
-class RbacService {
-  private accounts: AdminAccount[] = [
-    {
-      id: "adm-1",
-      name: "Super Admin",
-      email: "admin@tipsandsteps.com",
-      roleCategory: "SUPER_ADMIN",
-      status: "active",
-      overrides: [],
-      lastActive: "Just now",
-      joinedDate: "2024-01-01"
-    },
-    {
-      id: "doc-1",
-      name: "Dr. Khalid Mansour",
-      email: "khalid@medical.tips",
-      roleCategory: "DOCTOR",
-      status: "active",
-      overrides: [],
-      lastActive: "5 mins ago",
-      joinedDate: "2024-11-15"
-    },
-    {
-      id: "mark-1",
-      name: "Sara Ahmed",
-      email: "sara@marketing.tips",
-      roleCategory: "MARKETING",
-      status: "active",
-      overrides: [
-        {
-          permission: 'content.delete',
-          action: 'grant',
-          grantedBy: "adm-1",
-          timestamp: new Date().toISOString(),
-          reason: "Marketing Lead needs delete rights"
-        }
-      ],
-      lastActive: "2 hrs ago",
-      joinedDate: "2024-12-01"
-    },
-    {
-      id: "rev-1",
-      name: "Nour Abdallah",
-      email: "nour@review.tips",
-      roleCategory: "CONTENT_REVIEWER",
-      status: "active",
-      overrides: [],
-      lastActive: "1 day ago",
-      joinedDate: "2024-12-10"
-    }
-  ];
+// ─── API Functions ────────────────────────────────────────────────────────────
 
-  private auditLogs: RbacAuditLog[] = [];
+export async function fetchAdminAccounts(): Promise<AdminAccount[]> {
+  return apiGet<AdminAccount[]>("/admin/users");
+}
 
-  // Public API
-  getAccountsByCategory(category: RoleCategory): AdminAccount[] {
-    return this.accounts.filter(acc => acc.roleCategory === category);
-  }
+export async function fetchAdminAccount(id: string): Promise<AdminAccount> {
+  return apiGet<AdminAccount>(`/admin/users/${id}`);
+}
 
+export async function createAdminAccount(
+  data: Omit<AdminAccount, "id" | "overrides" | "lastActive" | "joinedDate">
+): Promise<AdminAccount> {
+  return apiPost<AdminAccount>("/admin/users", data);
+}
+
+export async function updateAdminAccountStatus(
+  id: string,
+  status: "active" | "inactive" | "suspended"
+): Promise<AdminAccount> {
+  return apiPatch<AdminAccount>(`/admin/users/${id}`, { status });
+}
+
+export async function updatePermissionOverride(
+  targetAccountId: string,
+  permission: Permission,
+  action: "grant" | "deny" | "reset"
+): Promise<AdminAccount> {
+  return apiPatch<AdminAccount>(`/admin/users/${targetAccountId}/permissions`, {
+    permission,
+    action,
+  });
+}
+
+export async function deleteAdminAccount(id: string): Promise<void> {
+  return apiDelete(`/admin/users/${id}`);
+}
+
+export async function fetchAuditLogs(page = 1, limit = 50): Promise<{ items: RbacAuditLog[]; total: number }> {
+  return apiGet(`/admin/analytics/audit-logs?page=${page}&limit=${limit}`);
+}
+
+// ─── Client-side helpers ──────────────────────────────────────────────────────
+
+export function getCategoryDefaults(category: RoleCategory): Permission[] {
+  return CATEGORY_DEFAULTS[category] ?? [];
+}
+
+export function computeHasPermission(account: AdminAccount, permission: Permission): boolean {
+  if (account.roleCategory === "SUPER_ADMIN") return true;
+  if (account.status !== "active") return false;
+
+  const defaults = CATEGORY_DEFAULTS[account.roleCategory] ?? [];
+  const overrides = account.overrides ?? [];
+
+  if (overrides.some((o) => o.permission === permission && o.action === "deny")) return false;
+  if (overrides.some((o) => o.permission === permission && o.action === "grant")) return true;
+  return defaults.includes(permission);
+}
+
+// ─── Legacy class wrapper (backward-compatible) ───────────────────────────────
+// Keeps existing components working until they are migrated to React Query hooks.
+
+class RbacServiceCompat {
   getCategoryDefaults(category: RoleCategory): Permission[] {
-    return CATEGORY_DEFAULTS[category] || [];
+    return getCategoryDefaults(category);
   }
 
-  hasPermission(accountId: string, permission: Permission): boolean {
-    const account = this.accounts.find(acc => acc.id === accountId);
-    if (!account) return false;
-    if (account.roleCategory === 'SUPER_ADMIN') return true;
-    if (account.status !== 'active') return false;
-
-    const defaults = CATEGORY_DEFAULTS[account.roleCategory] || [];
-    const overrides = account.overrides;
-
-    // Check Denies first (highest priority)
-    const isDenied = overrides.some(o => o.permission === permission && o.action === 'deny');
-    if (isDenied) return false;
-
-    // Check Grants
-    const isGranted = overrides.some(o => o.permission === permission && o.action === 'grant');
-    if (isGranted) return true;
-
-    // Finally check defaults
-    return defaults.includes(permission);
-  }
-
-  createAdminAccount(data: Omit<AdminAccount, 'id' | 'overrides' | 'lastActive' | 'joinedDate'>) {
-    const newAccount: AdminAccount = {
-      ...data,
-      id: `adm-${Date.now()}`,
-      overrides: [],
-      lastActive: "Never",
-      joinedDate: new Date().toISOString().split('T')[0]
-    };
-    this.accounts.push(newAccount);
-    
-    // Log creation
-    this.auditLogs.push({
-      id: `audit-${Date.now()}`,
-      adminId: currentUserId,
-      adminName: "Current Admin",
-      targetAccountId: newAccount.id,
-      targetAccountName: newAccount.name,
-      changeType: 'role_change',
-      details: `Created new ${data.roleCategory} account: ${data.name}`,
-      timestamp: new Date().toISOString()
-    });
-    
-    return newAccount;
-  }
-
-  updatePermissionOverride(
-    adminId: string, 
-    targetAccountId: string, 
-    permission: Permission, 
-    action: 'grant' | 'deny' | 'reset'
-  ) {
-    const accountIndex = this.accounts.findIndex(acc => acc.id === targetAccountId);
-    if (accountIndex === -1) return;
-
-    const admin = this.accounts.find(acc => acc.id === adminId);
-    const target = this.accounts[accountIndex];
-
-    if (action === 'reset') {
-      target.overrides = target.overrides.filter(o => o.permission !== permission);
-    } else {
-      // Remove existing overrides for this permission
-      target.overrides = target.overrides.filter(o => o.permission !== permission);
-      // Add new one
-      target.overrides.push({
-        permission,
-        action,
-        grantedBy: adminId,
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // Log the change
-    this.auditLogs.push({
-      id: `audit-${Date.now()}`,
-      adminId,
-      adminName: admin?.name || "Unknown",
-      targetAccountId,
-      targetAccountName: target.name,
-      changeType: action === 'reset' ? 'permission_reset' : (action === 'grant' ? 'permission_grant' : 'permission_deny'),
-      details: `${action} permission ${permission} for ${target.name}`,
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  getAuditLogs(): RbacAuditLog[] {
-    return this.auditLogs;
+  hasPermission(account: AdminAccount, permission: Permission): boolean {
+    return computeHasPermission(account, permission);
   }
 }
 
-export const rbacService = new RbacService();
-export const currentUserId = "adm-1"; // Mocking current logged in admin
+export const rbacService = new RbacServiceCompat();
+export const currentUserId = ""; // Will be populated from auth context

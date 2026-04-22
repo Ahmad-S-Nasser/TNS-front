@@ -1,12 +1,14 @@
-import { Bell, Search, User, Languages } from "lucide-react";
+import { Bell, Search, User, Languages, LogOut } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NotificationCenter } from "./NotificationCenter";
 import { useI18n } from "@/i18n/i18n.context";
+import { useAuth } from "@/hooks/useAuth";
 
 export function AdminHeader() {
   const { t, toggleLang, lang, isRTL } = useI18n();
+  const { user, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-card px-4">
@@ -39,15 +41,24 @@ export function AdminHeader() {
         {/* Notifications */}
         <NotificationCenter />
 
-        {/* User */}
+        {/* User + Logout */}
         <div className={`flex items-center gap-2 pl-2 ${isRTL ? "border-r pr-2" : "border-l pl-2"}`}>
           <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
             <User className="h-4 w-4 text-primary" />
           </div>
           <div className="hidden sm:block">
-            <p className="text-xs font-semibold leading-none">{t("header_superAdmin")}</p>
-            <p className="text-[10px] text-muted-foreground">admin@tipsandsteps.com</p>
+            <p className="text-xs font-semibold leading-none">{user?.name || t("header_superAdmin")}</p>
+            <p className="text-[10px] text-muted-foreground">{user?.email || ""}</p>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={logout}
+            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+            title="Sign out"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </header>

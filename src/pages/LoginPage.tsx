@@ -1,23 +1,35 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { HeartPulse, Eye, EyeOff } from "lucide-react";
+import { HeartPulse, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/hooks/useAuth";
 
 const LoginPage = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     setIsLoading(true);
-    // Simulate loading for better UX
-    setTimeout(() => {
+
+    try {
+      await login(username, password);
       navigate("/");
-    }, 800);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -28,7 +40,7 @@ const LoginPage = () => {
           <div className="flex items-center justify-center w-16 h-16 bg-[#0d9488] rounded-2xl mb-5 shadow-lg shadow-teal-500/10">
             <HeartPulse className="w-9 h-9 text-white" strokeWidth={2.5} />
           </div>
-          <h1 className="text-[32px] font-bold text-[#0f172a] tracking-tight mb-1">Tips & Steps</h1>
+          <h1 className="text-[32px] font-bold text-[#0f172a] tracking-tight mb-1">Tips &amp; Steps</h1>
           <p className="text-[15px] text-[#64748b] font-medium opacity-80">Admin Control Panel</p>
         </div>
 
@@ -41,17 +53,27 @@ const LoginPage = () => {
             </div>
 
             <form onSubmit={handleLogin} className="space-y-7">
+              {/* Error Banner */}
+              {error && (
+                <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700">
+                  <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-500" />
+                  <span>{error}</span>
+                </div>
+              )}
+
               <div className="space-y-2.5">
-                <Label htmlFor="email" className="text-[14px] font-semibold text-[#334155] ml-0.5">
-                  Email
+                <Label htmlFor="username" className="text-[14px] font-semibold text-[#334155] ml-0.5">
+                  Username / Email
                 </Label>
                 <Input
-                  id="email"
-                  type="email"
-                  defaultValue="admin@tipsandsteps.com"
-                  placeholder="admin@tipsandsteps.com"
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="admin"
                   className="h-13 bg-[#f8fafc] border border-[#f1f5f9] rounded-xl px-5 text-[15px] transition-all focus-visible:ring-2 focus-visible:ring-[#0d9488]/20 focus-visible:border-[#0d9488]"
                   required
+                  autoComplete="username"
                 />
               </div>
 
@@ -63,10 +85,12 @@ const LoginPage = () => {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    defaultValue="........"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="h-13 bg-[#f8fafc] border border-[#f1f5f9] rounded-xl px-5 pr-14 text-[15px] transition-all focus-visible:ring-2 focus-visible:ring-[#0d9488]/20 focus-visible:border-[#0d9488]"
                     required
+                    autoComplete="current-password"
                   />
                   <button
                     type="button"
@@ -78,8 +102,8 @@ const LoginPage = () => {
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isLoading}
                 className="w-full h-13 bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-[16px] rounded-xl shadow-md shadow-teal-500/10 transition-all hover:translate-y-[-1px] active:translate-y-[1px] disabled:opacity-70"
               >
@@ -87,26 +111,11 @@ const LoginPage = () => {
               </Button>
             </form>
 
-            {/* Demo Accounts Section */}
-            <div className="mt-10 p-6 bg-[#f8fafc] rounded-2xl border border-[#f1f5f9] transition-all hover:bg-[#f1f5f9]/50">
-              <h3 className="text-[11px] font-bold text-[#94a3b8] uppercase tracking-[0.05em] mb-4">Demo Accounts:</h3>
-              <div className="space-y-3">
-                <div className="text-[13px] text-[#64748b] flex flex-wrap items-center gap-x-2">
-                  <span className="font-semibold text-[#0d9488]">admin@tipsandsteps.com</span>
-                  <span className="text-[#cbd5e1]">/</span>
-                  <span className="font-medium text-[#475569]">admin123</span>
-                </div>
-                <div className="text-[13px] text-[#64748b] flex flex-wrap items-center gap-x-2">
-                  <span className="font-semibold text-[#0d9488]">manager@tipsandsteps.com</span>
-                  <span className="text-[#cbd5e1]">/</span>
-                  <span className="font-medium text-[#475569]">manager123</span>
-                </div>
-                <div className="text-[13px] text-[#64748b] flex flex-wrap items-center gap-x-2">
-                  <span className="font-semibold text-[#0d9488]">doctor@tipsandsteps.com</span>
-                  <span className="text-[#cbd5e1]">/</span>
-                  <span className="font-medium text-[#475569]">doctor123</span>
-                </div>
-              </div>
+            {/* Info note */}
+            <div className="mt-8 p-4 bg-[#f8fafc] rounded-xl border border-[#f1f5f9] text-center">
+              <p className="text-[12px] text-[#94a3b8]">
+                Sign in with your Keycloak admin credentials.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -116,5 +125,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-
-
