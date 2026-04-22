@@ -13,7 +13,7 @@ export function RoleCategories({ activeCategory, onSelect }: Props) {
 
   const categories: { id: RoleCategory; label: string; icon: any; color: string; desc: string }[] = [
     { 
-      id: "DOCTORS", 
+      id: "DOCTOR", 
       label: t("rbac_cat_doctors"), 
       icon: Shield, 
       color: "blue",
@@ -25,6 +25,13 @@ export function RoleCategories({ activeCategory, onSelect }: Props) {
       icon: Users, 
       color: "emerald",
       desc: t("rbac_cat_marketingDesc") 
+    },
+    { 
+      id: "CONTENT_REVIEWER", 
+      label: t("rbac_cat_reviewer"), 
+      icon: LayoutDashboard, 
+      color: "purple",
+      desc: t("rbac_cat_reviewerDesc") 
     },
     { 
       id: "IT_SUPPORT", 
@@ -43,7 +50,7 @@ export function RoleCategories({ activeCategory, onSelect }: Props) {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
       {categories.map((cat) => (
         <button
           key={cat.id}

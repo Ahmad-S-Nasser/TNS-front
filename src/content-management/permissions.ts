@@ -24,8 +24,8 @@ function mapActionToPermission(action: keyof SectionPermissions, section: CMSSec
   
   switch(action) {
     case 'canCreate': return 'content.create';
-    case 'canPublish': return 'content.publish';
-    case 'canApprove': return 'content.review';
+    case 'canApprove': return 'content.review';   // Medical review (Doctors)
+    case 'canPublish': return 'content.publish'; // Final publishing (Reviewers)
     case 'canDelete': return 'content.delete';
     case 'canExport': return 'analytics.view';
     case 'canView': 
@@ -55,6 +55,15 @@ export const CURRENT_USER_ROLE: ContentRole = "SUPER_ADMIN";
 
 export function can(action: keyof SectionPermissions, section: CMSSection): boolean {
   return rbacService.hasPermission(currentUserId, mapActionToPermission(action, section));
+}
+
+export function getCurrentUserRole(): string {
+  // This is a mock: in a real app, you'd get this from the auth context
+  return rbacService.getAccountsByCategory("SUPER_ADMIN").find(a => a.id === currentUserId)?.roleCategory 
+    || rbacService.getAccountsByCategory("DOCTOR").find(a => a.id === currentUserId)?.roleCategory
+    || rbacService.getAccountsByCategory("CONTENT_REVIEWER").find(a => a.id === currentUserId)?.roleCategory
+    || rbacService.getAccountsByCategory("MARKETING").find(a => a.id === currentUserId)?.roleCategory
+    || "MARKETING"; // Default fallback
 }
 
 export function getAccessibleSections(): CMSSection[] {

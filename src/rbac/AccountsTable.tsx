@@ -71,8 +71,9 @@ export function AccountsTable({ accounts, onEdit }: Props) {
                        <BadgeCheck className="h-3 w-3 text-slate-400" />
                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">
                           {t("rbac_table_standard")} {
-                            acc.roleCategory === 'DOCTORS' ? t("rbac_cat_doctors") :
+                            acc.roleCategory === 'DOCTOR' ? t("rbac_cat_doctors") :
                             acc.roleCategory === 'MARKETING' ? t("rbac_cat_marketing") :
+                            acc.roleCategory === 'CONTENT_REVIEWER' ? t("rbac_cat_reviewer") :
                             acc.roleCategory === 'IT_SUPPORT' ? t("rbac_cat_it") :
                             acc.roleCategory === 'SUPER_ADMIN' ? t("rbac_cat_super") : acc.roleCategory
                           }

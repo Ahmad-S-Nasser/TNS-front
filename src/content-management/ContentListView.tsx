@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import type { CMSSection, CMSContent, ContentStatus } from "./cms.types";
 import { getAllContent, promoteStatus, archiveContent, deleteContent, exportSection, getSectionConfig, getNextStatus } from "./cms.service";
-import { can } from "./permissions";
+import { can, getCurrentUserRole } from "./permissions";
 import { ContentFormDialog } from "./ContentFormDialog";
 import { useT, useI18n } from "@/i18n/i18n.context";
 
@@ -66,7 +66,8 @@ export function ContentListView({ section }: ContentListViewProps) {
   }, [items, statusFilter, search]);
 
   const handlePromote = (id: string) => {
-    promoteStatus(id);
+    const role = getCurrentUserRole();
+    promoteStatus(id, role);
     refresh();
   };
 
@@ -250,17 +251,26 @@ export function ContentListView({ section }: ContentListViewProps) {
                         <Edit className="h-3.5 w-3.5" />
                       </Button>
                     )}
-                    {can("canApprove", section) && next && item.status !== "archived" && (
+                    {next && item.status !== "archived" && (
                       <Button
-                        variant="ghost"
+                        variant="soft"
                         size="sm"
-                        className="h-8 gap-1 text-xs font-semibold"
-                        style={{ color: cfg.color }}
+                        disabled={
+                          (item.status === "review" && getCurrentUserRole() !== "DOCTOR" && getCurrentUserRole() !== "SUPER_ADMIN") ||
+                          (item.status === "approved" && getCurrentUserRole() !== "CONTENT_REVIEWER" && getCurrentUserRole() !== "SUPER_ADMIN") ||
+                          (item.status === "draft" && !can("canEdit", section))
+                        }
+                        className={`h-8 gap-1 text-[10px] font-black uppercase tracking-widest ${
+                          item.status === "review" ? "bg-amber-100 text-amber-700 hover:bg-amber-200" :
+                          item.status === "approved" ? "bg-blue-100 text-blue-700 hover:bg-blue-200" :
+                          "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                        }`}
                         onClick={() => handlePromote(item.id)}
-                        title={`${t("cms_statusApproved")} ${next}`}
                       >
+                        {item.status === "review" ? (isRTL ? "اعتماد طبي" : "Medical Approval") :
+                         item.status === "approved" ? (isRTL ? "نشر" : "Publish") :
+                         (isRTL ? "تقديم للمراجعة" : "Submit for Review")}
                         {isRTL ? <ArrowRight className="h-3 w-3 rotate-180" /> : <ArrowRight className="h-3 w-3" />}
-                        {t(`cms_status${next.charAt(0).toUpperCase() + next.slice(1)}` as any)}
                       </Button>
                     )}
                     {can("canDelete", section) && item.status !== "archived" && (

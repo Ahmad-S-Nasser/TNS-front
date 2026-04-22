@@ -27,7 +27,7 @@ export const SECTION_CONFIGS: SectionConfig[] = [
     gradient: "from-red-500 to-rose-600",
     requires_doctor_approval: true,
     requires_admin_approval: false,
-    allowed_roles: ["SUPER_ADMIN", "MANAGER", "MARKETING", "DOCTOR"],
+    allowed_roles: ["SUPER_ADMIN", "MARKETING", "DOCTOR", "CONTENT_REVIEWER"],
   },
   {
     key: "psychological",
@@ -40,7 +40,7 @@ export const SECTION_CONFIGS: SectionConfig[] = [
     gradient: "from-violet-500 to-purple-600",
     requires_doctor_approval: true,
     requires_admin_approval: false,
-    allowed_roles: ["SUPER_ADMIN", "MANAGER", "MARKETING", "DOCTOR"],
+    allowed_roles: ["SUPER_ADMIN", "MARKETING", "DOCTOR", "CONTENT_REVIEWER"],
   },
   {
     key: "nutrition",
@@ -53,7 +53,7 @@ export const SECTION_CONFIGS: SectionConfig[] = [
     gradient: "from-emerald-500 to-teal-600",
     requires_doctor_approval: false,
     requires_admin_approval: false,
-    allowed_roles: ["SUPER_ADMIN", "MANAGER", "MARKETING", "DOCTOR"],
+    allowed_roles: ["SUPER_ADMIN", "MARKETING", "DOCTOR", "CONTENT_REVIEWER"],
   },
   {
     key: "sexual-education",
@@ -66,7 +66,7 @@ export const SECTION_CONFIGS: SectionConfig[] = [
     gradient: "from-amber-500 to-orange-600",
     requires_doctor_approval: true,
     requires_admin_approval: true,
-    allowed_roles: ["SUPER_ADMIN", "MANAGER", "DOCTOR"],
+    allowed_roles: ["SUPER_ADMIN", "DOCTOR", "CONTENT_REVIEWER"],
   },
   {
     key: "educational-games",
@@ -79,7 +79,7 @@ export const SECTION_CONFIGS: SectionConfig[] = [
     gradient: "from-blue-500 to-indigo-600",
     requires_doctor_approval: false,
     requires_admin_approval: false,
-    allowed_roles: ["SUPER_ADMIN", "MANAGER", "MARKETING", "DOCTOR"],
+    allowed_roles: ["SUPER_ADMIN", "MARKETING", "DOCTOR", "CONTENT_REVIEWER"],
   },
   {
     key: "hospitals",
@@ -92,7 +92,7 @@ export const SECTION_CONFIGS: SectionConfig[] = [
     gradient: "from-cyan-500 to-sky-600",
     requires_doctor_approval: false,
     requires_admin_approval: true,
-    allowed_roles: ["SUPER_ADMIN", "MANAGER"],
+    allowed_roles: ["SUPER_ADMIN", "CONTENT_REVIEWER"],
   },
   {
     key: "health-units",
@@ -105,7 +105,7 @@ export const SECTION_CONFIGS: SectionConfig[] = [
     gradient: "from-teal-500 to-cyan-600",
     requires_doctor_approval: false,
     requires_admin_approval: true,
-    allowed_roles: ["SUPER_ADMIN", "MANAGER"],
+    allowed_roles: ["SUPER_ADMIN", "CONTENT_REVIEWER"],
   },
   {
     key: "emergency",
@@ -118,7 +118,7 @@ export const SECTION_CONFIGS: SectionConfig[] = [
     gradient: "from-rose-500 to-red-700",
     requires_doctor_approval: false,
     requires_admin_approval: true,
-    allowed_roles: ["SUPER_ADMIN", "MANAGER"],
+    allowed_roles: ["SUPER_ADMIN", "CONTENT_REVIEWER"],
   },
   {
     key: "vaccines",
@@ -131,7 +131,7 @@ export const SECTION_CONFIGS: SectionConfig[] = [
     gradient: "from-teal-500 to-emerald-600",
     requires_doctor_approval: true,
     requires_admin_approval: false,
-    allowed_roles: ["SUPER_ADMIN", "MANAGER", "DOCTOR"],
+    allowed_roles: ["SUPER_ADMIN", "DOCTOR", "CONTENT_REVIEWER"],
   },
   {
     key: "questionnaires",
@@ -144,7 +144,7 @@ export const SECTION_CONFIGS: SectionConfig[] = [
     gradient: "from-indigo-500 to-blue-600",
     requires_doctor_approval: true,
     requires_admin_approval: false,
-    allowed_roles: ["SUPER_ADMIN", "DOCTOR", "MANAGER"],
+    allowed_roles: ["SUPER_ADMIN", "DOCTOR", "CONTENT_REVIEWER"],
   },
   {
     key: "faqs",
@@ -157,7 +157,7 @@ export const SECTION_CONFIGS: SectionConfig[] = [
     gradient: "from-amber-400 to-orange-500",
     requires_doctor_approval: false,
     requires_admin_approval: false,
-    allowed_roles: ["SUPER_ADMIN", "MANAGER", "MARKETING", "DOCTOR"],
+    allowed_roles: ["SUPER_ADMIN", "MARKETING", "DOCTOR", "CONTENT_REVIEWER"],
   },
 ];
 
@@ -521,14 +521,35 @@ export function deleteContent(id: string): boolean {
   return store.length < len;
 }
 
-export function promoteStatus(id: string): CMSContent | undefined {
+export function promoteStatus(id: string, userRole: string): CMSContent | undefined {
   const entry = store.find(c => c.id === id);
   if (!entry) return undefined;
+  
   const next = statusFlow[entry.status];
   if (!next) return entry;
+
+  // Role-based enforcement
+  let canPromote = false;
+  if (userRole === "SUPER_ADMIN") {
+    canPromote = true;
+  } else if (entry.status === "draft" && next === "review") {
+    canPromote = true; // Anyone can submit for review
+  } else if (entry.status === "review" && next === "approved") {
+    canPromote = userRole === "DOCTOR"; // Only doctors approve medical accuracy
+  } else if (entry.status === "approved" && next === "published") {
+    canPromote = userRole === "CONTENT_REVIEWER"; // Only reviewers publish
+  }
+
+  if (!canPromote) {
+    console.error(`User with role ${userRole} cannot promote content from ${entry.status} to ${next}`);
+    return entry;
+  }
+
   return updateContent(id, {
     status: next,
     published_at: next === "published" ? now() : entry.published_at,
+    reviewed_by: next === "approved" ? "Current Doctor" : entry.reviewed_by,
+    approved_by: next === "published" ? "Current Reviewer" : entry.approved_by,
   } as Partial<CMSContent>);
 }
 

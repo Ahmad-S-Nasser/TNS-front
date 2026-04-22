@@ -12,9 +12,10 @@ export type Permission =
   | 'users.manage'
   | 'rbac.manage'
   | 'system.logs.view'
-  | 'settings.manage';
+  | 'settings.manage'
+  | 'content.approve';
 
-export type RoleCategory = 'DOCTORS' | 'MARKETING' | 'IT_SUPPORT' | 'SUPER_ADMIN';
+export type RoleCategory = 'DOCTOR' | 'MARKETING' | 'CONTENT_REVIEWER' | 'IT_SUPPORT' | 'SUPER_ADMIN';
 
 export type AccountStatus = 'active' | 'suspended' | 'deactivated';
 

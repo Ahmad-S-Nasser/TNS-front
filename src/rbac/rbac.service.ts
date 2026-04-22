@@ -4,7 +4,7 @@ import {
 } from "./rbac.types";
 
 const CATEGORY_DEFAULTS: Record<RoleCategory, Permission[]> = {
-  DOCTORS: [
+  DOCTOR: [
     'questions.answer',
     'questions.create',
     'content.review',
@@ -12,9 +12,14 @@ const CATEGORY_DEFAULTS: Record<RoleCategory, Permission[]> = {
   ],
   MARKETING: [
     'content.create',
-    'content.publish',
     'analytics.view',
     'faqs.manage'
+  ],
+  CONTENT_REVIEWER: [
+    'content.review',
+    'content.publish',
+    'content.approve',
+    'analytics.view'
   ],
   IT_SUPPORT: [
     'users.manage',
@@ -23,7 +28,7 @@ const CATEGORY_DEFAULTS: Record<RoleCategory, Permission[]> = {
     'analytics.view'
   ],
   SUPER_ADMIN: [
-    'content.create', 'content.publish', 'content.review', 'content.delete',
+    'content.create', 'content.publish', 'content.review', 'content.delete', 'content.approve',
     'questions.create', 'questions.answer', 'questionnaires.manage', 'faqs.manage',
     'analytics.view', 'health_intelligence.view', 'users.manage', 'rbac.manage',
     'system.logs.view', 'settings.manage'
@@ -46,7 +51,7 @@ class RbacService {
       id: "doc-1",
       name: "Dr. Khalid Mansour",
       email: "khalid@medical.tips",
-      roleCategory: "DOCTORS",
+      roleCategory: "DOCTOR",
       status: "active",
       overrides: [],
       lastActive: "5 mins ago",
@@ -69,6 +74,16 @@ class RbacService {
       ],
       lastActive: "2 hrs ago",
       joinedDate: "2024-12-01"
+    },
+    {
+      id: "rev-1",
+      name: "Nour Abdallah",
+      email: "nour@review.tips",
+      roleCategory: "CONTENT_REVIEWER",
+      status: "active",
+      overrides: [],
+      lastActive: "1 day ago",
+      joinedDate: "2024-12-10"
     }
   ];
 
@@ -102,6 +117,31 @@ class RbacService {
 
     // Finally check defaults
     return defaults.includes(permission);
+  }
+
+  createAdminAccount(data: Omit<AdminAccount, 'id' | 'overrides' | 'lastActive' | 'joinedDate'>) {
+    const newAccount: AdminAccount = {
+      ...data,
+      id: `adm-${Date.now()}`,
+      overrides: [],
+      lastActive: "Never",
+      joinedDate: new Date().toISOString().split('T')[0]
+    };
+    this.accounts.push(newAccount);
+    
+    // Log creation
+    this.auditLogs.push({
+      id: `audit-${Date.now()}`,
+      adminId: currentUserId,
+      adminName: "Current Admin",
+      targetAccountId: newAccount.id,
+      targetAccountName: newAccount.name,
+      changeType: 'role_change',
+      details: `Created new ${data.roleCategory} account: ${data.name}`,
+      timestamp: new Date().toISOString()
+    });
+    
+    return newAccount;
   }
 
   updatePermissionOverride(

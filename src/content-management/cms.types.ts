@@ -20,7 +20,7 @@ export type CMSSection =
 
 export type ContentStatus = "draft" | "review" | "approved" | "published" | "archived";
 
-export type ContentRole = "SUPER_ADMIN" | "MANAGER" | "MARKETING" | "DOCTOR" | "IT_SUPPORT";
+export type ContentRole = "SUPER_ADMIN" | "MARKETING" | "DOCTOR" | "CONTENT_REVIEWER" | "IT_SUPPORT";
 
 export type SeverityLevel = "mild" | "moderate" | "severe" | "critical";
 

@@ -249,7 +249,7 @@ export const translations = {
   users_suspended: { en: "Suspended", ar: "موقوف" },
   users_joinDate: { en: "Joined", ar: "تاريخ الانضمام" },
   users_lastActive: { en: "Last Active", ar: "آخر نشاط" },
-  users_form_addUser: { en: "Add New User", ar: "إضافة مستخدم جديد" },
+  users_form_addUser: { en: "Add New Admin User", ar: "إضافة مسؤول جديد" },
   users_form_fullName: { en: "Full Name", ar: "الاسم بالكامل" },
   users_form_email: { en: "Email Address", ar: "البريد الإلكتروني" },
   users_form_role: { en: "Role", ar: "الدور" },
@@ -553,10 +553,12 @@ export const translations = {
   rbac_viewAudit: { en: "View Full Audit", ar: "عرض السجل الكامل" },
   
   // Categories
-  rbac_cat_doctors: { en: "Doctors", ar: "الأطباء" },
-  rbac_cat_doctorsDesc: { en: "Medical review & questionnaire management", ar: "المراجعة الطبية وإدارة الاستبيانات" },
+  rbac_cat_doctors: { en: "Doctor", ar: "طبيب" },
+  rbac_cat_doctorsDesc: { en: "Medical review & medical accuracy verification", ar: "المراجعة الطبية والتحقق من الدقة الطبية" },
   rbac_cat_marketing: { en: "Marketing", ar: "التسويق" },
-  rbac_cat_marketingDesc: { en: "Content creation & educational guidance", ar: "إنشاء المحتوى والتوجيه التعليمي" },
+  rbac_cat_marketingDesc: { en: "Educational content creation & guidance", ar: "إنشاء المحتوى التعليمي والتوجيه" },
+  rbac_cat_reviewer: { en: "Content Reviewer", ar: "مراجع محتوى" },
+  rbac_cat_reviewerDesc: { en: "Approve and publish reviewed content", ar: "اعتماد ونشر المحتوى المراجع" },
   rbac_cat_it: { en: "IT Support", ar: "الدعم التقني" },
   rbac_cat_itDesc: { en: "System logs, defaults & account management", ar: "سجلات النظام، الافتراضات وإدارة الحسابات" },
   rbac_cat_super: { en: "Super Admins", ar: "المديرين العامين" },
@@ -582,6 +584,8 @@ export const translations = {
   rbac_table_disable: { en: "Disable Account", ar: "تعطيل الحساب" },
 
   // Editor
+  rbac_addAdmin: { en: "Add New Admin User", ar: "إضافة مسؤول جديد" },
+  rbac_addAdminSubtitle: { en: "Create a new administrative account with role-based defaults.", ar: "إنشاء حساب إداري جديد بصلاحيات افتراضية تعتمد على الدور." },
   rbac_edit_title: { en: "Account Privileges", ar: "صلاحيات الحساب" },
   rbac_edit_reset: { en: "Reset Defaults", ar: "إعادة ضبط الافتراضات" },
   rbac_edit_inherited: { en: "Inherited", ar: "موروث" },

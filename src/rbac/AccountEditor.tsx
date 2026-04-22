@@ -64,6 +64,7 @@ export function AccountEditor({ account, open, onOpenChange, onSave }: Props) {
     { id: 'content.create', label: t("create"), group: t("rbac_group_content") },
     { id: 'content.publish', label: t("cms_statusPublished"), group: t("rbac_group_content") },
     { id: 'content.review', label: t("cms_statusReview"), group: t("rbac_group_content") },
+    { id: 'content.approve', label: isRTL ? "اعتماد" : "Approval", group: t("rbac_group_content") },
     { id: 'content.delete', label: t("delete"), group: t("rbac_group_content") },
     { id: 'questions.create', label: t("que_add_question"), group: t("rbac_group_health") },
     { id: 'questions.answer', label: t("questions_sendReply"), group: t("rbac_group_health") },
@@ -91,8 +92,9 @@ export function AccountEditor({ account, open, onOpenChange, onSave }: Props) {
                  </DialogTitle>
                  <DialogDescription className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
                     {
-                      account.roleCategory === 'DOCTORS' ? t("rbac_cat_doctors") :
+                      account.roleCategory === 'DOCTOR' ? t("rbac_cat_doctors") :
                       account.roleCategory === 'MARKETING' ? t("rbac_cat_marketing") :
+                      account.roleCategory === 'CONTENT_REVIEWER' ? t("rbac_cat_reviewer") :
                       account.roleCategory === 'IT_SUPPORT' ? t("rbac_cat_it") :
                       account.roleCategory === 'SUPER_ADMIN' ? t("rbac_cat_super") : account.roleCategory
                     } {t("rbac_matrix_defaults")} — {account.email}

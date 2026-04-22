@@ -5,18 +5,21 @@ import { RoleCategories } from "@/rbac/RoleCategories";
 import { PermissionsMatrix } from "@/rbac/PermissionsMatrix";
 import { AccountsTable } from "@/rbac/AccountsTable";
 import { AccountEditor } from "@/rbac/AccountEditor";
+import { AddAdminUserDialog } from "../rbac/AddAdminUserDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Users, History, Settings2, Search } from "lucide-react";
+import { Shield, Users, History, Settings2, Search, UserPlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n/i18n.context";
 
 const RolesPermissions = () => {
-  const [activeCategory, setActiveCategory] = useState<RoleCategory>("DOCTORS");
+  const [activeCategory, setActiveCategory] = useState<RoleCategory>("DOCTOR");
   const [accounts, setAccounts] = useState<AdminAccount[]>([]);
   const [defaults, setDefaults] = useState<Permission[]>([]);
   const [editingAccount, setEditingAccount] = useState<AdminAccount | null>(null);
+  const [showAddDialog, setShowAddDialog] = useState(false);
   const [search, setSearch] = useState("");
 
   const { t, isRTL } = useI18n();
@@ -49,16 +52,25 @@ const RolesPermissions = () => {
 
   return (
     <div className={`space-y-10 pb-20 ${isRTL ? "text-right" : ""}`} dir={isRTL ? "rtl" : "ltr"}>
-      <div>
-        <div className="flex items-center gap-2 mb-2">
-           <Shield className="h-5 w-5 text-[#0d9488]" />
-           <span className="text-[10px] font-black uppercase text-[#0d9488] tracking-[0.2em]">{t("rbac_securityFramework")}</span>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+           <div>
+              <div className="flex items-center gap-2 mb-2">
+                 <Shield className="h-5 w-5 text-[#0d9488]" />
+                 <span className="text-[10px] font-black uppercase text-[#0d9488] tracking-[0.2em]">{t("rbac_securityFramework")}</span>
+              </div>
+              <h1 className="text-3xl font-black tracking-tighter text-[#0f172a] uppercase">{t("rbac_title")}</h1>
+              <p className="text-sm font-bold text-slate-400 mt-1 max-w-2xl">
+                 {t("rbac_subtitle")}
+              </p>
+           </div>
+           <Button 
+             onClick={() => setShowAddDialog(true)}
+             className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-black uppercase text-[10px] tracking-widest px-6 py-6 rounded-2xl shadow-lg shadow-teal-500/20 gap-2 h-auto"
+           >
+              <UserPlus className="h-4 w-4" />
+              {t("rbac_addAdmin")}
+           </Button>
         </div>
-        <h1 className="text-3xl font-black tracking-tighter text-[#0f172a] uppercase">{t("rbac_title")}</h1>
-        <p className="text-sm font-bold text-slate-400 mt-1 max-w-2xl">
-           {t("rbac_subtitle")}
-        </p>
-      </div>
 
       {/* Category Navigation */}
       <div className="space-y-4">
@@ -121,6 +133,12 @@ const RolesPermissions = () => {
         open={!!editingAccount} 
         onOpenChange={(open) => !open && setEditingAccount(null)}
         onSave={() => loadData()}
+      />
+
+      <AddAdminUserDialog 
+        open={showAddDialog} 
+        onOpenChange={setShowAddDialog} 
+        onSuccess={() => loadData()}
       />
     </div>
   );

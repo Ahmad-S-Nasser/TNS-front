@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Filter, MoreHorizontal, UserPlus, Download } from "lucide-react";
+import { Search, Filter, MoreHorizontal, UserPlus, Download, Users } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useT, useI18n } from "@/i18n/i18n.context";
-import { AddUserDialog } from "@/components/users/AddUserDialog";
+// Removed AddUserDialog import
 
 const mockUsers = [
   { id: 1, name: "Sara Ahmed",        email: "sara@example.com",    role: "User",   status: "active",    joined: "2024-12-01", lastActive: "2 hrs ago"  },
@@ -55,22 +55,33 @@ const UserManagement = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-[#0f172a]">{t("users_title")}</h1>
-          <p className="text-sm text-[#64748b] mt-1 font-medium">{t("users_subtitle")}</p>
+          <div className="flex items-center gap-2 mt-1">
+             <p className="text-sm text-[#64748b] font-medium">{t("users_subtitle")}</p>
+             <Badge variant="outline" className="text-[10px] bg-slate-50 text-slate-400 font-bold uppercase tracking-widest border-slate-200">
+                {isRTL ? "عرض فقط" : "View Only"}
+             </Badge>
+          </div>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="h-9 gap-2 text-[#64748b] border-[#e2e8f0]">
             <Download className="h-4 w-4" />
             {t("export")}
           </Button>
-          <Button 
-            size="sm" 
-            className="h-9 gap-2 bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold"
-            onClick={() => setShowAddDialog(true)}
-          >
-            <UserPlus className="h-4 w-4" />
-            {t("users_addUser")}
-          </Button>
         </div>
+      </div>
+
+      <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex items-start gap-4">
+         <div className="h-10 w-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+            <Users className="h-5 w-5" />
+         </div>
+         <div>
+            <p className="text-sm font-bold text-amber-900">{isRTL ? "ملاحظة النظام" : "System Note"}</p>
+            <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
+               {isRTL 
+                 ? "يقوم مستخدمو التطبيق بالتسجيل مباشرة عبر تطبيق الهاتف المحمول. لا تدعم لوحة الإدارة إنشاء حسابات المستخدمين اليدوية لضمان سلامة بيانات التطبيق." 
+                 : "App users sign up directly via the mobile app. The admin panel does not support manual user creation to ensure app data integrity."}
+            </p>
+         </div>
       </div>
 
       <Card className="border-none shadow-sm shadow-slate-200/50 bg-white overflow-hidden">
@@ -150,10 +161,7 @@ const UserManagement = () => {
         </CardContent>
       </Card>
 
-      <AddUserDialog 
-        open={showAddDialog} 
-        onOpenChange={setShowAddDialog} 
-      />
+      {/* AddUserDialog removed for separation of concerns */}
     </div>
   );
 };
