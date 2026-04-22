@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>TipsAndSteps.HealthIntelligence.Domain</AssemblyName>
+    <RootNamespace>TipsAndSteps.HealthIntelligence.Domain</RootNamespace>
+  </PropertyGroup>
+</Project>

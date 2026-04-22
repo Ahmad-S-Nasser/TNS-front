@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>TipsAndSteps.QA.Domain</AssemblyName>
+    <RootNamespace>TipsAndSteps.QA.Domain</RootNamespace>
+  </PropertyGroup>
+</Project>

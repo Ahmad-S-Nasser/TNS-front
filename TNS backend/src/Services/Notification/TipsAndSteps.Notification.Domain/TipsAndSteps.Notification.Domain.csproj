@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>TipsAndSteps.Notification.Domain</AssemblyName>
+    <RootNamespace>TipsAndSteps.Notification.Domain</RootNamespace>
+  </PropertyGroup>
+</Project>

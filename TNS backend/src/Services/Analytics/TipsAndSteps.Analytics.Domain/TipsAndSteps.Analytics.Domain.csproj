@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>TipsAndSteps.Analytics.Domain</AssemblyName>
+    <RootNamespace>TipsAndSteps.Analytics.Domain</RootNamespace>
+  </PropertyGroup>
+</Project>

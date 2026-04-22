@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>TipsAndSteps.UserManagement.Domain</AssemblyName>
+    <RootNamespace>TipsAndSteps.UserManagement.Domain</RootNamespace>
+  </PropertyGroup>
+</Project>

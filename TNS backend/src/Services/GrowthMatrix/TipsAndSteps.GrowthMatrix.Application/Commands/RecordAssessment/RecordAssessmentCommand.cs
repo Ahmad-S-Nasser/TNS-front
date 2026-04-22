@@ -1,0 +1,19 @@
+using MediatR;
+using TipsAndSteps.GrowthMatrix.Domain.Entities;
+using TipsAndSteps.GrowthMatrix.Domain.Enums;
+
+namespace TipsAndSteps.GrowthMatrix.Application.Commands.RecordAssessment;
+
+public sealed record RecordAssessmentCommand(
+    string ChildId,
+    string ParentId,
+    AgeGroup AgeGroup,
+    List<SkillResponse> Responses
+) : IRequest<RecordAssessmentResult>;
+
+public sealed record RecordAssessmentResult(
+    string AssessmentId,
+    decimal TotalScore,
+    string ScoreLevel,
+    Dictionary<string, decimal> CategoryScores,
+    List<string> Recommendations);

@@ -1,0 +1,233 @@
+# Tips & Steps (خطوات ونصائح) — Docker Compose
+#
+# Prerequisites on host machine:
+#   ✓ MongoDB installed locally          → connects via host.docker.internal:27017
+#   ✓ Kafka already running in Docker    → connects via host.docker.internal:9092
+#
+# This compose starts:
+#   - Keycloak + PostgreSQL  (identity provider)
+#   - Schema Registry        (Kafka schema management)
+#   - Kafka UI               (developer tool, points to existing Kafka)
+#   - Redis                  (caching)
+#   - Seq                    (structured log viewer)
+#   - All 8 .NET microservices
+
+version: "3.9"
+
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  networks: [tns-network]
+  extra_hosts:
+    - "host.docker.internal:host-gateway"   # lets containers reach host MongoDB/Kafka
+
+services:
+
+  # ── API Gateway (YARP) ──────────────────────────────────────────────────────
+  gateway:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: src/Gateway/TipsAndSteps.Gateway/Dockerfile
+    ports: ["6000:8080"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Keycloak__auth-server-url: http://keycloak:8080/
+      Seq__Url: http://seq:80
+    depends_on: [keycloak]
+
+  # ── Microservices ────────────────────────────────────────────────────────────
+  usermgmt-svc:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: src/Services/UserManagement/TipsAndSteps.UserManagement.API/Dockerfile
+    ports: ["6001:8080"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Keycloak__auth-server-url: http://keycloak:8080/
+      MongoDB__ConnectionString: mongodb://host.docker.internal:27017
+      MongoDB__DatabaseName: tips-steps-usermgmt
+      MongoDB__ReadReplicaConnectionString: mongodb://host.docker.internal:27017
+      Kafka__BootstrapServers: host.docker.internal:9092
+      Kafka__SchemaRegistryUrl: http://schema-registry:8081
+      Redis__ConnectionString: redis:6379
+      Seq__Url: http://seq:80
+    depends_on: [keycloak, redis, seq]
+
+  content-svc:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: src/Services/Content/TipsAndSteps.Content.API/Dockerfile
+    ports: ["6002:8080"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Keycloak__auth-server-url: http://keycloak:8080/
+      MongoDB__ConnectionString: mongodb://host.docker.internal:27017
+      MongoDB__DatabaseName: tips-steps-content
+      MongoDB__ReadReplicaConnectionString: mongodb://host.docker.internal:27017
+      Kafka__BootstrapServers: host.docker.internal:9092
+      Redis__ConnectionString: redis:6379
+      Seq__Url: http://seq:80
+    depends_on: [keycloak, redis, seq]
+
+  growth-svc:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: src/Services/GrowthMatrix/TipsAndSteps.GrowthMatrix.API/Dockerfile
+    ports: ["6003:8080"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Keycloak__auth-server-url: http://keycloak:8080/
+      MongoDB__ConnectionString: mongodb://host.docker.internal:27017
+      MongoDB__DatabaseName: tips-steps-growth
+      MongoDB__ReadReplicaConnectionString: mongodb://host.docker.internal:27017
+      Kafka__BootstrapServers: host.docker.internal:9092
+      Redis__ConnectionString: redis:6379
+      Seq__Url: http://seq:80
+    depends_on: [keycloak, redis, seq]
+
+  notification-svc:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: src/Services/Notification/TipsAndSteps.Notification.API/Dockerfile
+    ports: ["6004:8080"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Keycloak__auth-server-url: http://keycloak:8080/
+      MongoDB__ConnectionString: mongodb://host.docker.internal:27017
+      MongoDB__DatabaseName: tips-steps-notification
+      MongoDB__ReadReplicaConnectionString: mongodb://host.docker.internal:27017
+      Kafka__BootstrapServers: host.docker.internal:9092
+      Seq__Url: http://seq:80
+    depends_on: [keycloak, seq]
+
+  analytics-svc:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: src/Services/Analytics/TipsAndSteps.Analytics.API/Dockerfile
+    ports: ["6005:8080"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Keycloak__auth-server-url: http://keycloak:8080/
+      MongoDB__ConnectionString: mongodb://host.docker.internal:27017
+      MongoDB__DatabaseName: tips-steps-analytics
+      MongoDB__ReadReplicaConnectionString: mongodb://host.docker.internal:27017
+      Analytics__ReadOnlyDbName: tips-steps-analytics-read
+      Kafka__BootstrapServers: host.docker.internal:9092
+      Seq__Url: http://seq:80
+    depends_on: [keycloak, seq]
+
+  healthintel-svc:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: src/Services/HealthIntelligence/TipsAndSteps.HealthIntelligence.API/Dockerfile
+    ports: ["6006:8080"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Keycloak__auth-server-url: http://keycloak:8080/
+      MongoDB__ConnectionString: mongodb://host.docker.internal:27017
+      MongoDB__DatabaseName: tips-steps-health-intel
+      MongoDB__ReadReplicaConnectionString: mongodb://host.docker.internal:27017
+      Kafka__BootstrapServers: host.docker.internal:9092
+      Seq__Url: http://seq:80
+    depends_on: [keycloak, seq]
+
+  qa-svc:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: src/Services/QA/TipsAndSteps.QA.API/Dockerfile
+    ports: ["6007:8080"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Keycloak__auth-server-url: http://keycloak:8080/
+      MongoDB__ConnectionString: mongodb://host.docker.internal:27017
+      MongoDB__DatabaseName: tips-steps-qa
+      MongoDB__ReadReplicaConnectionString: mongodb://host.docker.internal:27017
+      Kafka__BootstrapServers: host.docker.internal:9092
+      Seq__Url: http://seq:80
+    depends_on: [keycloak, seq]
+
+  # ── Keycloak Identity Provider ────────────────────────────────────────────────
+  keycloak:
+    <<: *service-defaults
+    image: quay.io/keycloak/keycloak:24.0
+    command: start-dev --import-realm
+    ports: ["6080:8080"]
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_pass
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+    volumes:
+      - ./infra/keycloak:/opt/keycloak/data/import
+    depends_on: [keycloak-db]
+
+  keycloak-db:
+    <<: *service-defaults
+    image: postgres:16
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_pass
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql/data
+
+  # ── Schema Registry (connects to existing Kafka on host) ─────────────────────
+  schema-registry:
+    <<: *service-defaults
+    image: confluentinc/cp-schema-registry:7.7.0
+    ports: ["6091:8081"]
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: host.docker.internal:9092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+
+  # ── Kafka UI (developer tool — points to existing Kafka) ─────────────────────
+  kafka-ui:
+    <<: *service-defaults
+    image: provectuslabs/kafka-ui:latest
+    ports: ["6092:8080"]
+    environment:
+      KAFKA_CLUSTERS_0_NAME: tns-local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: host.docker.internal:9092
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
+    depends_on: [schema-registry]
+
+  # ── Redis ─────────────────────────────────────────────────────────────────────
+  redis:
+    <<: *service-defaults
+    image: redis:7.2-alpine
+    ports: ["6379:6379"]
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+
+  # ── Seq Structured Logging ────────────────────────────────────────────────────
+  seq:
+    <<: *service-defaults
+    image: datalust/seq:latest
+    ports: ["6093:80"]
+    environment:
+      ACCEPT_EULA: "Y"
+      SEQ_FIRSTRUN_ADMINPASSWORD: "admin"
+    volumes:
+      - seq-data:/data
+
+volumes:
+  keycloak-db-data:
+  redis-data:
+  seq-data:
+
+networks:
+  tns-network:
+    driver: bridge

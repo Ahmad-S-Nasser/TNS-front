@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>TipsAndSteps.GrowthMatrix.Domain</AssemblyName>
+    <RootNamespace>TipsAndSteps.GrowthMatrix.Domain</RootNamespace>
+  </PropertyGroup>
+</Project>
