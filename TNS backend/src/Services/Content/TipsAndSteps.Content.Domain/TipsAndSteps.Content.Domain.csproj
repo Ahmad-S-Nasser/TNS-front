@@ -1,6 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <AssemblyName>TipsAndSteps.Content.Domain</AssemblyName>
-    <RootNamespace>TipsAndSteps.Content.Domain</RootNamespace>
-  </PropertyGroup>
-</Project>
