@@ -14,13 +14,13 @@ export default defineConfig(({ mode }) => ({
     proxy: {
       // All API calls → YARP API Gateway
       "/api": {
-        target: "http://localhost:6000",
+        target: "http://localhost:7000",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
       // Keycloak auth → Keycloak server
       "/auth": {
-        target: "http://localhost:6080",
+        target: "http://localhost:7080",
         changeOrigin: true,
       },
     },
