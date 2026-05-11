@@ -428,6 +428,10 @@ export const translations = {
   cms_vaccines_places: { en: "Available Places", ar: "أماكن التوفر" },
   cms_vaccines_medicalReview: { en: "Medical Review Required", ar: "يتطلب مراجعة طبية" },
   cms_vaccines_disclaimer: { en: "All vaccine data must be medical-grade and verified by a doctor.", ar: "يجب أن تكون جميع بيانات اللقاحات طبية وموثقة من قبل طبيب." },
+  cms_form_baseInfo: { en: "Basic Info", ar: "المعلومات الأساسية" },
+  cms_form_sectionDetails: { en: "Details", ar: "التفاصيل" },
+  cms_form_reviewSave: { en: "Review & Save", ar: "المراجعة والحفظ" },
+  cms_form_fillSectionDetails: { en: "Fill in the details for {section}", ar: "قم بتعبئة تفاصيل {section}" },
 
   // Skills Tab
   matrix_sk_heading: { en: "Skills & Milestones", ar: "المهارات والمعالم" },
@@ -447,6 +451,7 @@ export const translations = {
   matrix_sk_unitPlaceholder: { en: "e.g. kg, cm, words", ar: "مثال: كجم، سم، كلمة" },
   matrix_sk_weight: { en: "Importance Weight", ar: "وزن الأهمية" },
   matrix_sk_linkAgeGroups: { en: "Link to Age Groups", ar: "ربط بالفئات العمرية" },
+  matrix_sk_defineRules: { en: "Define Rules for Selected Groups", ar: "تحديد القواعد للمجموعات المختارة" },
   matrix_sk_create: { en: "Create & Link Skill", ar: "إنشاء وربط المهارة" },
   matrix_sk_allCats: { en: "All Categories", ar: "جميع الفئات" },
   matrix_sk_allAgeGroups: { en: "All Age Groups", ar: "جميع الفئات العمرية" },

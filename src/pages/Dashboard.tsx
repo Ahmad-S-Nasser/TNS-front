@@ -33,9 +33,12 @@ const recentActivities = [
   { action_en: "System backup completed",  action_ar: "اكتمل النسخ الاحتياطي",   user: "System",       time: "3 hrs ago",  type: "system" },
 ];
 
+import { useDashboardKPIs } from "@/hooks/queries/useAnalytics";
+
 const Dashboard = () => {
   const t = useT();
   const { isRTL, lang } = useI18n();
+  const { data: kpiData, isLoading } = useDashboardKPIs();
 
   // Localized months for the line chart
   const months = isRTL 
@@ -78,10 +81,26 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard title={t("dashboard_totalUsers")}     value="5,247"  change="+12.5%" trend="up"   icon={Users} />
-        <KPICard title={t("dashboard_activeToday")}    value="1,832"  change="+8.2%"  trend="up"   icon={Activity} />
-        <KPICard title={t("dashboard_publishedContent")} value="341"  change="+23.1%" trend="up"   icon={FileText} />
-        <KPICard title={t("dashboard_pageViews")}      value="48.2K"  change="-3.1%"  trend="down" icon={Eye} />
+        <KPICard 
+          title={t("dashboard_totalUsers")}     
+          value={isLoading ? "..." : (kpiData?.totalUsers?.toLocaleString() || "0")}  
+          change="+12.5%" trend="up"   icon={Users} 
+        />
+        <KPICard 
+          title={t("dashboard_activeToday")}    
+          value={isLoading ? "..." : (kpiData?.activeUsers?.toLocaleString() || "0")}  
+          change="+8.2%"  trend="up"   icon={Activity} 
+        />
+        <KPICard 
+          title={t("dashboard_publishedContent")} 
+          value={isLoading ? "..." : (kpiData?.publishedContent?.toLocaleString() || "0")}  
+          change="+23.1%" trend="up"   icon={FileText} 
+        />
+        <KPICard 
+          title={t("dashboard_pageViews")}      
+          value={isLoading ? "..." : (kpiData?.healthSignals?.toLocaleString() || "0")}  
+          change="-3.1%"  trend="down" icon={Eye} 
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

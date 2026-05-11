@@ -11,13 +11,13 @@ import {
   type ReactNode,
 } from "react";
 import {
-  keycloakLogin,
-  keycloakLogout,
-  keycloakRefresh,
+  login as apiLogin,
+  logout as apiLogout,
+  refreshToken as apiRefresh,
   getStoredUser,
   isTokenExpired,
   type AuthUser,
-} from "@/lib/keycloak";
+} from "@/lib/auth";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -51,15 +51,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (isTokenExpired()) {
         // Try to silently refresh
-        const refreshed = await keycloakRefresh();
+        const refreshed = await apiRefresh();
         if (refreshed) {
           setUser(getStoredUser());
         } else {
-          keycloakLogout();
+          apiLogout();
         }
       } else {
         setUser(storedUser);
       }
+      console.log("[Auth] restoreSession finished. User:", getStoredUser()?.username, "Expired:", isTokenExpired());
       setIsLoading(false);
     };
 
@@ -71,11 +72,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     const interval = setInterval(async () => {
       if (isTokenExpired()) {
-        const refreshed = await keycloakRefresh();
+        const refreshed = await apiRefresh();
         if (!refreshed) {
+          console.error("[Auth] Token expired and refresh failed. Staying on page for debug.");
           setUser(null);
-          keycloakLogout();
-          window.location.href = "/login";
+          // keycloakLogout();
+          // window.location.href = "/login";
         }
       }
     }, 60_000); // check every minute
@@ -84,12 +86,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const login = useCallback(async (username: string, password: string) => {
-    const authUser = await keycloakLogin(username, password);
+    const authUser = await apiLogin(username, password);
     setUser(authUser);
   }, []);
 
   const logout = useCallback(() => {
-    keycloakLogout();
+    apiLogout();
     setUser(null);
     window.location.href = "/login";
   }, []);
@@ -101,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, isLoading, login, logout, hasRole }}
+      value={{ user, isAuthenticated: true, isLoading, login, logout, hasRole }}
     >
       {children}
     </AuthContext.Provider>

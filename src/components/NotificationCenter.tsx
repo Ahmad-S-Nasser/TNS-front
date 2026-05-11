@@ -28,20 +28,8 @@ export function NotificationCenter() {
 
     update();
     
-    // Simulation: Add a new alert after 5 seconds to show dynamic badge
-    const timer = setTimeout(() => {
-      notificationService.addNotification({
-        category: "health",
-        titleKey: "notif_title_shortage",
-        descriptionKey: "notif_desc_shortage",
-        priority: "high",
-        metadata: { region: "Alexandria", value: "MMR Vaccine" }
-      });
-    }, 5000);
-
     const sub = notificationService.subscribe(update);
     return () => {
-      clearTimeout(timer);
       sub();
     };
   }, []);

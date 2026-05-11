@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { QuestionnaireContent } from "./questionnaire.types";
-import { questionnaireService } from "./questionnaire.service";
+import { useContent, useCreateContent, useUpdateContent } from "@/hooks/queries/useContent";
 import { QuestionnaireBuilder } from "./QuestionnaireBuilder";
 import { useI18n, useT } from "@/i18n/i18n.context";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,34 +22,32 @@ import { CURRENT_USER_ROLE } from "@/content-management/permissions";
 export function QuestionnaireList() {
   const { lang, isRTL } = useI18n();
   const t = useT();
-  const [items, setItems] = useState<QuestionnaireContent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState<string | "new" | null>(null);
-
-  useEffect(() => {
-    load();
-  }, []);
-
-  const load = async () => {
-    setLoading(true);
-    const data = await questionnaireService.getQuestionnaires();
-    setItems(data);
-    setLoading(false);
-  };
+  const { data: items = [], isLoading, refetch } = useContent({ section: "questionnaires" });
+  const createMutation = useCreateContent();
+  const updateMutation = useUpdateContent();
 
   const handleSave = async (data: Partial<QuestionnaireContent>) => {
     if (!editingId) return;
-    await questionnaireService.saveQuestionnaire(editingId, data);
+    if (editingId === "new") {
+      await createMutation.mutateAsync({
+        ...data,
+        section: "questionnaires",
+        status: "draft",
+        requires_doctor_approval: true,
+      } as any);
+    } else {
+      await updateMutation.mutateAsync({ id: editingId, data });
+    }
     toast.success("Questionnaire saved successfully");
     setEditingId(null);
-    load();
   };
 
   const toggleStatus = async (item: QuestionnaireContent) => {
-    await questionnaireService.toggleActive(item.id, !item.is_active);
+    await updateMutation.mutateAsync({ id: item.id, data: { is_active: !item.is_active } as any });
     toast.success(item.is_active ? "Questionnaire disabled" : "Questionnaire enabled");
-    load();
   };
+
+  if (isLoading) return <div className="h-64 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div></div>;
 
   if (editingId) {
     const initial = editingId === "new" ? undefined : items.find(i => i.id === editingId);

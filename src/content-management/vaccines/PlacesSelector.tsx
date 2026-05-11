@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search, Building2, Cross, X } from "lucide-react";
-import { getAvailablePlaces } from "./vaccine.service";
+import { useContent } from "@/hooks/queries/useContent";
+import { HospitalContent, HealthUnitContent } from "../cms.types";
 
 interface Props {
   selectedIds: string[];
@@ -12,11 +13,27 @@ interface Props {
 
 export function PlacesSelector({ selectedIds, onChange, color }: Props) {
   const [search, setSearch] = useState("");
-  const [places, setPlaces] = useState<{ id: string; name: { en: string; ar: string }; type: string }[]>([]);
+  const { data: hospitals = [], isLoading: loadingH } = useContent({ section: "hospitals" });
+  const { data: healthUnits = [], isLoading: loadingHU } = useContent({ section: "health-units" });
 
-  useEffect(() => {
-    setPlaces(getAvailablePlaces());
-  }, []);
+  const places = useMemo(() => {
+    return [
+      ...(hospitals as HospitalContent[]).map(h => ({
+        id: h.id,
+        name: { en: h.hospital_name_en, ar: h.hospital_name_ar },
+        type: "Hospital"
+      })),
+      ...(healthUnits as HealthUnitContent[]).map(hu => ({
+        id: hu.id,
+        name: { en: hu.unit_name_en, ar: hu.unit_name_ar },
+        type: "Health Unit"
+      }))
+    ];
+  }, [hospitals, healthUnits]);
+
+  const isLoading = loadingH || loadingHU;
+
+  if (isLoading) return <div className="h-24 flex items-center justify-center"><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-500"></div></div>;
 
   const filtered = places.filter(p => 
     p.name.en.toLowerCase().includes(search.toLowerCase()) || 

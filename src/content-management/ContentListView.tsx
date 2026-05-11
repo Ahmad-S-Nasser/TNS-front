@@ -11,10 +11,11 @@ import {
   AlertTriangle, Globe,
 } from "lucide-react";
 import type { CMSSection, CMSContent, ContentStatus } from "./cms.types";
-import { getAllContent, promoteStatus, archiveContent, deleteContent, exportSection, getSectionConfig, getNextStatus } from "./cms.service";
+import { exportSection, getSectionConfig, getNextStatus } from "./cms.service";
 import { can, getCurrentUserRole } from "./permissions";
 import { ContentFormDialog } from "./ContentFormDialog";
 import { useT, useI18n } from "@/i18n/i18n.context";
+import { useContent, usePromoteContentStatus, useArchiveContent, useDeleteContent } from "@/hooks/queries/useContent";
 
 interface ContentListViewProps {
   section: CMSSection;
@@ -42,13 +43,22 @@ export function ContentListView({ section }: ContentListViewProps) {
 
   const n = (en: string, ar: string) => lang === "ar" ? ar : en;
   const cfg = getSectionConfig(section);
-  const [items, setItems] = useState<CMSContent[]>(() => getAllContent(section));
+  
   const [statusFilter, setStatusFilter] = useState<ContentStatus | "all">("all");
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [editItem, setEditItem] = useState<CMSContent | null>(null);
 
-  const refresh = () => setItems(getAllContent(section));
+  const { data: items = [], isLoading, refetch } = useContent({ 
+    section, 
+    status: statusFilter === "all" ? undefined : statusFilter 
+  });
+  
+  const promoteMutation = usePromoteContentStatus();
+  const archiveMutation = useArchiveContent();
+  const deleteMutation = useDeleteContent();
+
+  const refresh = () => refetch();
 
   const filtered = useMemo(() => {
     let result = items;
@@ -65,21 +75,20 @@ export function ContentListView({ section }: ContentListViewProps) {
     return result;
   }, [items, statusFilter, search]);
 
-  const handlePromote = (id: string) => {
-    const role = getCurrentUserRole();
-    promoteStatus(id, role);
-    refresh();
+  const handlePromote = async (id: string) => {
+    const nextStatus = getNextStatus(items.find(i => i.id === id)?.status || "draft");
+    if (nextStatus) {
+      await promoteMutation.mutateAsync({ id, status: nextStatus });
+    }
   };
 
-  const handleArchive = (id: string) => {
-    archiveContent(id);
-    refresh();
+  const handleArchive = async (id: string) => {
+    await archiveMutation.mutateAsync(id);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm(t("confirm") + "?")) {
-      deleteContent(id);
-      refresh();
+      await deleteMutation.mutateAsync(id);
     }
   };
 
@@ -112,6 +121,8 @@ export function ContentListView({ section }: ContentListViewProps) {
     published: items.filter(c => c.status === "published").length,
     archived:  items.filter(c => c.status === "archived").length,
   }), [items]);
+
+  if (isLoading) return <div className="h-64 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div></div>;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500" dir={isRTL ? "rtl" : "ltr"}>
@@ -251,27 +262,65 @@ export function ContentListView({ section }: ContentListViewProps) {
                         <Edit className="h-3.5 w-3.5" />
                       </Button>
                     )}
-                    {next && item.status !== "archived" && (
+                    {/* Universal Admin Publish */}
+                    {getCurrentUserRole() === "SUPER_ADMIN" && item.status !== "published" && item.status !== "archived" && (
                       <Button
                         variant="soft"
                         size="sm"
-                        disabled={
-                          (item.status === "review" && getCurrentUserRole() !== "DOCTOR" && getCurrentUserRole() !== "SUPER_ADMIN") ||
-                          (item.status === "approved" && getCurrentUserRole() !== "CONTENT_REVIEWER" && getCurrentUserRole() !== "SUPER_ADMIN") ||
-                          (item.status === "draft" && !can("canEdit", section))
-                        }
-                        className={`h-8 gap-1 text-[10px] font-black uppercase tracking-widest ${
-                          item.status === "review" ? "bg-amber-100 text-amber-700 hover:bg-amber-200" :
-                          item.status === "approved" ? "bg-blue-100 text-blue-700 hover:bg-blue-200" :
-                          "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                        }`}
-                        onClick={() => handlePromote(item.id)}
+                        className="h-8 gap-1 text-[10px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+                        onClick={() => promoteMutation.mutateAsync({ id: item.id, status: "published" })}
                       >
-                        {item.status === "review" ? (isRTL ? "اعتماد طبي" : "Medical Approval") :
-                         item.status === "approved" ? (isRTL ? "نشر" : "Publish") :
-                         (isRTL ? "تقديم للمراجعة" : "Submit for Review")}
-                        {isRTL ? <ArrowRight className="h-3 w-3 rotate-180" /> : <ArrowRight className="h-3 w-3" />}
+                        {isRTL ? "نشر مباشر" : "Publish Now"}
+                        <Globe className="h-3 w-3" />
                       </Button>
+                    )}
+
+                    {/* Next Workflow Action */}
+                    {next && item.status !== "archived" && (
+                      <div className="flex items-center gap-1">
+                        {item.status === "review" && (
+                          <>
+                            <Button
+                              variant="soft"
+                              size="sm"
+                              className="h-8 gap-1 text-[10px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+                              onClick={() => promoteMutation.mutateAsync({ id: item.id, status: "approved" })}
+                              disabled={getCurrentUserRole() !== "DOCTOR" && getCurrentUserRole() !== "SUPER_ADMIN"}
+                            >
+                              <CheckCircle2 className="h-3 w-3" /> {isRTL ? "موافقة" : "Approve"}
+                            </Button>
+                            <Button
+                              variant="soft"
+                              size="sm"
+                              className="h-8 gap-1 text-[10px] font-black uppercase tracking-widest bg-rose-100 text-rose-700 hover:bg-rose-200"
+                              onClick={() => promoteMutation.mutateAsync({ id: item.id, status: "draft" })}
+                              disabled={getCurrentUserRole() !== "DOCTOR" && getCurrentUserRole() !== "SUPER_ADMIN"}
+                            >
+                              <AlertTriangle className="h-3 w-3" /> {isRTL ? "رفض" : "Disapprove"}
+                            </Button>
+                          </>
+                        )}
+                        
+                        {item.status !== "review" && (
+                          <Button
+                            variant="soft"
+                            size="sm"
+                            disabled={
+                              (item.status === "approved" && getCurrentUserRole() !== "CONTENT_REVIEWER" && getCurrentUserRole() !== "SUPER_ADMIN") ||
+                              (item.status === "draft" && !can("canEdit", section))
+                            }
+                            className={`h-8 gap-1 text-[10px] font-black uppercase tracking-widest ${
+                              item.status === "approved" ? "bg-blue-100 text-blue-700 hover:bg-blue-200" :
+                              "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                            }`}
+                            onClick={() => handlePromote(item.id)}
+                          >
+                            {item.status === "approved" ? (isRTL ? "نشر" : "Publish") :
+                             (isRTL ? "تقديم للمراجعة" : "Submit for Review")}
+                            {isRTL ? <ArrowRight className="h-3 w-3 rotate-180" /> : <ArrowRight className="h-3 w-3" />}
+                          </Button>
+                        )}
+                      </div>
                     )}
                     {can("canDelete", section) && item.status !== "archived" && (
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-amber-500" onClick={() => handleArchive(item.id)}>

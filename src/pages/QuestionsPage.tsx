@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSignalR } from "@/hooks/useSignalR";
+import type { Question } from "@/hooks/queries/useQA";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -39,12 +41,65 @@ const questions = [
   },
 ];
 
+import { useQuestions, useAnswerQuestion } from "@/hooks/queries/useQA";
+import { toast } from "sonner";
+
 const QuestionsPage = () => {
   const t = useT();
   const { isRTL } = useI18n();
   const [activeTab, setActiveTab] = useState("All");
   const [search, setSearch] = useState("");
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
+
+  const { data: initialQuestions, isLoading } = useQuestions();
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const answerMutation = useAnswerQuestion();
+
+  // SignalR integration
+  const { connection } = useSignalR("/hubs/qa");
+
+  useEffect(() => {
+    if (initialQuestions) {
+      setQuestions(initialQuestions);
+    }
+  }, [initialQuestions]);
+
+  useEffect(() => {
+    if (!connection) return;
+
+    const handleSubmitted = (q: Question) => {
+      setQuestions(prev => [q, ...prev]);
+    };
+    const handleAnswered = (q: Question) => {
+      setQuestions(prev => prev.map(item => item.id === q.id ? q : item));
+    };
+
+    connection.on("QuestionSubmitted", handleSubmitted);
+    connection.on("QuestionAnswered", handleAnswered);
+
+    return () => {
+      connection.off("QuestionSubmitted", handleSubmitted);
+      connection.off("QuestionAnswered", handleAnswered);
+    };
+  }, [connection]);
+
+  const handleReply = async (id: string) => {
+    const text = replyTexts[id];
+    if (!text?.trim()) return;
+
+    try {
+      await answerMutation.mutateAsync({
+        id,
+        doctorId: "doc-1", // Should come from auth context
+        answerText: text
+      });
+      toast.success(isRTL ? "تم إرسال الرد بنجاح" : "Reply sent successfully");
+      setReplyTexts(prev => ({ ...prev, [id]: "" }));
+    } catch (error) {
+      toast.error(isRTL ? "فشل إرسال الرد" : "Failed to send reply");
+    }
+  };
 
   const tabs = [
     { key: "All",      label: t("questions_tabAll")      },
@@ -54,12 +109,16 @@ const QuestionsPage = () => {
 
   const filteredQuestions = questions.filter((q) => {
     const matchesTab = activeTab === "All" || q.status === activeTab;
-    const matchesSearch = q.question.toLowerCase().includes(search.toLowerCase()) || q.user.includes(search);
+    const matchesSearch = q.questionTextAr.toLowerCase().includes(search.toLowerCase()) || 
+                         (q.questionTextEn?.toLowerCase().includes(search.toLowerCase())) ||
+                         (q.id.includes(search));
     return matchesTab && matchesSearch;
   });
 
   const totalAnswered = questions.filter(q => q.status === "Answered").length;
-  const totalPending  = questions.filter(q => q.status === "Pending").length;
+  const totalPending  = questions.filter(q => q.status === "Pending" || q.status === "pending").length;
+
+  if (isLoading) return <div className="h-64 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div></div>;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700" dir={isRTL ? "rtl" : "ltr"}>
@@ -144,40 +203,46 @@ const QuestionsPage = () => {
                     </div>
                     <div className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse text-right" : "text-left"}`}>
                       <div className="text-right">
-                        <p className="font-bold text-[#1a2e2a] text-[15px]">{q.user}</p>
-                        <p className="text-xs text-[#94a3b8] font-medium">{q.time}</p>
+                        <p className="font-bold text-[#1a2e2a] text-[15px]">{isRTL ? "مستخدم" : "User"} #{q.id.slice(0, 4)}</p>
+                        <p className="text-xs text-[#94a3b8] font-medium">{new Date(q.submittedAt).toLocaleDateString()}</p>
                       </div>
                       <Avatar className="h-10 w-10 border-none bg-slate-100">
-                        <AvatarFallback className="text-slate-500 font-bold bg-[#f1f5f9] text-[13px]">{q.avatar}</AvatarFallback>
+                        <AvatarFallback className="text-slate-500 font-bold bg-[#f1f5f9] text-[13px]">U</AvatarFallback>
                       </Avatar>
                       {isExpanded ? <ChevronUp className="h-5 w-5 text-[#94a3b8]" /> : <ChevronDown className="h-5 w-5 text-[#94a3b8]" />}
                     </div>
                   </div>
 
                   <div className={`mt-8 ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
-                    <p className="text-[17px] font-medium text-[#334155] leading-relaxed">{q.question}</p>
+                    <p className="text-[17px] font-medium text-[#334155] leading-relaxed">{q.questionTextAr}</p>
                   </div>
                 </div>
 
                 {isExpanded && (
                   <div className="px-6 pb-6 pt-2 animate-in slide-in-from-top-2 duration-300">
                     <div className="space-y-6">
-                      {q.reply && (
+                      {q.answer && (
                         <div className={`bg-[#f0f9f9] border border-teal-50 rounded-xl p-5 ${isRTL ? "text-right" : "text-left"}`} dir={isRTL ? "rtl" : "ltr"}>
                           <p className="text-[13px] font-bold text-teal-700 mb-2">{t("questions_adminReply")}</p>
-                          <p className="text-[15px] text-[#475569] leading-relaxed">{q.reply}</p>
+                          <p className="text-[15px] text-[#475569] leading-relaxed">{q.answer.answerText}</p>
                         </div>
                       )}
                       <div className="space-y-4">
                         <Textarea
                           placeholder={t("questions_writeReply")}
+                          value={replyTexts[q.id] || ""}
+                          onChange={(e) => setReplyTexts(prev => ({ ...prev, [q.id]: e.target.value }))}
                           className={`min-h-[120px] bg-white border-[#e2e8f0] rounded-xl p-4 focus-visible:ring-teal-500/20 focus-visible:border-teal-500 ${isRTL ? "text-right" : "text-left"}`}
                           dir={isRTL ? "rtl" : "ltr"}
                         />
                         <div className={`flex ${isRTL ? "justify-start" : "justify-end"}`}>
-                          <Button className="bg-[#0f9d8c] hover:bg-[#0c8a7b] text-white px-6 h-11 rounded-xl flex gap-2 items-center font-bold">
+                          <Button 
+                            onClick={() => handleReply(q.id)}
+                            disabled={answerMutation.isPending || !replyTexts[q.id]?.trim()}
+                            className="bg-[#0f9d8c] hover:bg-[#0c8a7b] text-white px-6 h-11 rounded-xl flex gap-2 items-center font-bold"
+                          >
                             <Send className={`h-4 w-4 ${isRTL ? "rotate-180" : ""}`} />
-                            {t("questions_sendReply")}
+                            {answerMutation.isPending ? "..." : t("questions_sendReply")}
                           </Button>
                         </div>
                       </div>

@@ -34,30 +34,16 @@ export function SexualEducationForm({ data, onChange }: Props) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>{t("cms_field_ageGroup")}</Label>
-          <Select value={data.age_category || ""} onValueChange={v => onChange({ age_category: v as AgeCategory })}>
-            <SelectTrigger><SelectValue placeholder={t("filter")} /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="toddler">{t("cat_toddler")}</SelectItem>
-              <SelectItem value="preschool">{t("cat_preschool")}</SelectItem>
-              <SelectItem value="school-age">{t("cat_schoolAge")}</SelectItem>
-              <SelectItem value="adolescent">{t("cat_adolescent")}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label>{isRTL ? "مستوى التعليم" : "Education Level"}</Label>
-          <Select value={data.education_level || ""} onValueChange={v => onChange({ education_level: v as any })}>
-            <SelectTrigger><SelectValue placeholder={t("filter")} /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="basic">{isRTL ? "أساسي" : "Basic"}</SelectItem>
-              <SelectItem value="intermediate">{isRTL ? "متوسط" : "Intermediate"}</SelectItem>
-              <SelectItem value="advanced">{isRTL ? "متقدم" : "Advanced"}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-2">
+        <Label>{isRTL ? "مستوى التعليم" : "Education Level"}</Label>
+        <Select value={data.education_level || ""} onValueChange={v => onChange({ education_level: v as any })}>
+          <SelectTrigger><SelectValue placeholder={t("filter")} /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="basic">{isRTL ? "أساسي" : "Basic"}</SelectItem>
+            <SelectItem value="intermediate">{isRTL ? "متوسط" : "Intermediate"}</SelectItem>
+            <SelectItem value="advanced">{isRTL ? "متقدم" : "Advanced"}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">

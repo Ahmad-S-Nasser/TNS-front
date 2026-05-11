@@ -12,6 +12,7 @@ import {
   Shield, Check, X, 
   Info, RefreshCw 
 } from "lucide-react";
+import { toast } from "sonner";
 import { useI18n } from "@/i18n/i18n.context";
 
 interface Props {
@@ -50,10 +51,19 @@ export function AccountEditor({ account, open, onOpenChange, onSave }: Props) {
     }
   };
 
-  const handleSave = () => {
-    account.overrides = overrides;
-    onSave();
-    onOpenChange(false);
+  const handleSave = async () => {
+    try {
+      await rbacService.saveAccountOverrides(account.id, overrides.map(o => ({
+        permission: o.permission,
+        action: o.action,
+        reason: o.reason
+      })));
+      toast.success(isRTL ? "تم حفظ التعديلات بنجاح" : "Permissions saved successfully");
+      onSave();
+      onOpenChange(false);
+    } catch (error) {
+      toast.error(isRTL ? "فشل حفظ التعديلات" : "Failed to save permissions");
+    }
   };
 
   const resetToDefaults = () => {

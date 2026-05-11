@@ -25,24 +25,36 @@ const RolesPermissions = () => {
   const { t, isRTL } = useI18n();
 
   useEffect(() => {
-    loadData();
+    const init = async () => {
+      await rbacService.loadInitialData();
+      await loadData();
+    };
+    init();
   }, [activeCategory]);
 
-  const loadData = () => {
-    setAccounts(rbacService.getAccountsByCategory(activeCategory));
+  const loadData = async () => {
+    const accs = await rbacService.getAccountsByCategory(activeCategory);
+    setAccounts(accs);
     setDefaults(rbacService.getCategoryDefaults(activeCategory));
   };
 
-  const handleToggleDefault = (permission: Permission) => {
-    // In a real app, this would be a full service call
+  const handleToggleDefault = async (permission: Permission) => {
     const current = rbacService.getCategoryDefaults(activeCategory);
+    let updated: Permission[];
+    
     if (current.includes(permission)) {
-       // logic to remove from defaults (omitted for mock brevity)
+      updated = current.filter(p => p !== permission);
     } else {
-       // logic to add
+      updated = [...current, permission];
     }
-    toast.success(`Updated global policy for ${activeCategory}`);
-    loadData();
+
+    try {
+      await rbacService.updateGlobalPolicy(activeCategory, updated);
+      toast.success(isRTL ? "تم تحديث السياسة العامة لـ" : `Updated global policy for ${activeCategory}`);
+      loadData();
+    } catch (error) {
+      toast.error(isRTL ? "فشل تحديث السياسة" : "Failed to update policy");
+    }
   };
 
   const filteredAccounts = accounts.filter(acc => 

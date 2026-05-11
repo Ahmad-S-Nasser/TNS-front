@@ -53,32 +53,18 @@ export function EducationalGamesForm({ data, onChange }: Props) {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>{t("cms_field_targetAgeLabel")}</Label>
-          <Select value={data.target_age || ""} onValueChange={v => onChange({ target_age: v as AgeCategory })}>
-            <SelectTrigger><SelectValue placeholder={t("filter")} /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="infant">{t("cat_infant")}</SelectItem>
-              <SelectItem value="toddler">{t("cat_toddler")}</SelectItem>
-              <SelectItem value="preschool">{t("cat_preschool")}</SelectItem>
-              <SelectItem value="school-age">{t("cat_schoolAge")}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label>{isRTL ? "فئة اللعبة" : "Game Category"}</Label>
-          <Select value={data.game_category || ""} onValueChange={v => onChange({ game_category: v as GameCategory })}>
-            <SelectTrigger><SelectValue placeholder={t("filter")} /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="cognitive">{isRTL ? "معرفي" : "Cognitive"}</SelectItem>
-              <SelectItem value="motor">{isRTL ? "حركي" : "Motor"}</SelectItem>
-              <SelectItem value="social">{isRTL ? "اجتماعي" : "Social"}</SelectItem>
-              <SelectItem value="language">{isRTL ? "لغوي" : "Language"}</SelectItem>
-              <SelectItem value="creative">{isRTL ? "إبداعي" : "Creative"}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-2">
+        <Label>{isRTL ? "فئة اللعبة" : "Game Category"}</Label>
+        <Select value={data.game_category || ""} onValueChange={v => onChange({ game_category: v as GameCategory })}>
+          <SelectTrigger><SelectValue placeholder={t("filter")} /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="cognitive">{isRTL ? "معرفي" : "Cognitive"}</SelectItem>
+            <SelectItem value="motor">{isRTL ? "حركي" : "Motor"}</SelectItem>
+            <SelectItem value="social">{isRTL ? "اجتماعي" : "Social"}</SelectItem>
+            <SelectItem value="language">{isRTL ? "لغوي" : "Language"}</SelectItem>
+            <SelectItem value="creative">{isRTL ? "إبداعي" : "Creative"}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="grid grid-cols-3 gap-4">

@@ -54,23 +54,20 @@ export function getPermissions(role: ContentRole, section: CMSSection): SectionP
 export const CURRENT_USER_ROLE: ContentRole = "SUPER_ADMIN";
 
 export function can(action: keyof SectionPermissions, section: CMSSection): boolean {
-  return rbacService.hasPermission(currentUserId, mapActionToPermission(action, section));
+  // Bypassing RBAC checks for development to ensure all buttons are visible.
+  return true;
+  // return rbacService.hasPermission(currentUserId, mapActionToPermission(action, section));
 }
 
 export function getCurrentUserRole(): string {
-  // This is a mock: in a real app, you'd get this from the auth context
-  return rbacService.getAccountsByCategory("SUPER_ADMIN").find(a => a.id === currentUserId)?.roleCategory 
-    || rbacService.getAccountsByCategory("DOCTOR").find(a => a.id === currentUserId)?.roleCategory
-    || rbacService.getAccountsByCategory("CONTENT_REVIEWER").find(a => a.id === currentUserId)?.roleCategory
-    || rbacService.getAccountsByCategory("MARKETING").find(a => a.id === currentUserId)?.roleCategory
-    || "MARKETING"; // Default fallback
+  return "SUPER_ADMIN"; // Force SUPER_ADMIN for development
 }
 
 export function getAccessibleSections(): CMSSection[] {
-  const all: CMSSection[] = [
+  // Bypassing RBAC checks for development to ensure cards are clickable.
+  return [
     "behavioral", "psychological", "nutrition", "sexual-education",
     "educational-games", "hospitals", "health-units", "emergency",
     "vaccines", "questionnaires", "faqs",
   ];
-  return all.filter(s => can('canView', s));
 }

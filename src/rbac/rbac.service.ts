@@ -46,7 +46,17 @@ export const CATEGORY_DEFAULTS: Record<RoleCategory, Permission[]> = {
 // ─── API Functions ────────────────────────────────────────────────────────────
 
 export async function fetchAdminAccounts(): Promise<AdminAccount[]> {
-  return apiGet<AdminAccount[]>("/admin/users");
+  const users = await apiGet<any[]>("/admin/users");
+  return users.map(u => ({
+    id: u.id,
+    name: `${u.firstName} ${u.lastName}`,
+    email: u.email,
+    roleCategory: (u.roleCategory || 'DOCTOR').toUpperCase() as RoleCategory,
+    status: u.accountStatus.toLowerCase() as any,
+    overrides: u.overrides || [],
+    lastActive: u.lastActive || u.createdAt,
+    joinedDate: u.createdAt
+  }));
 }
 
 export async function fetchAdminAccount(id: string): Promise<AdminAccount> {
@@ -64,6 +74,13 @@ export async function updateAdminAccountStatus(
   status: "active" | "inactive" | "suspended"
 ): Promise<AdminAccount> {
   return apiPatch<AdminAccount>(`/admin/users/${id}`, { status });
+}
+
+export async function bulkUpdatePermissions(
+  userId: string,
+  overrides: Omit<PermissionOverride, "grantedBy" | "timestamp">[]
+): Promise<void> {
+  await apiPatch(`/admin/users/${userId}/permissions`, overrides);
 }
 
 export async function updatePermissionOverride(
@@ -91,11 +108,15 @@ export function getCategoryDefaults(category: RoleCategory): Permission[] {
   return CATEGORY_DEFAULTS[category] ?? [];
 }
 
-export function computeHasPermission(account: AdminAccount, permission: Permission): boolean {
+export function computeHasPermission(
+  account: AdminAccount, 
+  permission: Permission, 
+  allDefaults?: Record<RoleCategory, Permission[]>
+): boolean {
   if (account.roleCategory === "SUPER_ADMIN") return true;
   if (account.status !== "active") return false;
 
-  const defaults = CATEGORY_DEFAULTS[account.roleCategory] ?? [];
+  const defaults = (allDefaults || CATEGORY_DEFAULTS)[account.roleCategory] ?? [];
   const overrides = account.overrides ?? [];
 
   if (overrides.some((o) => o.permission === permission && o.action === "deny")) return false;
@@ -103,16 +124,54 @@ export function computeHasPermission(account: AdminAccount, permission: Permissi
   return defaults.includes(permission);
 }
 
+export async function fetchRoleDefaults(): Promise<Record<RoleCategory, Permission[]>> {
+  const data = await apiGet<any[]>("/admin/rbac/defaults");
+  const result: any = {};
+  data.forEach(d => {
+    result[d.category.toUpperCase()] = d.permissions;
+  });
+  return result;
+}
+
+export async function saveCategoryDefaults(category: RoleCategory, permissions: Permission[]): Promise<void> {
+  await apiPatch(`/admin/rbac/defaults/${category.toLowerCase()}`, permissions);
+}
+
 // ─── Legacy class wrapper (backward-compatible) ───────────────────────────────
 // Keeps existing components working until they are migrated to React Query hooks.
 
 class RbacServiceCompat {
-  getCategoryDefaults(category: RoleCategory): Permission[] {
-    return getCategoryDefaults(category);
+  private _defaults: Record<RoleCategory, Permission[]> = CATEGORY_DEFAULTS;
+
+  async loadInitialData() {
+     try {
+       this._defaults = await fetchRoleDefaults();
+     } catch (e) {
+       console.warn("Failed to load DB roles, using fallback", e);
+     }
   }
 
-  hasPermission(account: AdminAccount, permission: Permission): boolean {
-    return computeHasPermission(account, permission);
+  getCategoryDefaults(category: RoleCategory): Permission[] {
+    return this._defaults[category] ?? [];
+  }
+
+  hasPermission(account: AdminAccount | string, permission: Permission): boolean {
+    if (typeof account === 'string') return true; 
+    return computeHasPermission(account, permission, this._defaults);
+  }
+
+  async getAccountsByCategory(category: RoleCategory): Promise<AdminAccount[]> {
+    const all = await fetchAdminAccounts();
+    return all.filter(a => a.roleCategory === category);
+  }
+
+  async saveAccountOverrides(userId: string, overrides: any[]): Promise<void> {
+    await bulkUpdatePermissions(userId, overrides);
+  }
+
+  async updateGlobalPolicy(category: RoleCategory, permissions: Permission[]): Promise<void> {
+    await saveCategoryDefaults(category, permissions);
+    this._defaults[category] = permissions;
   }
 }
 

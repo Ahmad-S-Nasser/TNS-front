@@ -13,41 +13,36 @@ import {
 import { useT, useI18n } from "@/i18n/i18n.context";
 // Removed AddUserDialog import
 
-const mockUsers = [
-  { id: 1, name: "Sara Ahmed",        email: "sara@example.com",    role: "User",   status: "active",    joined: "2024-12-01", lastActive: "2 hrs ago"  },
-  { id: 2, name: "Dr. Khalid Mansour",email: "khalid@example.com",  role: "Doctor", status: "active",    joined: "2024-11-15", lastActive: "5 min ago"  },
-  { id: 3, name: "Fatima Al-Hassan",  email: "fatima@example.com",  role: "User",   status: "suspended", joined: "2024-10-20", lastActive: "3 days ago" },
-  { id: 4, name: "Omar bin Said",     email: "omar@example.com",    role: "User",   status: "active",    joined: "2024-09-10", lastActive: "1 hr ago"   },
-  { id: 5, name: "Layla Khoury",      email: "layla@example.com",   role: "User",   status: "active",    joined: "2025-01-05", lastActive: "30 min ago" },
-  { id: 6, name: "Ahmad Nasser",      email: "ahmad@example.com",   role: "User",   status: "active",    joined: "2025-01-12", lastActive: "Just now"   },
-  { id: 7, name: "Nour Abdallah",     email: "nour@example.com",    role: "User",   status: "suspended", joined: "2024-08-22", lastActive: "1 week ago" },
-  { id: 8, name: "Dr. Hana Saleh",   email: "hana@example.com",    role: "Doctor", status: "active",    joined: "2024-07-30", lastActive: "10 min ago" },
-];
+import { useAdminUsers } from "@/hooks/queries/useUsers";
 
 const UserManagement = () => {
   const t = useT();
   const { isRTL } = useI18n();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [showAddDialog, setShowAddDialog] = useState(false);
 
-  const filtered = mockUsers.filter((u) => {
-    const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = statusFilter === "all" || u.status === statusFilter;
+  const { data: users = [], isLoading, error } = useAdminUsers();
+
+  if (isLoading) return <div className="h-64 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div></div>;
+  if (error) return <div className="p-8 text-center text-red-500">Error loading users. Please try again.</div>;
+
+  const filtered = users.filter((u) => {
+    const name = `${u.firstName} ${u.lastName}`;
+    const matchSearch = name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
+    const matchStatus = statusFilter === "all" || (u.isActive ? "active" : "suspended") === statusFilter;
     return matchSearch && matchStatus;
   });
 
   const localizedUsers = filtered.map(user => ({
     ...user,
-    role: user.role === "Doctor" ? (isRTL ? "طبيب" : "Doctor") : (isRTL ? "مستخدم" : "User"),
-    lastActive: isRTL ? user.lastActive
-      .replace("hrs ago", "ساعة مضت")
-      .replace("min ago", "دقيقة مضت")
-      .replace("days ago", "أيام مضت")
-      .replace("hr ago", "ساعة مضت")
-      .replace("Just now", "الآن")
-      .replace("week ago", "أسبوع مضى")
-      : user.lastActive
+    id: user.id,
+    name: `${user.firstName} ${user.lastName}`,
+    role: user.role === "Doctor" ? (isRTL ? "طبيب" : "Doctor") : 
+          user.role === "Parent" ? (isRTL ? "ولي أمر" : "Parent") :
+          user.role === "Admin" ? (isRTL ? "مدير" : "Admin") : user.role,
+    status: user.isActive ? "active" : "suspended",
+    joined: new Date(user.createdAt).toLocaleDateString(isRTL ? 'ar-EG' : 'en-US'),
+    lastActive: "—" // Placeholder as lastActive isn't in UserDto yet
   }));
 
   return (

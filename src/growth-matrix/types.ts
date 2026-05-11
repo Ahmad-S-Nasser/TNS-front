@@ -36,7 +36,7 @@ export interface AgeGroup {
   monthStart: number;
   monthEnd: number;
   status: AgeGroupStatus;
-  description?: string;
+  description: BilingualText;
   createdAt: string;
   updatedAt: string;
 }
@@ -169,7 +169,7 @@ export interface AgeGroupFormData {
   monthStart: number;
   monthEnd: number;
   status: AgeGroupStatus;
-  description?: string;
+  description: BilingualText;
 }
 
 export interface CategoryFormData {

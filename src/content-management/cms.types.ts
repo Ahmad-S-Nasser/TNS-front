@@ -67,14 +67,19 @@ export interface BaseContent {
 
 export interface BehavioralContent extends BaseContent {
   section: "behavioral" | "psychological";
-  problem_type: string;          // e.g., "Aggression", "Anxiety"
-  symptoms: string[];            // list of symptoms (Arabic-first)
+  problem_type_ar: string;
+  problem_type_en: string;
+  symptoms_ar: string[];
+  symptoms_en: string[];
   age_range: { min_months: number; max_months: number };
   severity: SeverityLevel;
-  causes: string[];
-  recommended_actions: string[];
-  seek_help_when: string;        // description of when to refer
-  is_psychological?: boolean;    // differentiates section
+  causes_ar: string[];
+  causes_en: string[];
+  recommended_actions_ar: string[];
+  recommended_actions_en: string[];
+  seek_help_when_ar: string;
+  seek_help_when_en: string;
+  is_psychological?: boolean;
 }
 
 // ─── Section 3: Healthy Nutrition ────────────────────────────────────────────
@@ -83,12 +88,16 @@ export interface NutritionContent extends BaseContent {
   section: "nutrition";
   age_group: AgeCategory;
   meal_type: MealType;
-  recommended_foods: string[];
-  restricted_foods: string[];
-  tips: string[];
+  recommended_foods_ar: string[];
+  recommended_foods_en: string[];
+  restricted_foods_ar: string[];
+  restricted_foods_en: string[];
+  tips_ar: string[];
+  tips_en: string[];
   has_images: boolean;
   image_url?: string;
-  nutritional_notes?: string;
+  nutritional_notes_ar?: string;
+  nutritional_notes_en?: string;
 }
 
 // ─── Section 4: Sexual Education ─────────────────────────────────────────────
@@ -97,12 +106,12 @@ export interface SexualEducationContent extends BaseContent {
   section: "sexual-education";
   age_category: AgeCategory;
   education_level: "basic" | "intermediate" | "advanced";
-  is_sensitive: boolean;          // triggers extra visibility controls
-  parent_explanation: string;     // what to tell parents
-  child_appropriate_language: string; // simplified explanation
+  is_sensitive: boolean;
+  parent_explanation_ar: string;
+  parent_explanation_en: string;
+  child_appropriate_language_ar: string;
+  child_appropriate_language_en: string;
   professional_review_required: boolean;
-  reviewed_by_professional?: string;
-  reviewed_at?: string;
 }
 
 // ─── Section 5: Educational Games ────────────────────────────────────────────
@@ -111,10 +120,13 @@ export interface EducationalGameContent extends BaseContent {
   section: "educational-games";
   target_age: AgeCategory;
   game_category: GameCategory;
-  instructions: string;
-  materials: string[];
+  instructions_ar: string;
+  instructions_en: string;
+  materials_ar: string[];
+  materials_en: string[];
   duration_minutes: number;
-  educational_outcomes: string[];
+  educational_outcomes_ar: string[];
+  educational_outcomes_en: string[];
   difficulty: "easy" | "medium" | "hard";
   can_play_solo: boolean;
   players_min: number;
@@ -127,17 +139,22 @@ export interface HospitalContent extends BaseContent {
   section: "hospitals";
   hospital_name_ar: string;
   hospital_name_en: string;
-  city: string;
-  address: string;
+  city_ar: string;
+  city_en: string;
+  address_ar: string;
+  address_en: string;
   coordinates?: { lat: number; lng: number };
-  specializations: string[];
+  specializations_ar: string[];
+  specializations_en: string[];
   is_24_7: boolean;
   contact_numbers: string[];
-  services: string[];           // e.g., "Pediatrics", "Emergency", "NICU"
+  services_ar: string[];
+  services_en: string[];
   has_children_ward: boolean;
   has_emergency: boolean;
-  distance_km?: number;         // used by app for location-based filtering
-  working_hours?: string;
+  distance_km?: number;
+  working_hours_ar?: string;
+  working_hours_en?: string;
   website?: string;
 }
 
@@ -147,15 +164,20 @@ export interface HealthUnitContent extends BaseContent {
   section: "health-units";
   unit_name_ar: string;
   unit_name_en: string;
-  city: string;
-  address: string;
+  city_ar: string;
+  city_en: string;
+  address_ar: string;
+  address_en: string;
   coordinates?: { lat: number; lng: number };
-  services_offered: string[];
+  services_offered_ar: string[];
+  services_offered_en: string[];
   is_free: boolean;
   has_vaccination: boolean;
   vaccination_types?: string[];
-  working_hours: string;
-  working_days: string;
+  working_hours_ar: string;
+  working_hours_en: string;
+  working_days_ar: string;
+  working_days_en: string;
   contact_number?: string;
 }
 

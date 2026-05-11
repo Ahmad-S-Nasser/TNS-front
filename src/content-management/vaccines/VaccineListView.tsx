@@ -3,10 +3,11 @@ import { ChevronRight, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VaccineList } from "./VaccineList";
 import { VaccineContent } from "./vaccine.types";
-import { getAllContent, getSectionConfig, exportSection } from "../cms.service";
+import { getSectionConfig, exportSection } from "../cms.service";
 import { ContentFormDialog } from "../ContentFormDialog";
 import { useT, useI18n } from "@/i18n/i18n.context";
 import { can } from "../permissions";
+import { useContent } from "@/hooks/queries/useContent";
 
 export function VaccineListView() {
   const t = useT();
@@ -15,17 +16,16 @@ export function VaccineListView() {
   const cfg = getSectionConfig(section);
   const n = (en: string, ar: string) => lang === "ar" ? ar : en;
 
-  const [items, setItems] = useState<VaccineContent[]>([]);
   const [formOpen, setFormOpen] = useState(false);
   const [editItem, setEditItem] = useState<VaccineContent | null>(null);
 
+  const { data: items = [], isLoading, refetch } = useContent({ section });
+
   const refresh = () => {
-    setItems(getAllContent(section) as VaccineContent[]);
+    refetch();
   };
 
-  useEffect(() => {
-    refresh();
-  }, []);
+  if (isLoading) return <div className="h-64 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div></div>;
 
   const handleExport = () => {
     const payload = exportSection(section);

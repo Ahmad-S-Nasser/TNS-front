@@ -114,7 +114,7 @@ const LoginPage = () => {
             {/* Info note */}
             <div className="mt-8 p-4 bg-[#f8fafc] rounded-xl border border-[#f1f5f9] text-center">
               <p className="text-[12px] text-[#94a3b8]">
-                Sign in with your Keycloak admin credentials.
+                Sign in with your administrative credentials.
               </p>
             </div>
           </CardContent>

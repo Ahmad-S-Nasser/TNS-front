@@ -10,7 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ChevronRight, ChevronLeft, Check, AlertTriangle } from "lucide-react";
 import type { CMSSection, CMSContent, ContentStatus, AgeCategory } from "./cms.types";
-import { createContent, updateContent, getSectionConfig } from "./cms.service";
+import { getSectionConfig } from "./cms.service";
+import { useCreateContent, useUpdateContent } from "@/hooks/queries/useContent";
 import { BehavioralForm } from "./sections/BehavioralForm";
 import { NutritionForm } from "./sections/NutritionForm";
 import { SexualEducationForm } from "./sections/SexualEducationForm";
@@ -19,16 +20,10 @@ import { HospitalsForm } from "./sections/HospitalsForm";
 import { HealthUnitsForm } from "./sections/HealthUnitsForm";
 import { EmergencyForm } from "./sections/EmergencyForm";
 import { VaccineEditor } from "./vaccines/VaccineEditor";
+import { useAgeGroups } from "@/hooks/queries/useMatrix";
 import { useT, useI18n } from "@/i18n/i18n.context";
 import { TranslationKey } from "@/i18n/translations";
-const AGE_CATEGORIES: { value: AgeCategory; labelKey: TranslationKey }[] = [
-  { value: "infant", labelKey: "cat_infant" },
-  { value: "toddler", labelKey: "cat_toddler" },
-  { value: "preschool", labelKey: "cat_preschool" },
-  { value: "school-age", labelKey: "cat_schoolAge" },
-  { value: "adolescent", labelKey: "cat_adolescent" },
-  { value: "all", labelKey: "cat_allAges" },
-];
+
 
 interface Props {
   open: boolean;
@@ -68,20 +63,25 @@ export function ContentFormDialog({ open, onOpenChange, section, editItem, onSav
   // Section-specific fields
   const [sectionData, setSectionData] = useState<Record<string, any>>({});
 
+  const createMutation = useCreateContent();
+  const updateMutation = useUpdateContent();
+
+  const { data: allAgeGroups = [] } = useAgeGroups();
+
   // Reset when opened
   useEffect(() => {
     if (open && editItem) {
-      const { id, created_at, updated_at, section: s, ...rest } = editItem as any;
+      const item = editItem as any;
       setBaseData({
-        title_ar: rest.title_ar || "",
-        title_en: rest.title_en || "",
-        description_ar: rest.description_ar || "",
-        description_en: rest.description_en || "",
-        status: rest.status || "draft",
-        visibility: rest.visibility || { age_categories: ["all"], requires_login: false },
-        tags: rest.tags || [],
+        title_ar: item.title_ar || "",
+        title_en: item.title_en || "",
+        description_ar: item.description_ar || "",
+        description_en: item.description_en || "",
+        status: item.status || "draft",
+        visibility: item.visibility || { age_categories: ["all"], requires_login: false },
+        tags: item.tags || [],
       });
-      setSectionData(rest);
+      setSectionData(item.metadata || item); // item might already have metadata spread into it
     } else if (open && !editItem) {
       setBaseData({ title_ar: "", title_en: "", description_ar: "", description_en: "", status: "draft", visibility: { age_categories: ["all"], requires_login: false }, tags: [] });
       setSectionData({});
@@ -89,20 +89,50 @@ export function ContentFormDialog({ open, onOpenChange, section, editItem, onSav
     setStep("base");
   }, [open, editItem]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    const mapSectionToEnum = (s: string) => {
+      const map: Record<string, string> = {
+        "behavioral": "Behavioral",
+        "psychological": "Psychological",
+        "nutrition": "Nutrition",
+        "sexual-education": "SexualEducation",
+        "educational-games": "EducationalGames",
+        "hospitals": "Hospitals",
+        "health-units": "HealthUnits",
+        "emergency": "Emergency",
+        "vaccines": "Vaccines",
+        "questionnaires": "Questionnaires",
+        "faqs": "Faqs"
+      };
+      return map[s] || "Behavioral";
+    };
+
     const payload = {
-      section,
-      ...baseData,
-      ...sectionData,
-      requires_doctor_approval: cfg.requires_doctor_approval,
-      requires_admin_approval: cfg.requires_admin_approval,
-      created_by: "Super Admin",
-    } as Omit<CMSContent, "id" | "created_at" | "updated_at">;
+      section: mapSectionToEnum(section),
+      type: "Article", 
+      titleAr: baseData.title_ar,
+      titleEn: baseData.title_en,
+      bodyAr: baseData.description_ar,
+      bodyEn: baseData.description_en,
+      summaryAr: baseData.description_ar.substring(0, 100),
+      summaryEn: baseData.description_en.substring(0, 100),
+      thumbnailUrl: (sectionData as any).thumbnailUrl || "",
+      videoUrl: (sectionData as any).videoUrl || "",
+      status: baseData.status.charAt(0).toUpperCase() + baseData.status.slice(1),
+      tags: baseData.tags,
+      authorId: "admin-1",
+      minAgeMonths: baseData.visibility.age_categories.includes("all") ? 0 : 0,
+      maxAgeMonths: baseData.visibility.age_categories.includes("all") ? 36 : 36,
+      metadata: sectionData,
+    };
 
     if (editItem) {
-      updateContent(editItem.id, payload as any);
+      await updateMutation.mutateAsync({ 
+        id: editItem.id, 
+        data: { ...payload, id: editItem.id } as any 
+      });
     } else {
-      createContent(payload);
+      await createMutation.mutateAsync(payload as any);
     }
     onSaved();
     onOpenChange(false);
@@ -221,24 +251,47 @@ export function ContentFormDialog({ open, onOpenChange, section, editItem, onSav
                 <div className="space-y-2">
                   <Label className="text-xs">{t("cms_form_targetAge")}</Label>
                   <div className="flex flex-wrap gap-2">
-                    {AGE_CATEGORIES.map(ac => (
-                      <button
-                        key={ac.value}
+                    <button
                         onClick={() => {
                           const current = baseData.visibility.age_categories;
-                          const next = current.includes(ac.value)
-                            ? current.filter(x => x !== ac.value)
-                            : [...current, ac.value];
-                          setBaseData(x => ({ ...x, visibility: { ...x.visibility, age_categories: next.length ? next : ["all"] } }));
+                          const next = current.includes("all" as any)
+                            ? current.filter(x => x !== ("all" as any))
+                            : ["all" as any];
+                          setBaseData(x => ({ ...x, visibility: { ...x.visibility, age_categories: next } }));
                         }}
                         className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${
-                          baseData.visibility.age_categories.includes(ac.value)
+                          baseData.visibility.age_categories.includes("all" as any)
                             ? "text-white border-transparent"
                             : "border-slate-200 text-slate-600 bg-white hover:border-slate-300"
                         }`}
-                        style={baseData.visibility.age_categories.includes(ac.value) ? { backgroundColor: cfg.color } : {}}
+                        style={baseData.visibility.age_categories.includes("all" as any) ? { backgroundColor: cfg.color } : {}}
                       >
-                        {t(ac.labelKey)}
+                        {t("cat_allAges")}
+                      </button>
+
+                    {allAgeGroups.map(ag => (
+                      <button
+                        key={ag.id}
+                        onClick={() => {
+                          const current = baseData.visibility.age_categories;
+                          let next: string[];
+                          if (current.includes("all" as any)) {
+                            next = [ag.id];
+                          } else {
+                            next = current.includes(ag.id)
+                                ? current.filter(x => x !== ag.id)
+                                : [...current, ag.id];
+                          }
+                          setBaseData(x => ({ ...x, visibility: { ...x.visibility, age_categories: next.length ? next : ["all"] as any } }));
+                        }}
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all border ${
+                          baseData.visibility.age_categories.includes(ag.id)
+                            ? "text-white border-transparent"
+                            : "border-slate-200 text-slate-600 bg-white hover:border-slate-300"
+                        }`}
+                        style={baseData.visibility.age_categories.includes(ag.id) ? { backgroundColor: cfg.color } : {}}
+                      >
+                        {n(ag.label.en, ag.label.ar)}
                       </button>
                     ))}
                   </div>

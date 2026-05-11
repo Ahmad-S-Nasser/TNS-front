@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FAQContent } from "./faq.types";
-import { faqService } from "./faq.service";
+import { useContent, useCreateContent, useUpdateContent } from "@/hooks/queries/useContent";
 import { FAQEditor } from "./FAQEditor";
 import { useI18n, useT } from "@/i18n/i18n.context";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,25 +18,26 @@ import { toast } from "sonner";
 export function FAQList() {
   const { lang, isRTL } = useI18n();
   const t = useT();
-  const [items, setItems] = useState<FAQContent[]>([]);
-  const [editingId, setEditingId] = useState<string | "new" | null>(null);
-
-  useEffect(() => {
-    load();
-  }, []);
-
-  const load = async () => {
-    const data = await faqService.getFAQs();
-    setItems(data);
-  };
+  const { data: items = [], isLoading, refetch } = useContent({ section: "faqs" });
+  const createMutation = useCreateContent();
+  const updateMutation = useUpdateContent();
 
   const handleSave = async (data: Partial<FAQContent>) => {
     if (!editingId) return;
-    await faqService.saveFAQ(editingId, data);
+    if (editingId === "new") {
+      await createMutation.mutateAsync({
+        ...data,
+        section: "faqs",
+        status: "published",
+      } as any);
+    } else {
+      await updateMutation.mutateAsync({ id: editingId, data });
+    }
     toast.success("FAQ updated successfully");
     setEditingId(null);
-    load();
   };
+
+  if (isLoading) return <div className="h-64 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div></div>;
 
   if (editingId) {
     const initial = editingId === "new" ? undefined : items.find(i => i.id === editingId);

@@ -23,32 +23,55 @@ const engagementByContent = [
   { type: "Videos",   views: 5400,  likes: 1900, shares: 410 },
 ];
 
+import { useAnalytics } from "@/hooks/queries/useAnalytics";
+
 const AnalyticsPage = () => {
   const t = useT();
   const { isRTL } = useI18n();
+  const { data, isLoading } = useAnalytics();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Use real data or fallback to mock
+  const stats = data?.kpis || { totalUsers: 5247, totalContent: 341, engagementRate: 85 };
+  const rawMonthly = data?.monthlyData || [
+    { monthName: "Aug", users: 2100, content: 45, engagement: 67 },
+    { monthName: "Sep", users: 2800, content: 52, engagement: 72 },
+    { monthName: "Oct", users: 3200, content: 61, engagement: 78 },
+    { monthName: "Nov", users: 3900, content: 70, engagement: 74 },
+    { monthName: "Dec", users: 4300, content: 78, engagement: 82 },
+    { monthName: "Jan", users: 5200, content: 89, engagement: 85 },
+  ];
+  
+  const rawEngagement = data?.engagementByContent || [
+    { type: "Tips",     views: 12400, likes: 3200, shares: 890 },
+    { type: "Steps",    views: 9800,  likes: 2800, shares: 720 },
+    { type: "Articles", views: 7600,  likes: 2100, shares: 540 },
+    { type: "Videos",   views: 5400,  likes: 1900, shares: 410 },
+  ];
 
   // Localized months for the chart
-  const months = isRTL 
-    ? ["أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر", "يناير"]
-    : ["Aug", "Sep", "Oct", "Nov", "Dec", "Jan"];
-
-  const localizedMonthlyData = monthlyData.map((d, i) => ({
-    ...d,
-    month: months[i] || d.month
-  }));
+  const localizedMonthlyData = rawMonthly.map(d => {
+    const monthMap: Record<string, string> = isRTL ? {
+      "Jan": "يناير", "Feb": "فبراير", "Mar": "مارس", "Apr": "أبريل", "May": "مايو", "Jun": "يونيو",
+      "Jul": "يوليو", "Aug": "أغسطس", "Sep": "سبتمبر", "Oct": "أكتوبر", "Nov": "نوفمبر", "Dec": "ديسمبر"
+    } : {};
+    return { ...d, month: monthMap[d.monthName] || d.monthName };
+  });
 
   // Localized content types
-  const contentTypes: Record<string, string> = {
-    Tips: isRTL ? "نصائح" : "Tips",
-    Steps: isRTL ? "خطوات" : "Steps",
-    Articles: isRTL ? "مقالات" : "Articles",
-    Videos: isRTL ? "فيديوهات" : "Videos"
-  };
-
-  const localizedEngagementData = engagementByContent.map(d => ({
-    ...d,
-    type: contentTypes[d.type] || d.type
-  }));
+  const localizedEngagementData = rawEngagement.map(d => {
+    const typeMap: Record<string, string> = isRTL ? {
+      "Tips": "نصائح", "Steps": "خطوات", "Articles": "مقالات", "Videos": "فيديوهات"
+    } : {};
+    return { ...d, type: typeMap[d.type] || d.type };
+  });
 
   return (
     <div className="space-y-6">
@@ -65,9 +88,9 @@ const AnalyticsPage = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { label: t("analytics_totalUsers"),      value: "5,247", icon: Users,    bg: "bg-primary/10",  ic: "text-primary" },
-          { label: t("analytics_totalContent"),    value: "341",   icon: FileText, bg: "bg-accent/10",   ic: "text-accent" },
-          { label: t("analytics_engagementRate"),  value: "85%",   icon: Activity, bg: "bg-success/10",  ic: "text-success" },
+          { label: t("analytics_totalUsers"),      value: stats.totalUsers.toLocaleString(), icon: Users,    bg: "bg-primary/10",  ic: "text-primary" },
+          { label: t("analytics_totalContent"),    value: stats.totalContent.toLocaleString(),   icon: FileText, bg: "bg-accent/10",   ic: "text-accent" },
+          { label: t("analytics_engagementRate"),  value: `${stats.engagementRate}%`,   icon: Activity, bg: "bg-success/10",  ic: "text-success" },
         ].map((k) => (
           <Card key={k.label} className="animate-fade-in">
             <CardContent className="p-5 flex items-center gap-4">

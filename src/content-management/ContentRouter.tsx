@@ -3,12 +3,13 @@ import { ChevronLeft } from "lucide-react";
 import { useI18n, useT } from "@/i18n/i18n.context";
 import { ContentListView } from "./ContentListView";
 import { SectionList } from "./SectionList";
-import { getSectionStats, getSectionConfig } from "./cms.service";
+import { getSectionConfig } from "./cms.service";
 import { getAccessibleSections } from "./permissions";
 import { CMSSection } from "./cms.types";
 import { VaccineListView } from "./vaccines/VaccineListView";
 import { QuestionnaireList } from "@/questionnaires/QuestionnaireList";
 import { FAQList } from "@/faqs/FAQList";
+import { useContentStats } from "@/hooks/queries/useContent";
 
 export function ContentRouter() {
   const [activeSection, setActiveSection] = useState<CMSSection | null>(null);
@@ -16,8 +17,21 @@ export function ContentRouter() {
   const t = useT();
   const n = (en: string, ar: string) => lang === "ar" ? ar : en;
 
-  const stats = getSectionStats();
+  const { data: statsData, isLoading } = useContentStats();
   const accessibleSections = getAccessibleSections();
+
+  if (isLoading) return <div className="h-64 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div></div>;
+
+  // Map backend sectionStats to frontend SectionStats type
+  const statsArray = (statsData?.sectionStats || []).map((s: any) => ({
+    section: s.section.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() as CMSSection,
+    total: s.total,
+    published: s.published,
+    draft: s.draft,
+    review: s.review,
+    approved: s.approved,
+    archived: s.archived,
+  }));
 
   if (activeSection) {
     const cfg = getSectionConfig(activeSection);
@@ -55,7 +69,7 @@ export function ContentRouter() {
 
   return (
     <SectionList
-      stats={stats.filter(s => accessibleSections.includes(s.section))}
+      stats={statsArray.filter(s => accessibleSections.includes(s.section))}
       onSelectSection={(section) => {
         if (accessibleSections.includes(section)) {
           setActiveSection(section);

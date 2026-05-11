@@ -7,21 +7,22 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 8080,
+    port: 8081,
+    strictPort: true,
     hmr: {
       overlay: false,
     },
     proxy: {
       // All API calls → YARP API Gateway
       "/api": {
-        target: "http://localhost:7000",
+        target: "http://localhost:8080",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
-      // Keycloak auth → Keycloak server
-      "/auth": {
-        target: "http://localhost:7080",
-        changeOrigin: true,
+      // SignalR hubs
+      "/hubs": {
+        target: "http://localhost:8080",
+        ws: true,
       },
     },
   },
@@ -33,3 +34,4 @@ export default defineConfig(({ mode }) => ({
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
   },
 }));
+// Force restart

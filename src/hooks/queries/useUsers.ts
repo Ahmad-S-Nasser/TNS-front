@@ -5,6 +5,20 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import type { AdminAccount, PermissionOverride } from "@/rbac/rbac.types";
 
+export interface AppUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber?: string;
+  role: string;
+  governorateCode?: string;
+  preferredLanguage: string;
+  isActive: boolean;
+  isVerified: boolean;
+  createdAt: string;
+}
+
 const KEYS = {
   all: ["admin-users"] as const,
   list: () => [...KEYS.all, "list"] as const,
@@ -16,7 +30,7 @@ const KEYS = {
 export function useAdminUsers() {
   return useQuery({
     queryKey: KEYS.list(),
-    queryFn: () => apiGet<AdminAccount[]>("/admin/users"),
+    queryFn: () => apiGet<AppUser[]>("/admin/users"),
   });
 }
 
