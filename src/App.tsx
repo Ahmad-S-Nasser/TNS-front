@@ -44,8 +44,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!isAuthenticated) {
-    console.warn("[App] ProtectedRoute: User not authenticated. Bypassing for debug.");
-    return <AdminLayout>{children}</AdminLayout>;
+    return <Navigate to="/login" replace />;
   }
 
   return <AdminLayout>{children}</AdminLayout>;
@@ -56,8 +55,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
   if (isLoading) return null;
-  // return isAuthenticated ? <Navigate to="/" replace /> : <>{children}</>;
-  return <>{children}</>;
+  return isAuthenticated ? <Navigate to="/" replace /> : <>{children}</>;
 };
 
 const App = () => (

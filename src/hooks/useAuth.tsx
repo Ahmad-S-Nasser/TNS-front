@@ -74,10 +74,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (isTokenExpired()) {
         const refreshed = await apiRefresh();
         if (!refreshed) {
-          console.error("[Auth] Token expired and refresh failed. Staying on page for debug.");
+          apiLogout();
           setUser(null);
-          // keycloakLogout();
-          // window.location.href = "/login";
+          window.location.href = "/login";
         }
       }
     }, 60_000); // check every minute
@@ -103,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: true, isLoading, login, logout, hasRole }}
+      value={{ user, isAuthenticated: !!user, isLoading, login, logout, hasRole }}
     >
       {children}
     </AuthContext.Provider>
