@@ -15,13 +15,13 @@ export default defineConfig(({ mode }) => ({
     proxy: {
       // All API calls → YARP API Gateway
       "/api": {
-        target: "http://localhost:8080",
+        target: "http://localhost:6000",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
       // SignalR hubs
       "/hubs": {
-        target: "http://localhost:8080",
+        target: "http://localhost:6000",
         ws: true,
       },
     },
