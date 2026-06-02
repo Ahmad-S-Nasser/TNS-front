@@ -68,9 +68,7 @@ export function AdminSidebar() {
     <Sidebar collapsible="icon" className="border-r-0" side={isRTL ? "right" : "left"}>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary">
-            <HeartPulse className="h-5 w-5 text-primary-foreground" />
-          </div>
+          <img src="/favicon.png" className="h-9 w-9 shrink-0 object-contain rounded-lg shadow-sm" alt="Logo" />
           {!collapsed && (
             <div className="animate-fade-in">
               <h1 className="text-sm font-bold tracking-tight text-sidebar-foreground">

@@ -37,9 +37,7 @@ const LoginPage = () => {
       <div className="w-full max-w-[440px] animate-in fade-in slide-in-from-bottom-4 duration-700">
         {/* Header */}
         <div className="flex flex-col items-center mb-10">
-          <div className="flex items-center justify-center w-16 h-16 bg-[#0d9488] rounded-2xl mb-5 shadow-lg shadow-teal-500/10">
-            <HeartPulse className="w-9 h-9 text-white" strokeWidth={2.5} />
-          </div>
+          <img src="/favicon.png" className="w-16 h-16 object-contain rounded-2xl mb-5 shadow-lg shadow-teal-500/10" alt="Logo" />
           <h1 className="text-[32px] font-bold text-[#0f172a] tracking-tight mb-1">Tips &amp; Steps</h1>
           <p className="text-[15px] text-[#64748b] font-medium opacity-80">Admin Control Panel</p>
         </div>
